@@ -52,7 +52,11 @@
     "favorite": "Mark as absolute favorite?",
     "save": "Save Restaurant",
     "next": "Next Step",
-    "viewDetails": "View details"
+    "viewDetails": "View details",
+    "rateNow": "Rate Now",
+    "rateSpot": "Rate Spot",
+    "addYourRating": "Add your rating for this spot",
+    "saveRating": "Save Rating"
   },
   "stats": {
     "title": "Pair Analytics",

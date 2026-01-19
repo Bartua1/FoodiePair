@@ -30,9 +30,9 @@ export function RestaurantCard({ restaurant, onRate }: RestaurantCardProps) {
                                 e.stopPropagation();
                                 onRate(restaurant);
                             }}
-                            className="bg-pastel-blue text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm active:scale-95 transition-transform"
+                            className="bg-pastel-mint text-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm active:scale-95 transition-transform"
                         >
-                            {t('restaurant.rateNow') || 'Rate Now'}
+                            {t('restaurant.rateNow')}
                         </button>
                     ) : (
                         <div className="bg-pastel-peach px-2 py-1 rounded-lg flex items-center gap-1 shrink-0">

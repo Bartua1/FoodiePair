@@ -52,7 +52,11 @@
     "favorite": "¿Marcar como favorito absoluto?",
     "save": "Guardar Restaurante",
     "next": "Siguiente Paso",
-    "viewDetails": "Ver detalles"
+    "viewDetails": "Ver detalles",
+    "rateNow": "Puntuar Ahora",
+    "rateSpot": "Puntuar Sitio",
+    "addYourRating": "Añade tu puntuación a este sitio",
+    "saveRating": "Guardar Puntuación"
   },
   "stats": {
     "title": "Analíticas de Pareja",
