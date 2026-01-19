@@ -42,8 +42,6 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
                 url: publicUrl
             });
             refresh();
-        } else {
-            console.error('Upload Error Details:', uploadError);
         }
         setUploading(false);
     };
