@@ -129,6 +129,8 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
                         restaurant_id: restaurant.id,
                         url: publicUrl
                     });
+                } else {
+                    console.error('Upload Error Details:', uploadError);
                 }
                 setUploading(false);
             }

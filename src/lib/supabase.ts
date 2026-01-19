@@ -7,16 +7,28 @@ if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error('Missing Supabase environment variables')
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Global variable to store the token
+let supabaseAccessToken: string | null = null;
+
+const customFetch = async (url: RequestInfo | URL, options: RequestInit = {}) => {
+    const headers = new Headers(options.headers);
+
+    if (supabaseAccessToken) {
+        headers.set('Authorization', `Bearer ${supabaseAccessToken}`);
+    }
+
+    return fetch(url, { ...options, headers });
+};
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    global: {
+        fetch: customFetch
+    }
+})
 
 export const setSupabaseToken = (token: string) => {
+    supabaseAccessToken = token;
+
+    // Keep this for realtime, as it might use websockets which don't use the fetch wrapper
     supabase.realtime.setAuth(token);
-
-    // Update headers for PostgREST
-    // @ts-ignore
-    supabase.rest.headers['Authorization'] = `Bearer ${token}`;
-
-    // Update headers for Storage
-    // @ts-ignore
-    supabase.storage.headers['Authorization'] = `Bearer ${token}`;
 }

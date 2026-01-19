@@ -42,6 +42,8 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
                 url: publicUrl
             });
             refresh();
+        } else {
+            console.error('Upload Error Details:', uploadError);
         }
         setUploading(false);
     };
@@ -60,7 +62,7 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
         <div className="flex-1 flex flex-col bg-white h-full relative overflow-hidden">
             {/* Header */}
             <div className="p-4 border-b border-slate-100 flex items-center gap-4 sticky top-0 bg-white z-10">
-                <button onClick={onBack} className="p-2 hover:bg-slate-50 rounded-full transition-colors">
+                <button onClick={onBack} className="p-2 bg-pastel-peach rounded-full hover:scale-105 active:scale-95 transition-all shadow-sm">
                     <ArrowLeft size={24} className="text-slate-800" />
                 </button>
                 <div className="flex-1">
