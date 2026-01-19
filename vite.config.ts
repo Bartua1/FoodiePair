@@ -13,8 +13,8 @@ export default defineConfig({
     ],
     hmr: {
       host: 'bartualfdez.asuscomm.com',
-      protocol: 'ws',
-      port: 5173,
+      protocol: 'wss',
+      clientPort: 443,
     }
   }
 })

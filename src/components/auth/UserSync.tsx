@@ -12,10 +12,19 @@ export function UserSync({ children }: { children: React.ReactNode }) {
         async function syncUser() {
             if (isLoaded && isSignedIn && user) {
                 // Get Clerk token for Supabase
-                const token = await getToken({ template: 'supabase' });
-                if (token) {
-                    setSupabaseToken(token);
+                try {
+                    const token = await getToken({ template: 'supabase' });
+                    if (token) {
+                        setSupabaseToken(token);
+                        console.log('Supabase token set from Clerk');
+                    } else {
+                        console.warn('No Supabase token returned from Clerk');
+                    }
+                } catch (e) {
+                    console.error('Error fetching Supabase token from Clerk:', e);
                 }
+
+                console.log('Fetching profile for:', user.id, 'from URL:', import.meta.env.VITE_SUPABASE_URL);
 
                 const { data, error } = await supabase
                     .from('profiles')
