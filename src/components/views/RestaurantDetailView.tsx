@@ -1,17 +1,26 @@
 import { useState } from 'react';
-import { ArrowLeft, MapPin, Camera, Trash2, Smartphone, Star } from 'lucide-react';
+import { ArrowLeft, MapPin, Camera, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
-import { RestaurantMap } from '../map/RestaurantMap';
 import { RateRestaurantDrawer } from '../restaurant/RateRestaurantDrawer';
 import { useRestaurantDetails } from '../../hooks/useRestaurantDetails';
 import { supabase } from '../../lib/supabase';
-import type { Restaurant, Profile } from '../../types';
+import type { Restaurant, Profile, Rating } from '../../types';
 
 interface RestaurantDetailViewProps {
-    restaurant: Restaurant;
-    currentUser: Profile | null;
-    onBack: () => void;
+    // ...
+    // (inside component)
+    <div
+                                        className = "h-full bg-pastel-blue opacity-80"
+                                        style = {{ width: `${myRating ? (myRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
+                                    />
+    < div
+className = "h-full bg-pastel-peach opacity-80"
+style = {{ width: `${partnerRating ? (partnerRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
+                                    />
+restaurant: Restaurant;
+currentUser: Profile | null;
+onBack: () => void;
 }
 
 export function RestaurantDetailView({ restaurant, currentUser, onBack }: RestaurantDetailViewProps) {
