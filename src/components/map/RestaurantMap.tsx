@@ -56,10 +56,10 @@ export function RestaurantMap({ restaurants, userLocation }: RestaurantMapProps)
         ? [restaurants[0].lat, restaurants[0].lng]
         : userLocation
             ? [userLocation.lat, userLocation.lng]
-            : [40.4168, -3.7038]; // Default to Madrid if no restaurants and no location
+            : [37.3890, -5.9949]; // Default to Seville if no restaurants and no location
 
     return (
-        <div className="flex-1 w-full relative isolate">
+        <div className="absolute inset-0 w-full h-full">
             <MapContainer
                 center={center}
                 zoom={13}
