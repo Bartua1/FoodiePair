@@ -8,24 +8,14 @@ import { supabase } from '../../lib/supabase';
 import type { Restaurant, Profile, Rating } from '../../types';
 
 interface RestaurantDetailViewProps {
-    // ...
-    // (inside component)
-    <div
-                                        className = "h-full bg-pastel-blue opacity-80"
-                                        style = {{ width: `${myRating ? (myRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
-                                    />
-    < div
-className = "h-full bg-pastel-peach opacity-80"
-style = {{ width: `${partnerRating ? (partnerRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
-                                    />
-restaurant: Restaurant;
-currentUser: Profile | null;
-onBack: () => void;
+    restaurant: Restaurant;
+    currentUser: Profile | null;
+    onBack: () => void;
 }
 
 export function RestaurantDetailView({ restaurant, currentUser, onBack }: RestaurantDetailViewProps) {
     const { t } = useTranslation();
-    const { ratings, photos, profiles, loading, refresh } = useRestaurantDetails(restaurant.id, currentUser?.pair_id || undefined);
+    const { ratings, photos, profiles, refresh } = useRestaurantDetails(restaurant.id, currentUser?.pair_id || undefined);
     const [ratingDrawerOpen, setRatingDrawerOpen] = useState(false);
     const [uploading, setUploading] = useState(false);
 
@@ -56,7 +46,7 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
         setUploading(false);
     };
 
-    const handleDeletePhoto = async (photoId: string, url: string) => {
+    const handleDeletePhoto = async (photoId: string) => {
         // Simple delete for now, ideally check ownership or allow both to delete
         await supabase.from('photos').delete().eq('id', photoId);
         refresh();
@@ -161,7 +151,7 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
                             <div key={p.id} className="aspect-square rounded-xl overflow-hidden relative group bg-slate-100">
                                 <img src={p.url} className="w-full h-full object-cover" loading="lazy" />
                                 <button
-                                    onClick={() => handleDeletePhoto(p.id, p.url)}
+                                    onClick={() => handleDeletePhoto(p.id)}
                                     className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                                 >
                                     <Trash2 size={14} />
