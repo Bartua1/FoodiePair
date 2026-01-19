@@ -96,7 +96,8 @@ function AppContent() {
     distance: 'any',
     price: null as number | null,
     favoritesOnly: false,
-    cuisine: 'all'
+    cuisine: 'all',
+    sort: 'rating'
   });
 
   useEffect(() => {
@@ -156,7 +157,17 @@ function AppContent() {
       result = result.filter(r => r.distance !== undefined && r.distance <= maxDist);
     }
 
-    return result;
+    return result.sort((a, b) => {
+      if (filters.sort === 'distance') {
+        const distA = a.distance ?? Infinity;
+        const distB = b.distance ?? Infinity;
+        return distA - distB;
+      }
+      // Default: sort by rating (avg_score)
+      const scoreA = a.avg_score || 0;
+      const scoreB = b.avg_score || 0;
+      return scoreB - scoreA;
+    });
   }, [restaurants, filters, userLocation]);
 
   const uniqueCuisines = useMemo(() => {

@@ -29,6 +29,8 @@ export interface Restaurant {
     visit_date: string | null;
     general_comment: string | null;
     created_by: string | null;
+    avg_score?: number;
+    distance?: number;
 }
 
 export interface Rating {

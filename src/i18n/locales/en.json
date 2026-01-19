@@ -31,7 +31,10 @@
     "anyDistance": "Any Distance",
     "lessThan1km": "< 1km",
     "lessThan5km": "< 5km",
-    "allCuisines": "All Cuisines"
+    "allCuisines": "All Cuisines",
+    "sortBy": "Sort By",
+    "rating": "Rating",
+    "distance": "Distance"
   },
   "restaurant": {
     "newSpot": "New Spot",

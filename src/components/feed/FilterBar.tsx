@@ -7,6 +7,7 @@ interface FilterBarProps {
         price: number | null;
         favoritesOnly: boolean;
         cuisine: string;
+        sort: string;
     };
     setFilters: (filters: any) => void;
     cuisines: string[];
@@ -38,6 +39,16 @@ export function FilterBar({ filters, setFilters, cuisines }: FilterBarProps) {
                 <option value="any">{t('filters.anyDistance')}</option>
                 <option value="1">{t('filters.lessThan1km')}</option>
                 <option value="5">{t('filters.lessThan5km')}</option>
+            </select>
+
+            {/* Sort Filter */}
+            <select
+                value={filters.sort}
+                onChange={(e) => setFilters({ ...filters, sort: e.target.value })}
+                className="flex-none px-4 py-2 rounded-full border border-slate-200 bg-white text-sm font-medium text-slate-500 outline-none focus:ring-2 focus:ring-pastel-mint"
+            >
+                <option value="rating">{t('filters.sortBy')}: {t('filters.rating')}</option>
+                <option value="distance">{t('filters.sortBy')}: {t('filters.distance')}</option>
             </select>
 
             {/* Price Filter */}
