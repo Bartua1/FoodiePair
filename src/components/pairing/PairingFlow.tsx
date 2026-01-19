@@ -3,6 +3,7 @@ import { useUser } from '@clerk/clerk-react';
 import { supabase } from '../../lib/supabase';
 import type { Profile, Pair } from '../../types';
 import { Button } from '../ui/Button';
+import { Share2 } from 'lucide-react';
 
 export function PairingFlow() {
     const { user } = useUser();
@@ -14,8 +15,31 @@ export function PairingFlow() {
     useEffect(() => {
         if (user) {
             fetchProfile();
+            checkJoinLink();
         }
     }, [user]);
+
+    async function checkJoinLink() {
+        const params = new URLSearchParams(window.location.search);
+        const joinId = params.get('join');
+        if (joinId && joinId !== user?.id) {
+            setPairCode(joinId);
+            // We'll trigger joinPair automatically if we can
+            // but we need to make sure the profile isn't already paired
+        }
+    }
+
+    // Effect to trigger auto-join when pairCode is set from URL
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const joinId = params.get('join');
+        if (joinId && pairCode === joinId && profile && !profile.pair_id && !loading) {
+            joinPair();
+            // Clear URL param after trying to join
+            const newUrl = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, '', newUrl);
+        }
+    }, [pairCode, profile, loading]);
 
     async function fetchProfile() {
         if (!user) return;
@@ -49,6 +73,28 @@ export function PairingFlow() {
             fetchProfile();
         }
         setLoading(false);
+    }
+
+    async function handleShare() {
+        if (!user) return;
+
+        const shareUrl = `${window.location.origin}${window.location.pathname}?join=${user.id}`;
+        const shareData = {
+            title: 'Join my FoodiePair!',
+            text: 'Connect with me on FoodiePair to track our restaurant adventures together!',
+            url: shareUrl,
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(shareUrl);
+                alert('Invitation link copied to clipboard!');
+            }
+        } catch (err) {
+            console.error('Error sharing:', err);
+        }
     }
 
     async function joinPair() {
@@ -104,9 +150,15 @@ export function PairingFlow() {
                 <div>
                     <h3 className="font-semibold mb-2">Option 1: Start a Pair</h3>
                     <p className="text-sm text-slate-500 mb-3">Create a code to share with your partner.</p>
-                    <Button onClick={createPair} className="w-full bg-pastel-peach hover:bg-opacity-80 text-slate-800">
-                        Create Pair Code
-                    </Button>
+                    <div className="flex flex-col gap-2">
+                        <Button onClick={createPair} className="w-full bg-pastel-peach hover:bg-opacity-80 text-slate-800">
+                            Create Pair Code
+                        </Button>
+                        <Button onClick={handleShare} variant="ghost" className="w-full flex items-center justify-center gap-2 text-slate-600 border border-slate-200">
+                            <Share2 className="w-4 h-4" />
+                            Share Invitation Link
+                        </Button>
+                    </div>
                 </div>
 
                 <div className="relative">
