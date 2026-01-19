@@ -89,7 +89,7 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
                 price_range: formData.priceRange,
                 lat,
                 lng,
-                is_favorite: formData.isFavorite,
+                // is_favorite: deprecated, moved to separate table
                 visit_date: new Date().toISOString(),
                 created_by: profile.id
             })
@@ -99,6 +99,14 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
         const restaurant = restaurantData as Restaurant | null;
 
         if (restaurant && !resError) {
+            // 2.1 Insert Favorite if selected
+            if (formData.isFavorite) {
+                await supabase.from('restaurant_favorites').insert({
+                    user_id: profile.id,
+                    restaurant_id: restaurant.id
+                });
+            }
+
             // 3. Insert Rating
             await supabase.from('ratings').insert({
                 restaurant_id: restaurant.id,

@@ -7,10 +7,11 @@ interface DetailData {
     photos: Photo[];
     profiles: Record<string, Profile>;
     comments: Comment[];
+    favoriteUserIds: string[];
 }
 
 export function useRestaurantDetails(restaurantId: string | undefined, pairId: string | undefined) {
-    const [data, setData] = useState<DetailData>({ ratings: [], photos: [], profiles: {}, comments: [] });
+    const [data, setData] = useState<DetailData>({ ratings: [], photos: [], profiles: {}, comments: [], favoriteUserIds: [] });
     const [loading, setLoading] = useState(true);
 
     async function fetchData() {
@@ -51,11 +52,20 @@ export function useRestaurantDetails(restaurantId: string | undefined, pairId: s
                 });
             }
 
+            // 5. Fetch Favorites for this restaurant
+            const { data: favoritesData } = await supabase
+                .from('restaurant_favorites')
+                .select('user_id')
+                .eq('restaurant_id', restaurantId);
+
+            const favoriteUserIds = favoritesData?.map((f: any) => f.user_id) || [];
+
             setData({
                 ratings: (ratingsData as Rating[]) || [],
                 photos: (photosData as Photo[]) || [],
                 comments: (commentsData as Comment[]) || [],
-                profiles: profilesMap
+                profiles: profilesMap,
+                favoriteUserIds
             });
         } catch (e) {
             console.error('Error fetching details:', e);

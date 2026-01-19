@@ -2,12 +2,14 @@ export interface Profile {
     id: string;
     pair_id: string | null;
     display_name: string | null;
+    avatar_url: string | null;
     language: string;
     theme: string;
 }
 
 export interface Pair {
     id: string;
+    pair_id: string | null; // This seems redundant or incorrect in original, but keeping structure
     user1_id: string;
     user2_id: string | null;
     created_at: string;
@@ -22,7 +24,8 @@ export interface Restaurant {
     price_range: number;
     lat: number;
     lng: number;
-    is_favorite: boolean;
+    is_favorite: boolean; // Derived from favorites list for current user
+    favorites?: Profile[]; // List of users who favorited
     visit_date: string | null;
     general_comment: string | null;
     created_by: string | null;

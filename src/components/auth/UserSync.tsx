@@ -72,12 +72,17 @@ export function UserSync({ children }: { children: React.ReactNode }) {
                         status: error.hint
                     });
                 } else if (profile) {
-                    // Update display name if changed
+                    // Update display name or avatar if changed
                     const currentName = user.fullName || user.username || 'User';
-                    if (profile.display_name !== currentName) {
+                    const currentAvatar = user.imageUrl;
+
+                    if (profile.display_name !== currentName || profile.avatar_url !== currentAvatar) {
                         await supabase
                             .from('profiles')
-                            .update({ display_name: currentName })
+                            .update({
+                                display_name: currentName,
+                                avatar_url: currentAvatar
+                            })
                             .eq('id', user.id);
                     }
                 }

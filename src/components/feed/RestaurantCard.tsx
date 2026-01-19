@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { Star, Heart, MapPin, Utensils, ChevronLeft, ChevronRight } from 'lucide-react';
-import type { Restaurant, Photo } from '../../types';
+import type { Restaurant, Photo, Profile } from '../../types';
 import { useTranslation } from 'react-i18next';
 
 interface RestaurantCardProps {
-    restaurant: Restaurant & { avg_score?: number; distance?: number; user_has_rated?: boolean; photos?: Photo[] };
+    restaurant: Restaurant & { avg_score?: number; distance?: number; user_has_rated?: boolean; photos?: Photo[]; favorites?: Profile[] };
     onRate: (restaurant: Restaurant) => void;
     onViewDetails: (restaurant: Restaurant) => void;
+    onToggleFavorite: () => void;
 }
 
-export function RestaurantCard({ restaurant, onRate, onViewDetails }: RestaurantCardProps) {
+export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavorite }: RestaurantCardProps) {
     const { t, i18n } = useTranslation();
     const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
     const photos = restaurant.photos || [];
@@ -71,11 +72,38 @@ export function RestaurantCard({ restaurant, onRate, onViewDetails }: Restaurant
                     </div>
                 )}
 
-                {restaurant.is_favorite && (
-                    <div className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm z-10">
-                        <Heart size={18} fill="#E91E63" color="#E91E63" />
-                    </div>
-                )}
+                <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
+                    {/* Avatars of people who favorited (User + Partner) */}
+                    {restaurant.favorites && restaurant.favorites.length > 0 && (
+                        <div className="flex -space-x-2 mr-1">
+                            {restaurant.favorites.map((profile) => (
+                                <div key={profile.id} className="w-8 h-8 rounded-full border-2 border-white overflow-hidden shadow-sm bg-white" title={profile.display_name || ''}>
+                                    {profile.avatar_url ? (
+                                        <img src={profile.avatar_url} alt={profile.display_name || ''} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full bg-pastel-peach flex items-center justify-center text-[10px] font-bold text-slate-700">
+                                            {profile.display_name?.[0]?.toUpperCase() || '?'}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Toggle Button */}
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleFavorite();
+                        }}
+                        className={`p-2 rounded-full shadow-sm backdrop-blur-sm transition-all ${restaurant.is_favorite
+                                ? 'bg-white/90 text-red-500'
+                                : 'bg-black/20 text-white hover:bg-black/30'
+                            }`}
+                    >
+                        <Heart size={18} fill={restaurant.is_favorite ? "#E91E63" : "none"} color={restaurant.is_favorite ? "#E91E63" : "currentColor"} />
+                    </button>
+                </div>
             </div>
 
             <div className="p-4">

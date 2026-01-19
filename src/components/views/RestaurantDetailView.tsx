@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ArrowLeft, MapPin, Camera, Trash2, Send, Pencil } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowLeft, MapPin, Camera, Trash2, Send, Pencil, Heart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 import { RateRestaurantDrawer } from '../restaurant/RateRestaurantDrawer';
@@ -17,11 +17,33 @@ interface RestaurantDetailViewProps {
 
 export function RestaurantDetailView({ restaurant, currentUser, onBack }: RestaurantDetailViewProps) {
     const { t } = useTranslation();
-    const { ratings, photos, profiles, comments, refresh, addComment } = useRestaurantDetails(restaurant.id, currentUser?.pair_id || undefined);
+    const { ratings, photos, profiles, comments, favoriteUserIds, refresh, addComment } = useRestaurantDetails(restaurant.id, currentUser?.pair_id || undefined);
     const [ratingDrawerOpen, setRatingDrawerOpen] = useState(false);
     const [editLocationDrawerOpen, setEditLocationDrawerOpen] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [newComment, setNewComment] = useState('');
+
+    // Local state for favorite status to respond immediately
+    const [isFavorite, setIsFavorite] = useState(false);
+
+    useEffect(() => {
+        if (currentUser && favoriteUserIds) {
+            setIsFavorite(favoriteUserIds.includes(currentUser.id));
+        }
+    }, [favoriteUserIds, currentUser]);
+
+    const handleToggleFavorite = async () => {
+        if (!currentUser) return;
+
+        if (isFavorite) {
+            await supabase.from('restaurant_favorites').delete().eq('user_id', currentUser.id).eq('restaurant_id', restaurant.id);
+            setIsFavorite(false);
+        } else {
+            await supabase.from('restaurant_favorites').insert({ user_id: currentUser.id, restaurant_id: restaurant.id });
+            setIsFavorite(true);
+        }
+        refresh(); // Refresh details to update avatars
+    };
 
     const handleSendComment = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -72,6 +94,9 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
         ? ratings.reduce((acc, r) => acc + (r.food_score + r.service_score + r.vibe_score + r.price_quality_score) / 4, 0) / ratings.length
         : undefined;
 
+    // Get favorite profiles
+    const favoriteProfiles = (favoriteUserIds || []).map(id => profiles[id]).filter(Boolean);
+
     return (
         <div className="flex-1 flex flex-col bg-white h-full relative overflow-hidden">
             {/* Header */}
@@ -82,6 +107,31 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
                 <div className="flex-1">
                     <h2 className="text-xl font-bold text-slate-800 leading-tight">{restaurant.name}</h2>
                     <p className="text-xs text-slate-500 font-medium">{restaurant.cuisine_type} • {'€'.repeat(restaurant.price_range)}</p>
+                </div>
+
+                {/* Favorites Section in Header */}
+                <div className="flex items-center gap-2">
+                    {favoriteProfiles.length > 0 && (
+                        <div className="flex -space-x-2">
+                            {favoriteProfiles.map(p => (
+                                <div key={p.id} className="w-8 h-8 rounded-full border-2 border-white overflow-hidden shadow-sm" title={p.display_name || ''}>
+                                    {p.avatar_url ? (
+                                        <img src={p.avatar_url} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full bg-pastel-peach flex items-center justify-center text-[10px] font-bold text-slate-700">
+                                            {p.display_name?.[0]}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    <button
+                        onClick={handleToggleFavorite}
+                        className={`p-2 rounded-full transition-colors ${isFavorite ? 'bg-red-50 text-red-500' : 'bg-slate-50 text-slate-300 hover:bg-slate-100'}`}
+                    >
+                        <Heart size={20} fill={isFavorite ? "currentColor" : "none"} />
+                    </button>
                 </div>
             </div>
 

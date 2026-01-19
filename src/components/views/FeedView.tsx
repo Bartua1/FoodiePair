@@ -6,6 +6,7 @@ import { RestaurantCard } from '../feed/RestaurantCard';
 import { RateRestaurantDrawer } from '../restaurant/RateRestaurantDrawer';
 import { Utensils } from 'lucide-react';
 import type { Restaurant, Profile } from '../../types';
+import { supabase } from '../../lib/supabase';
 
 interface FeedViewProps {
     restaurants: any[];
@@ -34,6 +35,28 @@ export function FeedView({
 }: FeedViewProps) {
     const { t } = useTranslation();
     const [ratingRestaurant, setRatingRestaurant] = useState<Restaurant | null>(null);
+
+    const handleToggleFavorite = async (restaurant: Restaurant) => {
+        if (!profile) return;
+
+        const isFavorite = restaurant.is_favorite;
+
+        if (isFavorite) {
+            await supabase
+                .from('restaurant_favorites')
+                .delete()
+                .eq('user_id', profile.id)
+                .eq('restaurant_id', restaurant.id);
+        } else {
+            await supabase
+                .from('restaurant_favorites')
+                .insert({
+                    user_id: profile.id,
+                    restaurant_id: restaurant.id
+                });
+        }
+        onRefresh();
+    };
 
     return (
         <div className="flex-1 overflow-y-auto p-4 no-scrollbar">
@@ -70,6 +93,7 @@ export function FeedView({
                             restaurant={r}
                             onRate={(restaurant) => setRatingRestaurant(restaurant)}
                             onViewDetails={onViewDetails}
+                            onToggleFavorite={() => handleToggleFavorite(r)}
                         />
                     ))}
                 </div>
