@@ -158,7 +158,7 @@ function AppContent() {
   }, [restaurants, filters, userLocation]);
 
   const uniqueCuisines = useMemo(() => {
-    const set = new Set(restaurants.map(r => r.cuisine_type).filter(Boolean));
+    const set = new Set(restaurants.map(r => r.cuisine_type).filter((c): c is string => Boolean(c)));
     return Array.from(set);
   }, [restaurants]);
 
@@ -187,10 +187,11 @@ function AppContent() {
             filters={filters}
             setFilters={setFilters}
             cuisines={uniqueCuisines}
+            userLocation={userLocation}
           />
         );
       case 'stats':
-        return <StatsView pairId={profile.pair_id} />;
+        return <StatsView pairId={profile!.pair_id!} />;
       case 'settings':
         return <SettingsView />;
     }

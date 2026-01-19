@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, CircleMarker } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { Restaurant } from '../../types';
@@ -48,12 +48,15 @@ const createCustomIcon = (isFavorite: boolean) => {
 
 interface RestaurantMapProps {
     restaurants: (Restaurant & { avg_score?: number })[];
+    userLocation?: { lat: number; lng: number } | null;
 }
 
-export function RestaurantMap({ restaurants }: RestaurantMapProps) {
+export function RestaurantMap({ restaurants, userLocation }: RestaurantMapProps) {
     const center: [number, number] = restaurants.length > 0
         ? [restaurants[0].lat, restaurants[0].lng]
-        : [40.4168, -3.7038]; // Default to Madrid if no restaurants
+        : userLocation
+            ? [userLocation.lat, userLocation.lng]
+            : [40.4168, -3.7038]; // Default to Madrid if no restaurants and no location
 
     return (
         <div className="h-full w-full">
@@ -67,6 +70,21 @@ export function RestaurantMap({ restaurants }: RestaurantMapProps) {
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
+
+                {userLocation && (
+                    <CircleMarker
+                        center={[userLocation.lat, userLocation.lng]}
+                        radius={8}
+                        pathOptions={{
+                            fillColor: '#4285F4',
+                            fillOpacity: 1,
+                            color: 'white',
+                            weight: 2,
+                        }}
+                    >
+                        <Popup>You are here</Popup>
+                    </CircleMarker>
+                )}
 
                 {restaurants.map((r) => (
                     <Marker
