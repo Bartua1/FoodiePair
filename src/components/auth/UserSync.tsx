@@ -1,14 +1,21 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useUser } from '@clerk/clerk-react';
-import { supabase } from '../../lib/supabase';
+import { supabase, setSupabaseToken } from '../../lib/supabase';
 import type { Profile } from '../../types';
 
 export function UserSync({ children }: { children: React.ReactNode }) {
     const { isLoaded, isSignedIn, user } = useUser();
+    const [ready, setReady] = useState(false);
 
     useEffect(() => {
         async function syncUser() {
             if (isLoaded && isSignedIn && user) {
+                // Get Clerk token for Supabase
+                const token = await user.getToken({ template: 'supabase' });
+                if (token) {
+                    setSupabaseToken(token);
+                }
+
                 const { data, error } = await supabase
                     .from('profiles')
                     .select('*')
@@ -35,11 +42,14 @@ export function UserSync({ children }: { children: React.ReactNode }) {
                             .eq('id', user.id);
                     }
                 }
+                setReady(true);
             }
         }
 
         syncUser();
     }, [isLoaded, isSignedIn, user]);
+
+    if (!ready) return <div className="flex-1 flex items-center justify-center font-medium text-slate-400">Syncing with server...</div>;
 
     return <>{children}</>;
 }

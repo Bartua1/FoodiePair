@@ -96,19 +96,6 @@ function AppContent() {
       (err) => console.warn('Geolocation error:', err)
     );
 
-    async function getProfile() {
-      if (user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-        setProfile(data);
-        setLoading(false);
-      }
-    }
-    getProfile();
-
     const channel = supabase
       .channel('profile_changes')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${user?.id}` },
@@ -116,6 +103,21 @@ function AppContent() {
           setProfile(payload.new as Profile);
         })
       .subscribe();
+
+    async function getInitialProfile() {
+      if (user) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        if (data) {
+          setProfile(data as Profile);
+        }
+        setLoading(false);
+      }
+    }
+    getInitialProfile();
 
     return () => {
       supabase.removeChannel(channel);
