@@ -1,0 +1,8 @@
+
+> pruebacelia@0.0.0 build
+> tsc -b && vite build
+
+src/App.tsx(18,21): error TS6133: 'isSignedIn' is declared but its value is never read.
+src/components/map/RestaurantMap.tsx(98,5): error TS2304: Cannot find name 'useEffect'.
+src/components/pairing/PairingFlow.tsx(35,43): error TS6133: 'pairError' is declared but its value is never read.
+src/hooks/useRestaurants.ts(17,40): error TS6133: 'error' is declared but its value is never read.
