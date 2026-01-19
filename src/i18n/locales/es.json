@@ -1,0 +1,81 @@
+{
+  "app": {
+    "loading": "Cargando App...",
+    "title": "FoodiePair",
+    "signIn": "Iniciar Sesión",
+    "heroTitle": "Rastread vuestras aventuras gastronómicas, juntos.",
+    "heroSubtitle": "Compartid un mapa, puntuad restaurantes y descubrid quién es el más tiquismiquis de la relación.",
+    "getStarted": "Empezar",
+    "loadingData": "Cargando datos de usuario..."
+  },
+  "nav": {
+    "feed": "Feed",
+    "map": "Mapa",
+    "stats": "Estadísticas",
+    "settings": "Ajustes"
+  },
+  "feed": {
+    "title": "Vuestro Feed Gastronómico",
+    "subtitle": "Descubrid dónde habéis estado tú y tu pareja.",
+    "noRestaurants": "No se encontraron restaurantes",
+    "noRestaurantsSubtitle": "¡Prueba a ajustar los filtros o añade tu primer restaurante!"
+  },
+  "filters": {
+    "favorites": "Favoritos",
+    "anyDistance": "Cualquier distancia",
+    "lessThan1km": "< 1km",
+    "lessThan5km": "< 5km",
+    "allCuisines": "Todas las cocinas"
+  },
+  "restaurant": {
+    "newSpot": "Nuevo Sitio",
+    "step": "Paso {{current}} de {{total}}",
+    "name": "Nombre del Restaurante",
+    "namePlaceholder": "ej. El Reino de la Pasta",
+    "location": "Ubicación",
+    "locationPlaceholder": "Dirección o barrio",
+    "cuisine": "Cocina",
+    "cuisinePlaceholder": "Italiana, Sushi...",
+    "price": "Precio",
+    "food": "Comida",
+    "service": "Servicio",
+    "vibe": "Ambiente",
+    "priceQuality": "Relación Calidad/Precio",
+    "addPhoto": "¡Añade una foto de la comida!",
+    "optional": "Opcional pero recomendado",
+    "favorite": "¿Marcar como favorito absoluto?",
+    "save": "Guardar Restaurante",
+    "next": "Siguiente Paso",
+    "viewDetails": "Ver detalles"
+  },
+  "stats": {
+    "title": "Analíticas de Pareja",
+    "subtitle": "Mira quién es el más difícil de complacer.",
+    "averageScore": "Puntuación Media",
+    "ratedCount": "{{count}} restaurantes puntuados",
+    "pickiestTitle": "El Más Tiquismiquis",
+    "pickiestSubtitle": "\"Aquel que encuentra un pelo en la sopa incluso cuando está deliciosa.\"",
+    "reviewsCount": "Basado en {{count}} reseñas dadas por este usuario."
+  },
+  "pairing": {
+    "loading": "Cargando perfil...",
+    "title": "Enlaza con tu Pareja",
+    "subtitle": "Conéctate con tu pareja para empezar a rastrear restaurantes juntos.",
+    "option1Title": "Opción 1: Empezar una Pareja",
+    "option1Subtitle": "Crea un código para compartir con tu pareja.",
+    "createButton": "Crear Código de Pareja",
+    "or": "O",
+    "option2Title": "Opción 2: Introducir Código de Pareja",
+    "option2Subtitle": "Pega el código que tu pareja compartió.",
+    "placeholder": "Pega el código aquí...",
+    "joinButton": "Unirse a Pareja",
+    "yourCode": "Tu Código (comparte esto):",
+    "invalidError": "Código de pareja inválido o la pareja está llena."
+  },
+  "settings": {
+    "title": "Ajustes",
+    "language": "Idioma",
+    "english": "Inglés",
+    "spanish": "Español"
+  }
+}
