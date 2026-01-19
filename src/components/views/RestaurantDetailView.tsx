@@ -166,7 +166,7 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
                             const profile = profiles[comment.user_id];
                             return (
                                 <div key={comment.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                                    <div className={`p-3 rounded-2xl max-w-[80%] text-sm ${isMe ? 'bg-pastel-blue text-white rounded-br-none' : 'bg-white border border-slate-100 text-slate-700 rounded-bl-none'}`}>
+                                    <div className={`p-3 rounded-2xl max-w-[80%] text-sm ${isMe ? 'bg-pastel-blue text-slate-800 rounded-br-none' : 'bg-white border border-slate-100 text-slate-700 rounded-bl-none'}`}>
                                         {comment.content}
                                     </div>
                                     <span className="text-[10px] text-slate-400 mt-1 px-1">
