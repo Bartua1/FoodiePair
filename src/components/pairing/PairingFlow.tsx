@@ -3,7 +3,7 @@ import { useUser } from '@clerk/clerk-react';
 import { supabase } from '../../lib/supabase';
 import type { Profile, Pair } from '../../types';
 import { Button } from '../ui/Button';
-import { Share2 } from 'lucide-react';
+import { Share2, MessageSquare } from 'lucide-react';
 
 export function PairingFlow() {
     const { user } = useUser();
@@ -93,8 +93,21 @@ export function PairingFlow() {
                 alert('Invitation link copied to clipboard!');
             }
         } catch (err) {
-            console.error('Error sharing:', err);
+            // navigator.share can be aborted by user, that's not really an error to show
+            if (err instanceof Error && err.name !== 'AbortError') {
+                console.error('Error sharing:', err);
+                // Fallback to clipboard if share fails
+                await navigator.clipboard.writeText(shareUrl);
+                alert('Sharing failed. Invitation link copied to clipboard instead.');
+            }
         }
+    }
+
+    function handleWhatsAppShare() {
+        if (!user) return;
+        const shareUrl = `${window.location.origin}${window.location.pathname}?join=${user.id}`;
+        const message = encodeURIComponent(`Connect with me on FoodiePair to track our restaurant adventures together! ${shareUrl}`);
+        window.open(`https://wa.me/?text=${message}`, '_blank');
     }
 
     async function joinPair() {
@@ -154,10 +167,16 @@ export function PairingFlow() {
                         <Button onClick={createPair} className="w-full bg-pastel-peach hover:bg-opacity-80 text-slate-800">
                             Create Pair Code
                         </Button>
-                        <Button onClick={handleShare} variant="ghost" className="w-full flex items-center justify-center gap-2 text-slate-600 border border-slate-200">
-                            <Share2 className="w-4 h-4" />
-                            Share Invitation Link
-                        </Button>
+                        <div className="grid grid-cols-2 gap-2">
+                            <Button onClick={handleWhatsAppShare} variant="ghost" className="flex items-center justify-center gap-2 text-[#25D366] border border-[#25D366]/20 bg-[#25D366]/5 hover:bg-[#25D366]/10">
+                                <MessageSquare className="w-4 h-4" />
+                                WhatsApp
+                            </Button>
+                            <Button onClick={handleShare} variant="ghost" className="flex items-center justify-center gap-2 text-slate-600 border border-slate-200">
+                                <Share2 className="w-4 h-4" />
+                                System Share
+                            </Button>
+                        </div>
                     </div>
                 </div>
 
