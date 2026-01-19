@@ -12,7 +12,7 @@ export function GeolocationBanner({ geoError, retryGeo }: GeolocationBannerProps
     if (!geoError) return null;
 
     return (
-        <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex flex-col gap-3 animate-in fade-in slide-in-from-top-4 duration-500">
+        <div className="mt-4 mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex flex-col gap-3 animate-in fade-in slide-in-from-top-4 duration-500">
             <div className="flex items-start gap-3">
                 <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center shrink-0">
                     <AlertCircle className="w-6 h-6 text-red-600" />
