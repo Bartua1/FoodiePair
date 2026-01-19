@@ -68,17 +68,9 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
                     <h2 className="text-xl font-bold text-slate-800 leading-tight">{restaurant.name}</h2>
                     <p className="text-xs text-slate-500 font-medium">{restaurant.cuisine_type} • {'€'.repeat(restaurant.price_range)}</p>
                 </div>
-                <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setRatingDrawerOpen(true)}
-                    className="text-xs h-8"
-                >
-                    {myRating ? t('restaurant.saveRating') : t('restaurant.rateNow')}
-                </Button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-8 pb-24">
+            <div className="flex-1 overflow-y-auto p-4 space-y-8 pb-32">
                 {/* Map Section */}
                 <div className="space-y-2">
                     <div className="flex items-center gap-2 text-slate-500 text-sm">
@@ -86,13 +78,6 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
                         <span>{restaurant.address}</span>
                     </div>
                     <div className="h-48 rounded-2xl overflow-hidden border border-slate-100 shadow-sm relative">
-                        {/* We reuse MapView but locked to this restaurant? or just a static map image? 
-                            Reuse RestaurantMap if possible, but it takes list. 
-                            For now, a simple placeholder or reusing MapView would be complex.
-                            Let's use a simple static map representation or just the Geocoding coordinates if we have a component.
-                            Actually, let's skip the complex interactive map for now to save complexity and just show a placeholder 
-                            or if we have a single item map component. We don't.
-                            I'll leave a placeholder for the map. */}
                         <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400">
                             <span className="text-xs font-bold uppercase tracking-widest">Map View</span>
                         </div>
@@ -154,7 +139,7 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
                 {/* Photos */}
                 <div>
                     <div className="flex justify-between items-end mb-4">
-                        <h3 className="font-bold text-slate-800 text-lg">Photos</h3>
+                        <h3 className="font-bold text-slate-800 text-lg">{t('restaurant.photos') || 'Photos'}</h3>
                         <label className="text-xs font-bold text-pastel-blue cursor-pointer hover:underline flex items-center gap-1">
                             <Camera size={14} />
                             {t('restaurant.addPhoto')}
@@ -182,6 +167,16 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
                         )}
                     </div>
                 </div>
+            </div>
+
+            {/* Bottom Action */}
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-slate-100 pb-8 z-20">
+                <Button
+                    className="w-full bg-pastel-mint text-slate-800 rounded-2xl py-4 font-bold text-lg shadow-lg active:scale-[0.98] transition-transform"
+                    onClick={() => setRatingDrawerOpen(true)}
+                >
+                    {myRating ? t('restaurant.saveRating') : t('restaurant.rateNow')}
+                </Button>
             </div>
 
             <RateRestaurantDrawer
