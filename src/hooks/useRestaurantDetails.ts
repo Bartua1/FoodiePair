@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import type { Rating, Photo, Profile } from '../types';
+import type { Rating, Photo, Profile, Comment } from '../types';
 
 interface DetailData {
     ratings: Rating[];
     photos: Photo[];
     profiles: Record<string, Profile>;
+    comments: Comment[];
 }
 
 export function useRestaurantDetails(restaurantId: string | undefined, pairId: string | undefined) {
-    const [data, setData] = useState<DetailData>({ ratings: [], photos: [], profiles: {} });
+    const [data, setData] = useState<DetailData>({ ratings: [], photos: [], profiles: {}, comments: [] });
     const [loading, setLoading] = useState(true);
 
     async function fetchData() {
@@ -29,7 +30,14 @@ export function useRestaurantDetails(restaurantId: string | undefined, pairId: s
                 .select('*')
                 .eq('restaurant_id', restaurantId);
 
-            // 3. Fetch Profiles for the pair (to map user_id to name)
+            // 3. Fetch Comments
+            const { data: commentsData } = await supabase
+                .from('comments')
+                .select('*')
+                .eq('restaurant_id', restaurantId)
+                .order('created_at', { ascending: true });
+
+            // 4. Fetch Profiles for the pair (to map user_id to name)
             // We fetch profiles linked to the pair_id
             const { data: profilesData } = await supabase
                 .from('profiles')
@@ -46,6 +54,7 @@ export function useRestaurantDetails(restaurantId: string | undefined, pairId: s
             setData({
                 ratings: (ratingsData as Rating[]) || [],
                 photos: (photosData as Photo[]) || [],
+                comments: (commentsData as Comment[]) || [],
                 profiles: profilesMap
             });
         } catch (e) {
@@ -55,9 +64,25 @@ export function useRestaurantDetails(restaurantId: string | undefined, pairId: s
         }
     }
 
+    async function addComment(userId: string, content: string) {
+        if (!restaurantId || !content.trim()) return;
+
+        const { error } = await supabase.from('comments').insert({
+            restaurant_id: restaurantId,
+            user_id: userId,
+            content: content
+        });
+
+        if (!error) {
+            await fetchData();
+        } else {
+            console.error('Error adding comment:', error);
+        }
+    }
+
     useEffect(() => {
         fetchData();
     }, [restaurantId, pairId]);
 
-    return { ...data, loading, refresh: fetchData };
+    return { ...data, loading, refresh: fetchData, addComment };
 }

@@ -90,7 +90,8 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
                 lat,
                 lng,
                 is_favorite: formData.isFavorite,
-                visit_date: new Date().toISOString()
+                visit_date: new Date().toISOString(),
+                created_by: profile.id
             })
             .select()
             .single();
@@ -108,6 +109,15 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
                 price_quality_score: formData.priceQualityScore,
                 favorite_dish: ''
             });
+
+            // Added Comment insertion
+            if (formData.comment.trim()) {
+                await supabase.from('comments').insert({
+                    restaurant_id: restaurant.id,
+                    user_id: profile.id,
+                    content: formData.comment
+                });
+            }
 
             // 4. Upload photo if selected
             if (selectedFile) {

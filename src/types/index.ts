@@ -25,6 +25,7 @@ export interface Restaurant {
     is_favorite: boolean;
     visit_date: string | null;
     general_comment: string | null;
+    created_by: string | null;
 }
 
 export interface Rating {
@@ -42,4 +43,12 @@ export interface Photo {
     id: string;
     restaurant_id: string;
     url: string;
+}
+
+export interface Comment {
+    id: string;
+    restaurant_id: string;
+    user_id: string;
+    content: string;
+    created_at: string;
 }

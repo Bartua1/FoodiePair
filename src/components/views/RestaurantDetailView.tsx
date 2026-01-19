@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, MapPin, Camera, Trash2 } from 'lucide-react';
+import { ArrowLeft, MapPin, Camera, Trash2, Send } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 import { RateRestaurantDrawer } from '../restaurant/RateRestaurantDrawer';
@@ -16,9 +16,18 @@ interface RestaurantDetailViewProps {
 
 export function RestaurantDetailView({ restaurant, currentUser, onBack }: RestaurantDetailViewProps) {
     const { t } = useTranslation();
-    const { ratings, photos, profiles, refresh } = useRestaurantDetails(restaurant.id, currentUser?.pair_id || undefined);
+    const { ratings, photos, profiles, comments, refresh, addComment } = useRestaurantDetails(restaurant.id, currentUser?.pair_id || undefined);
     const [ratingDrawerOpen, setRatingDrawerOpen] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [newComment, setNewComment] = useState('');
+
+    const handleSendComment = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newComment.trim() || !currentUser) return;
+
+        await addComment(currentUser.id, newComment);
+        setNewComment('');
+    };
 
     const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -136,6 +145,50 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
                             </div>
                         ))}
                     </div>
+                </div>
+
+                {/* Comments Section */}
+                <div className="bg-slate-50 p-4 rounded-2xl">
+                    <h3 className="font-bold text-slate-800 mb-4 text-lg">Chat</h3>
+
+                    <div className="space-y-4 mb-4 max-h-60 overflow-y-auto pr-2">
+                        {(comments || []).map((comment) => {
+                            const isMe = comment.user_id === currentUser?.id;
+                            const profile = profiles[comment.user_id];
+                            return (
+                                <div key={comment.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                                    <div className={`p-3 rounded-2xl max-w-[80%] text-sm ${isMe ? 'bg-pastel-blue text-white rounded-br-none' : 'bg-white border border-slate-100 text-slate-700 rounded-bl-none'}`}>
+                                        {comment.content}
+                                    </div>
+                                    <span className="text-[10px] text-slate-400 mt-1 px-1">
+                                        {profile?.display_name || 'User'} • {new Date(comment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </span>
+                                </div>
+                            );
+                        })}
+                        {(!comments || comments.length === 0) && (
+                            <div className="text-center text-slate-400 text-xs py-4">
+                                No comments yet. Start the conversation!
+                            </div>
+                        )}
+                    </div>
+
+                    <form onSubmit={handleSendComment} className="flex gap-2">
+                        <input
+                            type="text"
+                            value={newComment}
+                            onChange={(e) => setNewComment(e.target.value)}
+                            placeholder="Add a comment..."
+                            className="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-pastel-blue"
+                        />
+                        <button
+                            type="submit"
+                            disabled={!newComment.trim()}
+                            className="bg-pastel-blue text-white p-2 rounded-xl disabled:opacity-50"
+                        >
+                            <Send size={18} />
+                        </button>
+                    </form>
                 </div>
 
                 {/* Photos */}
