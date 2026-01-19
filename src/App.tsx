@@ -109,10 +109,9 @@ function AppContent() {
         const { data } = await supabase
           .from('profiles')
           .select('*')
-          .eq('id', user.id)
-          .single();
-        if (data) {
-          setProfile(data as Profile);
+          .eq('id', user.id);
+        if (data && data.length > 0) {
+          setProfile(data[0] as Profile);
         }
         setLoading(false);
       }

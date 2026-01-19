@@ -46,9 +46,10 @@ export function PairingFlow() {
         const { data } = await supabase
             .from('profiles')
             .select('*')
-            .eq('id', user.id)
-            .single();
-        setProfile(data as Profile | null);
+            .eq('id', user.id);
+
+        const myProfile = data?.[0] as Profile | null;
+        setProfile(myProfile);
         setLoading(false);
     }
 
@@ -59,10 +60,9 @@ export function PairingFlow() {
         const { data: newPairData } = await supabase
             .from('pairs')
             .insert({ user1_id: user.id })
-            .select()
-            .single();
+            .select();
 
-        const newPair = newPairData as Pair | null;
+        const newPair = newPairData?.[0] as Pair | null;
 
         if (newPair) {
             await supabase
@@ -78,7 +78,8 @@ export function PairingFlow() {
     async function handleShare() {
         if (!user) return;
 
-        const shareUrl = `${window.location.origin}${window.location.pathname}?join=${user.id}`;
+        // Force HTTPS for the share link
+        const shareUrl = `${window.location.origin.replace('http:', 'https:')}${window.location.pathname}?join=${user.id}`;
         const shareData = {
             title: 'Join my FoodiePair!',
             text: 'Connect with me on FoodiePair to track our restaurant adventures together!',
@@ -105,7 +106,8 @@ export function PairingFlow() {
 
     function handleWhatsAppShare() {
         if (!user) return;
-        const shareUrl = `${window.location.origin}${window.location.pathname}?join=${user.id}`;
+        // Force HTTPS for the share link
+        const shareUrl = `${window.location.origin.replace('http:', 'https:')}${window.location.pathname}?join=${user.id}`;
         const message = encodeURIComponent(`Connect with me on FoodiePair to track our restaurant adventures together! ${shareUrl}`);
         window.open(`https://wa.me/?text=${message}`, '_blank');
     }
@@ -116,14 +118,13 @@ export function PairingFlow() {
         setError(null);
 
         // find the pair where user1_id is pairCode
-        const { data: existingPairData, error: findError } = await supabase
+        const { data: existingPairs, error: findError } = await supabase
             .from('pairs')
             .select('*')
             .eq('user1_id', pairCode)
-            .is('user2_id', null)
-            .single();
+            .is('user2_id', null);
 
-        const existingPair = existingPairData as Pair | null;
+        const existingPair = existingPairs?.[0] as Pair | null;
 
         if (findError || !existingPair) {
             setError('Invalid pair code or pair is full.');
