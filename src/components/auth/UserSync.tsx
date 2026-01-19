@@ -1,17 +1,18 @@
 import { useEffect, useState } from 'react';
-import { useUser } from '@clerk/clerk-react';
+import { useUser, useAuth } from '@clerk/clerk-react';
 import { supabase, setSupabaseToken } from '../../lib/supabase';
 import type { Profile } from '../../types';
 
 export function UserSync({ children }: { children: React.ReactNode }) {
     const { isLoaded, isSignedIn, user } = useUser();
+    const { getToken } = useAuth();
     const [ready, setReady] = useState(false);
 
     useEffect(() => {
         async function syncUser() {
             if (isLoaded && isSignedIn && user) {
                 // Get Clerk token for Supabase
-                const token = await user.getToken({ template: 'supabase' });
+                const token = await getToken({ template: 'supabase' });
                 if (token) {
                     setSupabaseToken(token);
                 }
