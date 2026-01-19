@@ -127,12 +127,37 @@ export function PairingFlow() {
         const existingPair = existingPairs?.[0] as Pair | null;
 
         if (findError || !existingPair) {
-            setError('Invalid pair code or pair is full.');
+            // Logic Change: If the pair doesn't exist yet, we create it now
+            // This happens if the inviter shared their link but never clicked "Create Pair"
+            const { data: newPairData, error: createError } = await supabase
+                .from('pairs')
+                .insert({
+                    user1_id: pairCode,
+                    user2_id: user.id
+                })
+                .select();
+
+            const newPair = newPairData?.[0] as Pair | null;
+
+            if (createError || !newPair) {
+                console.error('Error creating pair on the fly:', createError);
+                setError('Could not join or create pair.');
+                setLoading(false);
+                return;
+            }
+
+            // Link both profiles to the new pair
+            await Promise.all([
+                supabase.from('profiles').update({ pair_id: newPair.id }).eq('id', user.id),
+                supabase.from('profiles').update({ pair_id: newPair.id }).eq('id', pairCode)
+            ]);
+
+            fetchProfile();
             setLoading(false);
             return;
         }
 
-        // Update pair with user2_id
+        // Update existing pair with user2_id (normal flow)
         const { error: updatePairError } = await supabase
             .from('pairs')
             .update({ user2_id: user.id })
