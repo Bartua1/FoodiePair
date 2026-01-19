@@ -12,8 +12,7 @@ createRoot(document.getElementById('root')!).render(
       afterSignOutUrl="/foodiepair/"
       signInUrl={import.meta.env.VITE_CLERK_SIGN_IN_URL}
       signUpUrl={import.meta.env.VITE_CLERK_SIGN_UP_URL}
-      afterSignInUrl={import.meta.env.VITE_CLERK_AFTER_SIGN_IN_URL}
-      afterSignUpUrl={import.meta.env.VITE_CLERK_AFTER_SIGN_UP_URL}
+      fallbackRedirectUrl={import.meta.env.VITE_CLERK_AFTER_SIGN_IN_URL}
     >
       <App />
     </ClerkProvider>

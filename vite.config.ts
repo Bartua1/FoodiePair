@@ -12,11 +12,9 @@ export default defineConfig({
       'bartualfdez.asuscomm.com'
     ],
     hmr: {
-      // Use your public domain for the WebSocket connection
       host: 'bartualfdez.asuscomm.com',
-      // Force SSL for the websocket (needed for https sites)
-      protocol: 'wss',
-      // We leave 'path' out because 'base' handles it automatically now
+      protocol: 'ws',
+      port: 5173,
     }
   }
 })
