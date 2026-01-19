@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { X, MapPin, Utensils, Star, Camera, ChevronRight, ChevronLeft, Loader2 } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { X, MapPin, Utensils, Star, Camera, ChevronRight, ChevronLeft, Loader2, Trash2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { geocodeAddress } from '../../lib/geocoding';
 import { supabase } from '../../lib/supabase';
@@ -17,6 +17,12 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const { t } = useTranslation();
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Image state
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [uploading, setUploading] = useState(false);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -34,6 +40,29 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
 
     const handleNext = () => setStep(step + 1);
     const handleBack = () => setStep(step - 1);
+
+    const handlePhotoClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setSelectedFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const removePhoto = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setSelectedFile(null);
+        setImagePreview(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
 
     const handleSubmit = async () => {
         if (!profile?.pair_id || !profile.id) return;
@@ -80,6 +109,30 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
                 favorite_dish: ''
             });
 
+            // 4. Upload photo if selected
+            if (selectedFile) {
+                setUploading(true);
+                const fileExt = selectedFile.name.split('.').pop();
+                const fileName = `${restaurant.id}-${Math.random()}.${fileExt}`;
+                const filePath = `photos/${fileName}`;
+
+                const { error: uploadError } = await supabase.storage
+                    .from('restaurant-photos')
+                    .upload(filePath, selectedFile);
+
+                if (!uploadError) {
+                    const { data: { publicUrl } } = supabase.storage
+                        .from('restaurant-photos')
+                        .getPublicUrl(filePath);
+
+                    await supabase.from('photos').insert({
+                        restaurant_id: restaurant.id,
+                        url: publicUrl
+                    });
+                }
+                setUploading(false);
+            }
+
             onSuccess();
             handleClose();
         }
@@ -92,6 +145,8 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
             name: '', address: '', cuisine: '', priceRange: 2, isFavorite: false,
             foodScore: 4, serviceScore: 4, vibeScore: 4, priceQualityScore: 4, comment: ''
         });
+        setSelectedFile(null);
+        setImagePreview(null);
         onClose();
     };
 
@@ -198,12 +253,39 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
 
                     {step === 3 && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                            <div className="aspect-square w-full bg-slate-50 rounded-3xl border-4 border-dashed border-slate-100 flex flex-col items-center justify-center text-slate-300 hover:border-pastel-peach hover:text-pastel-peach transition-all cursor-pointer group">
-                                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4 group-hover:scale-110 transition-transform">
-                                    <Camera size={32} />
-                                </div>
-                                <span className="font-bold text-sm">{t('restaurant.addPhoto')}</span>
-                                <span className="text-[10px] uppercase tracking-widest mt-1">{t('restaurant.optional')}</span>
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                                accept="image/*"
+                                className="hidden"
+                            />
+                            <div
+                                onClick={handlePhotoClick}
+                                className={`aspect-square w-full rounded-3xl border-4 border-dashed flex flex-col items-center justify-center transition-all cursor-pointer group overflow-hidden relative ${imagePreview ? 'border-pastel-mint' : 'bg-slate-50 border-slate-100 hover:border-pastel-peach text-slate-300 hover:text-pastel-peach'}`}
+                            >
+                                {imagePreview ? (
+                                    <>
+                                        <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                                        <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Camera size={32} className="text-white" />
+                                        </div>
+                                        <button
+                                            onClick={removePhoto}
+                                            className="absolute top-4 right-4 p-2 bg-white rounded-full shadow-md text-red-500 hover:bg-red-50 transition-colors"
+                                        >
+                                            <Trash2 size={20} />
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4 group-hover:scale-110 transition-transform">
+                                            <Camera size={32} />
+                                        </div>
+                                        <span className="font-bold text-sm">{t('restaurant.addPhoto')}</span>
+                                        <span className="text-[10px] uppercase tracking-widest mt-1">{t('restaurant.optional')}</span>
+                                    </>
+                                )}
                             </div>
 
                             <button
@@ -239,9 +321,9 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
                         <Button
                             className="flex-1 bg-pastel-mint text-slate-800 rounded-2xl py-4 font-bold flex items-center justify-center gap-2"
                             onClick={handleSubmit}
-                            disabled={loading}
+                            disabled={loading || uploading}
                         >
-                            {loading ? <Loader2 className="animate-spin" /> : t('restaurant.save')}
+                            {(loading || uploading) ? <Loader2 className="animate-spin" /> : t('restaurant.save')}
                         </Button>
                     )}
                 </div>
