@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Star, Heart, MapPin, Utensils, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Restaurant, Photo, Profile } from '../../types';
 import { useTranslation } from 'react-i18next';
@@ -13,52 +13,88 @@ interface RestaurantCardProps {
 export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavorite }: RestaurantCardProps) {
     const { t, i18n } = useTranslation();
     const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
     const photos = restaurant.photos || [];
+
+    const handleScroll = () => {
+        if (scrollContainerRef.current) {
+            const { scrollLeft, clientWidth } = scrollContainerRef.current;
+            const newIndex = Math.round(scrollLeft / clientWidth);
+            if (newIndex !== currentPhotoIndex) {
+                setCurrentPhotoIndex(newIndex);
+            }
+        }
+    };
 
     const nextPhoto = (e: React.MouseEvent) => {
         e.stopPropagation();
-        setCurrentPhotoIndex((prev) => (prev + 1) % photos.length);
+        if (scrollContainerRef.current) {
+            const { clientWidth } = scrollContainerRef.current;
+            const nextIndex = (currentPhotoIndex + 1) % photos.length;
+            scrollContainerRef.current.scrollTo({
+                left: nextIndex * clientWidth,
+                behavior: 'smooth'
+            });
+        }
     };
 
     const prevPhoto = (e: React.MouseEvent) => {
         e.stopPropagation();
-        setCurrentPhotoIndex((prev) => (prev - 1 + photos.length) % photos.length);
+        if (scrollContainerRef.current) {
+            const { clientWidth } = scrollContainerRef.current;
+            const prevIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+            scrollContainerRef.current.scrollTo({
+                left: prevIndex * clientWidth,
+                behavior: 'smooth'
+            });
+        }
     };
 
     return (
         <div className="bg-white border border-pastel-mint shadow-sm rounded-2xl overflow-hidden flex flex-col transition-all hover:shadow-md">
             {/* Photo Section */}
             <div
-                className="w-full aspect-video bg-pastel-lavender flex items-center justify-center relative cursor-pointer group"
+                className="w-full aspect-video bg-pastel-lavender relative cursor-pointer group"
                 onClick={() => onViewDetails(restaurant)}
             >
                 {photos.length > 0 ? (
                     <>
-                        <img
-                            src={photos[currentPhotoIndex].url}
-                            alt={restaurant.name}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                        />
+                        <div
+                            ref={scrollContainerRef}
+                            onScroll={handleScroll}
+                            className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+                            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                        >
+                            {photos.map((photo, index) => (
+                                <img
+                                    key={index}
+                                    src={photo.url}
+                                    alt={`${restaurant.name} ${index + 1}`}
+                                    className="w-full h-full object-cover flex-shrink-0 snap-center"
+                                    loading="lazy"
+                                />
+                            ))}
+                        </div>
+
                         {photos.length > 1 && (
                             <>
                                 <button
                                     onClick={prevPhoto}
-                                    className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 bg-black/30 hover:bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                    className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 bg-black/30 hover:bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                 >
                                     <ChevronLeft size={20} />
                                 </button>
                                 <button
                                     onClick={nextPhoto}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-black/30 hover:bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-black/30 hover:bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                 >
                                     <ChevronRight size={20} />
                                 </button>
-                                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+                                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10 p-1 rounded-full bg-black/10 backdrop-blur-[2px]">
                                     {photos.map((_, idx) => (
                                         <div
                                             key={idx}
-                                            className={`w-1.5 h-1.5 rounded-full transition-colors ${idx === currentPhotoIndex ? 'bg-white' : 'bg-white/40'}`}
+                                            className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${idx === currentPhotoIndex ? 'bg-white scale-125' : 'bg-white/50'}`}
                                         />
                                     ))}
                                 </div>
@@ -97,8 +133,8 @@ export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavo
                             onToggleFavorite();
                         }}
                         className={`p-2 rounded-full shadow-sm backdrop-blur-sm transition-all ${restaurant.is_favorite
-                                ? 'bg-white/90 text-red-500'
-                                : 'bg-black/20 text-white hover:bg-black/30'
+                            ? 'bg-white/90 text-red-500'
+                            : 'bg-black/20 text-white hover:bg-black/30'
                             }`}
                     >
                         <Heart size={18} fill={restaurant.is_favorite ? "#E91E63" : "none"} color={restaurant.is_favorite ? "#E91E63" : "currentColor"} />

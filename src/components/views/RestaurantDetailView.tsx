@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { ArrowLeft, MapPin, Camera, Trash2, Send, Pencil, Heart } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { ArrowLeft, MapPin, Camera, Trash2, Send, Pencil, Heart, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 import { RateRestaurantDrawer } from '../restaurant/RateRestaurantDrawer';
@@ -22,6 +22,45 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
     const [editLocationDrawerOpen, setEditLocationDrawerOpen] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [newComment, setNewComment] = useState('');
+    const [lightboxOpen, setLightboxOpen] = useState(false);
+    const [currentLightboxIndex, setCurrentLightboxIndex] = useState(0);
+    const heroScrollRef = useRef<HTMLDivElement>(null);
+    const [heroIndex, setHeroIndex] = useState(0);
+
+    const handleHeroScroll = () => {
+        if (heroScrollRef.current) {
+            const { scrollLeft, clientWidth } = heroScrollRef.current;
+            const newIndex = Math.round(scrollLeft / clientWidth);
+            if (newIndex !== heroIndex) {
+                setHeroIndex(newIndex);
+            }
+        }
+    };
+
+    const scrollToHero = (index: number) => {
+        if (heroScrollRef.current) {
+            const { clientWidth } = heroScrollRef.current;
+            heroScrollRef.current.scrollTo({
+                left: index * clientWidth,
+                behavior: 'smooth'
+            });
+        }
+    };
+
+    const openLightbox = (index: number) => {
+        setCurrentLightboxIndex(index);
+        setLightboxOpen(true);
+    };
+
+    const nextLightbox = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setCurrentLightboxIndex((prev) => (prev + 1) % photos.length);
+    };
+
+    const prevLightbox = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setCurrentLightboxIndex((prev) => (prev - 1 + photos.length) % photos.length);
+    };
 
     // Local state for favorite status to respond immediately
     const [isFavorite, setIsFavorite] = useState(false);
@@ -136,6 +175,53 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-8 pb-32">
+                {/* Hero Carousel */}
+                {photos.length > 0 && (
+                    <div className="rounded-2xl overflow-hidden relative group aspect-video shadow-sm">
+                        <div
+                            ref={heroScrollRef}
+                            onScroll={handleHeroScroll}
+                            className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+                        >
+                            {photos.map((photo, index) => (
+                                <img
+                                    key={index}
+                                    src={photo.url}
+                                    alt={`Hero ${index + 1}`}
+                                    className="w-full h-full object-cover flex-shrink-0 snap-center cursor-pointer"
+                                    onClick={() => openLightbox(index)}
+                                    loading="lazy"
+                                />
+                            ))}
+                        </div>
+
+                        {/* Hero Controls */}
+                        {photos.length > 1 && (
+                            <>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); scrollToHero((heroIndex - 1 + photos.length) % photos.length); }}
+                                    className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-colors"
+                                >
+                                    <ChevronLeft size={20} />
+                                </button>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); scrollToHero((heroIndex + 1) % photos.length); }}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-colors"
+                                >
+                                    <ChevronRight size={20} />
+                                </button>
+                                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 p-1 rounded-full bg-black/20 backdrop-blur-sm">
+                                    {photos.map((_, idx) => (
+                                        <div
+                                            key={idx}
+                                            className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${idx === heroIndex ? 'bg-white scale-125' : 'bg-white/50'}`}
+                                        />
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                )}
                 {/* Map Section */}
                 <div className="space-y-2">
                     <div className="flex items-center gap-2 text-slate-500 text-sm">
@@ -262,11 +348,11 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">
-                        {photos.map(p => (
-                            <div key={p.id} className="aspect-square rounded-xl overflow-hidden relative group bg-slate-100">
+                        {photos.map((p, index) => (
+                            <div key={p.id} className="aspect-square rounded-xl overflow-hidden relative group bg-slate-100 cursor-pointer" onClick={() => openLightbox(index)}>
                                 <img src={p.url} className="w-full h-full object-cover" loading="lazy" />
                                 <button
-                                    onClick={() => handleDeletePhoto(p.id)}
+                                    onClick={(e) => { e.stopPropagation(); handleDeletePhoto(p.id); }}
                                     className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                                 >
                                     <Trash2 size={14} />
@@ -307,6 +393,46 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
                 restaurant={restaurant}
                 onSuccess={refresh}
             />
+
+            {/* Lightbox */}
+            {lightboxOpen && photos.length > 0 && (
+                <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center animate-in fade-in duration-200">
+                    <button
+                        onClick={() => setLightboxOpen(false)}
+                        className="absolute top-4 right-4 p-2 bg-black/50 text-white rounded-full hover:bg-white/20 transition-colors z-20"
+                    >
+                        <X size={24} />
+                    </button>
+
+                    <div className="relative w-full h-full flex items-center justify-center">
+                        <img
+                            src={photos[currentLightboxIndex].url}
+                            alt="Full screen"
+                            className="max-w-full max-h-full object-contain"
+                        />
+
+                        {photos.length > 1 && (
+                            <>
+                                <button
+                                    onClick={prevLightbox}
+                                    className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
+                                >
+                                    <ChevronLeft size={32} />
+                                </button>
+                                <button
+                                    onClick={nextLightbox}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
+                                >
+                                    <ChevronRight size={32} />
+                                </button>
+                                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white font-medium bg-black/30 px-3 py-1 rounded-full text-sm">
+                                    {currentLightboxIndex + 1} / {photos.length}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
