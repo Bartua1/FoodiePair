@@ -17,6 +17,18 @@ export function UserSync({ children }: { children: React.ReactNode }) {
                     if (token) {
                         setSupabaseToken(token);
                         console.log('Supabase token set from Clerk');
+
+                        // Debugging: Decode token payload
+                        try {
+                            const payload = JSON.parse(atob(token.split('.')[1]));
+                            console.log('JWT Claims:', {
+                                sub: payload.sub,
+                                aud: payload.aud,
+                                exp: new Date(payload.exp * 1000).toISOString()
+                            });
+                        } catch (e) {
+                            console.warn('Could not decode JWT payload');
+                        }
                     } else {
                         console.warn('No Supabase token returned from Clerk');
                     }
@@ -24,17 +36,19 @@ export function UserSync({ children }: { children: React.ReactNode }) {
                     console.error('Error fetching Supabase token from Clerk:', e);
                 }
 
-                console.log('Fetching profile for:', user.id, 'from URL:', import.meta.env.VITE_SUPABASE_URL);
+                console.log('Fetching profile for:', user.id);
 
+                // Using select instead of .single() to avoid 406 errors on 0 rows
                 const { data, error } = await supabase
                     .from('profiles')
                     .select('*')
-                    .eq('id', user.id)
-                    .single();
+                    .eq('id', user.id);
 
-                const profile = data as Profile | null;
+                const profile = data?.[0] as Profile | null;
 
-                if (error && error.code === 'PGRST116') {
+                if (error) {
+                    console.error('Error fetching profile:', error);
+                } else if (!profile) {
                     console.log('Profile missing, attempting to create...');
                     // Profile doesn't exist, create it
                     const { error: insertError } = await supabase.from('profiles').insert({
