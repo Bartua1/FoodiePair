@@ -6,7 +6,13 @@
     "heroTitle": "Rastread vuestras aventuras gastronómicas, juntos.",
     "heroSubtitle": "Compartid un mapa, puntuad restaurantes y descubrid quién es el más tiquismiquis de la relación.",
     "getStarted": "Empezar",
-    "loadingData": "Cargando datos de usuario..."
+    "loadingData": "Cargando datos de usuario...",
+    "geolocation": {
+      "denied": "Acceso a la Ubicación Denegado",
+      "deniedSubtitle": "Por favor, activa los servicios de ubicación en la configuración de tu navegador para ver restaurantes cercanos y calcular distancias.",
+      "howToHandle": "Es posible que necesites restablecer los permisos del sitio en la barra de direcciones de tu navegador.",
+      "retry": "Intentar de Nuevo"
+    }
   },
   "nav": {
     "feed": "Feed",

@@ -6,7 +6,13 @@
     "heroTitle": "Track your foodie adventures, together.",
     "heroSubtitle": "Share a map, rate restaurants, and discover who's the pickiest eater in the relationship.",
     "getStarted": "Get Started",
-    "loadingData": "Loading user data..."
+    "loadingData": "Loading user data...",
+    "geolocation": {
+      "denied": "Location Access Denied",
+      "deniedSubtitle": "Please enable location services in your browser settings to see nearby restaurants and calculate distances.",
+      "howToHandle": "You may need to reset site permissions in your browser's address bar.",
+      "retry": "Try Again"
+    }
   },
   "nav": {
     "feed": "Feed",
