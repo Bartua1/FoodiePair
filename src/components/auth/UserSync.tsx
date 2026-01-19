@@ -35,12 +35,31 @@ export function UserSync({ children }: { children: React.ReactNode }) {
                 const profile = data as Profile | null;
 
                 if (error && error.code === 'PGRST116') {
+                    console.log('Profile missing, attempting to create...');
                     // Profile doesn't exist, create it
-                    await supabase.from('profiles').insert({
+                    const { error: insertError } = await supabase.from('profiles').insert({
                         id: user.id,
                         display_name: user.fullName || user.username || 'User',
                         language: 'es',
                         theme: 'light',
+                    });
+
+                    if (insertError) {
+                        console.error('CRITICAL: Error creating profile:', {
+                            message: insertError.message,
+                            code: insertError.code,
+                            details: insertError.details,
+                            hint: insertError.hint
+                        });
+                    } else {
+                        console.log('Profile created successfully for:', user.id);
+                    }
+                } else if (error) {
+                    console.error('Error fetching profile:', {
+                        message: error.message,
+                        code: error.code,
+                        details: error.details,
+                        status: error.hint
                     });
                 } else if (profile) {
                     // Update display name if changed
