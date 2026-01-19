@@ -57,7 +57,17 @@
     "rateSpot": "Rate Spot",
     "addYourRating": "Add your rating for this spot",
     "saveRating": "Save Rating",
-    "photos": "Photos"
+    "photos": "Photos",
+    "editLocation": "Edit Location",
+    "addressNotFound": "Address not found",
+    "searchError": "Error searching address",
+    "searchToPreview": "Search for an address to see the map preview",
+    "saveLocation": "Save Location",
+    "chat": "Chat",
+    "noComments": "No comments yet. Start the conversation!",
+    "addCommentPlaceholder": "Add a comment...",
+    "partner": "Partner",
+    "user": "User"
   },
   "stats": {
     "title": "Pair Analytics",

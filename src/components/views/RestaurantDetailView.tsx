@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { ArrowLeft, MapPin, Camera, Trash2, Send } from 'lucide-react';
+import { ArrowLeft, MapPin, Camera, Trash2, Send, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 import { RateRestaurantDrawer } from '../restaurant/RateRestaurantDrawer';
+import { EditLocationDrawer } from '../restaurant/EditLocationDrawer';
 import { RestaurantMap } from '../map/RestaurantMap';
 import { useRestaurantDetails } from '../../hooks/useRestaurantDetails';
 import { supabase } from '../../lib/supabase';
@@ -18,6 +19,7 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
     const { t } = useTranslation();
     const { ratings, photos, profiles, comments, refresh, addComment } = useRestaurantDetails(restaurant.id, currentUser?.pair_id || undefined);
     const [ratingDrawerOpen, setRatingDrawerOpen] = useState(false);
+    const [editLocationDrawerOpen, setEditLocationDrawerOpen] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [newComment, setNewComment] = useState('');
 
@@ -88,7 +90,14 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
                 <div className="space-y-2">
                     <div className="flex items-center gap-2 text-slate-500 text-sm">
                         <MapPin size={16} />
-                        <span>{restaurant.address}</span>
+                        <span className="flex-1">{restaurant.address}</span>
+                        <button
+                            onClick={() => setEditLocationDrawerOpen(true)}
+                            className="p-1.5 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-colors"
+                            title={t('restaurant.editLocation')}
+                        >
+                            <Pencil size={14} />
+                        </button>
                     </div>
                     <div className="h-48 rounded-2xl overflow-hidden border border-slate-100 shadow-sm relative z-0">
                         <RestaurantMap restaurants={[{ ...restaurant, avg_score: avgScore }]} />
@@ -118,7 +127,7 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
                             <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-xl mb-2 shadow-sm ${partnerRating ? 'bg-pastel-peach text-slate-800' : 'bg-slate-100 text-slate-300'}`}>
                                 {partnerRating ? ((partnerRating.food_score + partnerRating.service_score + partnerRating.vibe_score + partnerRating.price_quality_score) / 4).toFixed(1) : '?'}
                             </div>
-                            <span className="text-xs font-bold text-slate-600 text-center line-clamp-1">{partnerProfile?.display_name || 'Partner'}</span>
+                            <span className="text-xs font-bold text-slate-600 text-center line-clamp-1">{partnerProfile?.display_name || t('restaurant.partner')}</span>
                         </div>
                     </div>
 
@@ -149,7 +158,7 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
 
                 {/* Comments Section */}
                 <div className="bg-slate-50 p-4 rounded-2xl">
-                    <h3 className="font-bold text-slate-800 mb-4 text-lg">Chat</h3>
+                    <h3 className="font-bold text-slate-800 mb-4 text-lg">{t('restaurant.chat')}</h3>
 
                     <div className="space-y-4 mb-4 max-h-60 overflow-y-auto pr-2">
                         {(comments || []).map((comment) => {
@@ -161,14 +170,14 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
                                         {comment.content}
                                     </div>
                                     <span className="text-[10px] text-slate-400 mt-1 px-1">
-                                        {profile?.display_name || 'User'} • {new Date(comment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        {profile?.display_name || t('restaurant.user')} • {new Date(comment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                 </div>
                             );
                         })}
                         {(!comments || comments.length === 0) && (
                             <div className="text-center text-slate-400 text-xs py-4">
-                                No comments yet. Start the conversation!
+                                {t('restaurant.noComments')}
                             </div>
                         )}
                     </div>
@@ -178,7 +187,7 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
                             type="text"
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
-                            placeholder="Add a comment..."
+                            placeholder={t('restaurant.addCommentPlaceholder')}
                             className="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-pastel-blue"
                         />
                         <button
@@ -239,6 +248,13 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
                 onClose={() => setRatingDrawerOpen(false)}
                 restaurantId={restaurant.id}
                 profile={currentUser}
+                onSuccess={refresh}
+            />
+
+            <EditLocationDrawer
+                isOpen={editLocationDrawerOpen}
+                onClose={() => setEditLocationDrawerOpen(false)}
+                restaurant={restaurant}
                 onSuccess={refresh}
             />
         </div>
