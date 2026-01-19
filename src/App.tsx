@@ -3,7 +3,7 @@ import { UserSync } from './components/auth/UserSync';
 import { PairingFlow } from './components/pairing/PairingFlow';
 import { useEffect, useState, useMemo } from 'react';
 import { supabase } from './lib/supabase';
-import type { Profile } from './types';
+import type { Profile, Restaurant } from './types';
 import { Utensils } from 'lucide-react';
 import { RestaurantFAB } from './components/restaurant/RestaurantFAB';
 import { AddRestaurantDrawer } from './components/restaurant/AddRestaurantDrawer';
@@ -18,6 +18,7 @@ import { FeedView } from './components/views/FeedView';
 import { MapView } from './components/views/MapView';
 import { StatsView } from './components/views/StatsView';
 import { SettingsView } from './components/views/SettingsView';
+import { RestaurantDetailView } from './components/views/RestaurantDetailView';
 
 function App() {
   const { isLoaded } = useUser();
@@ -84,6 +85,7 @@ function AppContent() {
   const [loading, setLoading] = useState(true);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [view, setView] = useState<ViewType>('feed');
+  const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
   const { i18n } = useTranslation();
 
   // Geolocation
@@ -166,6 +168,17 @@ function AppContent() {
     return <div className="p-4"><PairingFlow /></div>;
   }
 
+  // If a restaurant is selected, show detail view overlaying/replacing content
+  if (selectedRestaurant) {
+    return (
+      <RestaurantDetailView
+        restaurant={selectedRestaurant}
+        currentUser={profile}
+        onBack={() => setSelectedRestaurant(null)}
+      />
+    );
+  }
+
   const renderView = () => {
     switch (view) {
       case 'feed':
@@ -180,6 +193,7 @@ function AppContent() {
             retryGeo={retryGeo}
             onRefresh={refreshRestaurants}
             profile={profile}
+            onViewDetails={setSelectedRestaurant}
           />
         );
       case 'map':

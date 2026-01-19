@@ -17,6 +17,7 @@ interface FeedViewProps {
     retryGeo: () => void;
     onRefresh: () => void;
     profile: Profile | null;
+    onViewDetails: (restaurant: Restaurant) => void;
 }
 
 export function FeedView({
@@ -28,7 +29,8 @@ export function FeedView({
     geoError,
     retryGeo,
     onRefresh,
-    profile
+    profile,
+    onViewDetails
 }: FeedViewProps) {
     const { t } = useTranslation();
     const [ratingRestaurant, setRatingRestaurant] = useState<Restaurant | null>(null);
@@ -67,6 +69,7 @@ export function FeedView({
                             key={r.id}
                             restaurant={r}
                             onRate={(restaurant) => setRatingRestaurant(restaurant)}
+                            onViewDetails={onViewDetails}
                         />
                     ))}
                 </div>

@@ -5,14 +5,18 @@ import { useTranslation } from 'react-i18next';
 interface RestaurantCardProps {
     restaurant: Restaurant & { avg_score?: number; distance?: number; user_has_rated?: boolean };
     onRate: (restaurant: Restaurant) => void;
+    onViewDetails: (restaurant: Restaurant) => void;
 }
 
-export function RestaurantCard({ restaurant, onRate }: RestaurantCardProps) {
+export function RestaurantCard({ restaurant, onRate, onViewDetails }: RestaurantCardProps) {
     const { t, i18n } = useTranslation();
     return (
         <div className="bg-white border border-pastel-mint shadow-sm rounded-2xl overflow-hidden flex flex-col transition-all hover:shadow-md">
             {/* Placeholder for Photo */}
-            <div className="w-full aspect-video bg-pastel-lavender flex items-center justify-center relative">
+            <div
+                className="w-full aspect-video bg-pastel-lavender flex items-center justify-center relative cursor-pointer"
+                onClick={() => onViewDetails(restaurant)}
+            >
                 <Utensils className="w-12 h-12 text-white/50" />
                 {restaurant.is_favorite && (
                     <div className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm">
@@ -23,7 +27,7 @@ export function RestaurantCard({ restaurant, onRate }: RestaurantCardProps) {
 
             <div className="p-4">
                 <div className="flex justify-between items-start mb-1">
-                    <h4 className="font-bold text-slate-800 text-lg leading-tight">{restaurant.name}</h4>
+                    <h4 className="font-bold text-slate-800 text-lg leading-tight cursor-pointer" onClick={() => onViewDetails(restaurant)}>{restaurant.name}</h4>
                     {!restaurant.user_has_rated ? (
                         <button
                             onClick={(e) => {
@@ -60,7 +64,12 @@ export function RestaurantCard({ restaurant, onRate }: RestaurantCardProps) {
                     <span className="text-[10px] text-slate-300 uppercase font-bold tracking-wider">
                         {new Date(restaurant.visit_date!).toLocaleDateString(i18n.language, { month: 'short', day: 'numeric', year: 'numeric' })}
                     </span>
-                    <button className="text-xs font-bold text-pastel-blue hover:underline">{t('restaurant.viewDetails')}</button>
+                    <button
+                        onClick={() => onViewDetails(restaurant)}
+                        className="text-xs font-bold text-pastel-blue hover:underline"
+                    >
+                        {t('restaurant.viewDetails')}
+                    </button>
                 </div>
             </div>
         </div>
