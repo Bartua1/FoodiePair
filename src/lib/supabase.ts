@@ -15,8 +15,4 @@ export const setSupabaseToken = (token: string) => {
     // Update headers for PostgREST
     // @ts-ignore
     supabase.rest.headers['Authorization'] = `Bearer ${token}`;
-
-    // Update headers for Storage
-    // @ts-ignore
-    supabase.storage.headers['Authorization'] = `Bearer ${token}`;
 }
