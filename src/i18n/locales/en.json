@@ -1,0 +1,81 @@
+{
+  "app": {
+    "loading": "Loading App...",
+    "title": "FoodiePair",
+    "signIn": "Sign In",
+    "heroTitle": "Track your foodie adventures, together.",
+    "heroSubtitle": "Share a map, rate restaurants, and discover who's the pickiest eater in the relationship.",
+    "getStarted": "Get Started",
+    "loadingData": "Loading user data..."
+  },
+  "nav": {
+    "feed": "Feed",
+    "map": "Map",
+    "stats": "Stats",
+    "settings": "Settings"
+  },
+  "feed": {
+    "title": "Your Foodie Feed",
+    "subtitle": "Discover where you and your partner have been.",
+    "noRestaurants": "No restaurants found",
+    "noRestaurantsSubtitle": "Try adjusting your filters or add your first restaurant!"
+  },
+  "filters": {
+    "favorites": "Favorites",
+    "anyDistance": "Any Distance",
+    "lessThan1km": "< 1km",
+    "lessThan5km": "< 5km",
+    "allCuisines": "All Cuisines"
+  },
+  "restaurant": {
+    "newSpot": "New Spot",
+    "step": "Step {{current}} of {{total}}",
+    "name": "Restaurant Name",
+    "namePlaceholder": "e.g. Pasta Kingdom",
+    "location": "Location",
+    "locationPlaceholder": "Address or neighborhood",
+    "cuisine": "Cuisine",
+    "cuisinePlaceholder": "Italian, Sushi...",
+    "price": "Price",
+    "food": "Food",
+    "service": "Service",
+    "vibe": "Vibe",
+    "priceQuality": "Price/Quality",
+    "addPhoto": "Add a photo of the food!",
+    "optional": "Optional but recommended",
+    "favorite": "Mark as absolute favorite?",
+    "save": "Save Restaurant",
+    "next": "Next Step",
+    "viewDetails": "View details"
+  },
+  "stats": {
+    "title": "Pair Analytics",
+    "subtitle": "See who is the hardest to please.",
+    "averageScore": "Average Score",
+    "ratedCount": "{{count}} restaurants rated",
+    "pickiestTitle": "The Pickiest Eater",
+    "pickiestSubtitle": "\"The one who finds a hair in the soup even when it's delicious.\"",
+    "reviewsCount": "Based on {{count}} reviews given by this user."
+  },
+  "pairing": {
+    "loading": "Loading profile...",
+    "title": "Link with your Partner",
+    "subtitle": "Connect with your partner to start tracking restaurants together.",
+    "option1Title": "Option 1: Start a Pair",
+    "option1Subtitle": "Create a code to share with your partner.",
+    "createButton": "Create Pair Code",
+    "or": "OR",
+    "option2Title": "Option 2: Enter Pair Code",
+    "option2Subtitle": "Paste the code your partner shared.",
+    "placeholder": "Paste code here...",
+    "joinButton": "Join Pair",
+    "yourCode": "Your Code (share this):",
+    "invalidError": "Invalid pair code or pair is full."
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "english": "English",
+    "spanish": "Spanish"
+  }
+}

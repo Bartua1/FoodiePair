@@ -1,11 +1,13 @@
 import { Star, Heart, MapPin } from 'lucide-react';
 import type { Restaurant } from '../../types';
+import { useTranslation } from 'react-i18next';
 
 interface RestaurantCardProps {
     restaurant: Restaurant & { avg_score?: number; distance?: number };
 }
 
 export function RestaurantCard({ restaurant }: RestaurantCardProps) {
+    const { t, i18n } = useTranslation();
     return (
         <div className="bg-white border border-pastel-mint shadow-sm rounded-2xl overflow-hidden flex flex-col transition-all hover:shadow-md">
             {/* Placeholder for Photo */}
@@ -43,9 +45,9 @@ export function RestaurantCard({ restaurant }: RestaurantCardProps) {
 
                 <div className="border-t border-slate-50 pt-3 flex items-center justify-between">
                     <span className="text-[10px] text-slate-300 uppercase font-bold tracking-wider">
-                        {new Date(restaurant.visit_date!).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                        {new Date(restaurant.visit_date!).toLocaleDateString(i18n.language, { month: 'short', day: 'numeric', year: 'numeric' })}
                     </span>
-                    <button className="text-xs font-bold text-pastel-blue hover:underline">View details</button>
+                    <button className="text-xs font-bold text-pastel-blue hover:underline">{t('restaurant.viewDetails')}</button>
                 </div>
             </div>
         </div>

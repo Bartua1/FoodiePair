@@ -98,6 +98,10 @@ function MapUpdater({ center }: { center: [number, number] }) {
     const map = useMap();
     useEffect(() => {
         map.setView(center);
+        // Ensure tiles are correctly loaded when container size changes
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 100);
     }, [center, map]);
     return null;
 }
