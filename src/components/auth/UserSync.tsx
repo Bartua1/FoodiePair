@@ -21,16 +21,12 @@ export function UserSync({ children }: { children: React.ReactNode }) {
                         // Debugging: Decode token payload
                         try {
                             const payload = JSON.parse(atob(token.split('.')[1]));
-                            console.log('JWT Claims:', {
-                                sub: payload.sub,
-                                aud: payload.aud,
-                                exp: new Date(payload.exp * 1000).toISOString()
-                            });
+                            console.log('JWT Identity (must match sub):', payload.sub);
                         } catch (e) {
                             console.warn('Could not decode JWT payload');
                         }
                     } else {
-                        console.warn('No Supabase token returned from Clerk');
+                        console.warn('No Supabase token returned from Clerk. Check JWT Template.');
                     }
                 } catch (e) {
                     console.error('Error fetching Supabase token from Clerk:', e);
