@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Utensils, Award, TrendingDown } from 'lucide-react';
 import type { Rating, Profile } from '../../types';
+import { useTranslation } from 'react-i18next';
 
 interface StatsData {
     user1: { name: string; avgScore: number; count: number };
@@ -11,6 +12,7 @@ interface StatsData {
 export function PairStats({ pairId }: { pairId: string }) {
     const [stats, setStats] = useState<StatsData | null>(null);
     const [loading, setLoading] = useState(true);
+    const { t } = useTranslation();
 
     useEffect(() => {
         async function fetchStats() {
@@ -86,8 +88,8 @@ export function PairStats({ pairId }: { pairId: string }) {
     return (
         <div className="p-4 space-y-6">
             <header>
-                <h2 className="text-2xl font-bold text-slate-800 mb-1">Pair Analytics</h2>
-                <p className="text-slate-500 text-sm">See who is the hardest to please.</p>
+                <h2 className="text-2xl font-bold text-slate-800 mb-1">{t('stats.title')}</h2>
+                <p className="text-slate-500 text-sm">{t('stats.subtitle')}</p>
             </header>
 
             {/* Comparison Cards */}
@@ -100,9 +102,9 @@ export function PairStats({ pairId }: { pairId: string }) {
                         </div>
                         <div className="flex items-end gap-2">
                             <span className="text-4xl font-black text-slate-800">{user!.avgScore.toFixed(1)}</span>
-                            <span className="text-slate-500 font-medium mb-1">Average Score</span>
+                            <span className="text-slate-500 font-medium mb-1">{t('stats.averageScore')}</span>
                         </div>
-                        <p className="text-slate-400 text-xs mt-2 font-bold uppercase">{user!.count} restaurants rated</p>
+                        <p className="text-slate-400 text-xs mt-2 font-bold uppercase">{t('stats.ratedCount', { count: user!.count })}</p>
                     </div>
                 ))}
             </div>
@@ -112,14 +114,14 @@ export function PairStats({ pairId }: { pairId: string }) {
                 <div className="w-16 h-16 bg-pastel-yellow rounded-full flex items-center justify-center mx-auto mb-4">
                     <Award className="w-8 h-8 text-orange-600" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-800 mb-2">The Pickiest Eater</h3>
-                <p className="text-slate-500 mb-4 px-4 font-medium italic">"The one who finds a hair in the soup even when it's delicious."</p>
+                <h3 className="text-lg font-bold text-slate-800 mb-2">{t('stats.pickiestTitle')}</h3>
+                <p className="text-slate-500 mb-4 px-4 font-medium italic">{t('stats.pickiestSubtitle')}</p>
 
                 <div className="flex items-center justify-center gap-3 py-4 bg-slate-50 rounded-xl">
                     <TrendingDown className="text-red-400" />
                     <span className="text-2xl font-black text-slate-800">{pickiest.name}</span>
                 </div>
-                <p className="text-slate-400 text-xs mt-4">Based on {pickiest.count} reviews given by this user.</p>
+                <p className="text-slate-400 text-xs mt-4">{t('stats.reviewsCount', { count: pickiest.count })}</p>
             </div>
         </div>
     );

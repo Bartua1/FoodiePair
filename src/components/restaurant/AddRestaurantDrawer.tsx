@@ -4,6 +4,7 @@ import { Button } from '../ui/Button';
 import { geocodeAddress } from '../../lib/geocoding';
 import { supabase } from '../../lib/supabase';
 import type { Profile, Restaurant } from '../../types';
+import { useTranslation } from 'react-i18next';
 
 interface AddRestaurantDrawerProps {
     isOpen: boolean;
@@ -15,6 +16,7 @@ interface AddRestaurantDrawerProps {
 export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: AddRestaurantDrawerProps) {
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
+    const { t } = useTranslation();
 
     // Form State
     const [formData, setFormData] = useState({
@@ -104,8 +106,8 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
             <div className="relative bg-white w-full max-w-lg rounded-t-[32px] p-6 shadow-2xl animate-in slide-in-from-bottom duration-300">
                 <div className="flex justify-between items-center mb-6">
                     <div>
-                        <h2 className="text-xl font-bold text-slate-800">New Spot</h2>
-                        <p className="text-xs text-slate-400 font-medium uppercase tracking-widest">Step {step} of 3</p>
+                        <h2 className="text-xl font-bold text-slate-800">{t('restaurant.newSpot')}</h2>
+                        <p className="text-xs text-slate-400 font-medium uppercase tracking-widest">{t('restaurant.step', { current: step, total: 3 })}</p>
                     </div>
                     <button onClick={handleClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
                         <X size={20} className="text-slate-400" />
@@ -116,26 +118,26 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
                     {step === 1 && (
                         <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
                             <div className="space-y-1">
-                                <label className="text-sm font-bold text-slate-700 ml-1">Restaurant Name</label>
+                                <label className="text-sm font-bold text-slate-700 ml-1">{t('restaurant.name')}</label>
                                 <div className="relative">
                                     <Utensils className="absolute left-4 top-1/2 -translate-y-1/2 text-pastel-mint" size={18} />
                                     <input
                                         type="text"
                                         className="w-full bg-slate-50 border-none rounded-2xl p-4 pl-12 focus:ring-2 focus:ring-pastel-mint outline-none"
-                                        placeholder="e.g. Pasta Kingdom"
+                                        placeholder={t('restaurant.namePlaceholder')}
                                         value={formData.name}
                                         onChange={e => setFormData({ ...formData, name: e.target.value })}
                                     />
                                 </div>
                             </div>
                             <div className="space-y-1">
-                                <label className="text-sm font-bold text-slate-700 ml-1">Location</label>
+                                <label className="text-sm font-bold text-slate-700 ml-1">{t('restaurant.location')}</label>
                                 <div className="relative">
                                     <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-pastel-blue" size={18} />
                                     <input
                                         type="text"
                                         className="w-full bg-slate-50 border-none rounded-2xl p-4 pl-12 focus:ring-2 focus:ring-pastel-blue outline-none"
-                                        placeholder="Address or neighborhood"
+                                        placeholder={t('restaurant.locationPlaceholder')}
                                         value={formData.address}
                                         onChange={e => setFormData({ ...formData, address: e.target.value })}
                                     />
@@ -143,17 +145,17 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1">
-                                    <label className="text-sm font-bold text-slate-700 ml-1">Cuisine</label>
+                                    <label className="text-sm font-bold text-slate-700 ml-1">{t('restaurant.cuisine')}</label>
                                     <input
                                         type="text"
                                         className="w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-pastel-peach outline-none"
-                                        placeholder="Italian, Sushi..."
+                                        placeholder={t('restaurant.cuisinePlaceholder')}
                                         value={formData.cuisine}
                                         onChange={e => setFormData({ ...formData, cuisine: e.target.value })}
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-sm font-bold text-slate-700 ml-1">Price</label>
+                                    <label className="text-sm font-bold text-slate-700 ml-1">{t('restaurant.price')}</label>
                                     <div className="flex bg-slate-50 rounded-2xl p-1">
                                         {[1, 2, 3].map(p => (
                                             <button
@@ -173,10 +175,10 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
                     {step === 2 && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
                             {[
-                                { label: 'Food', key: 'foodScore' },
-                                { label: 'Service', key: 'serviceScore' },
-                                { label: 'Vibe', key: 'vibeScore' },
-                                { label: 'Price/Quality', key: 'priceQualityScore' }
+                                { label: t('restaurant.food'), key: 'foodScore' },
+                                { label: t('restaurant.service'), key: 'serviceScore' },
+                                { label: t('restaurant.vibe'), key: 'vibeScore' },
+                                { label: t('restaurant.priceQuality'), key: 'priceQualityScore' }
                             ].map((item) => (
                                 <div key={item.key} className="space-y-2">
                                     <div className="flex justify-between items-center px-1">
@@ -200,15 +202,15 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
                                 <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4 group-hover:scale-110 transition-transform">
                                     <Camera size={32} />
                                 </div>
-                                <span className="font-bold text-sm">Add a photo of the food!</span>
-                                <span className="text-[10px] uppercase tracking-widest mt-1">Optional but recommended</span>
+                                <span className="font-bold text-sm">{t('restaurant.addPhoto')}</span>
+                                <span className="text-[10px] uppercase tracking-widest mt-1">{t('restaurant.optional')}</span>
                             </div>
 
                             <button
                                 onClick={() => setFormData({ ...formData, isFavorite: !formData.isFavorite })}
                                 className={`w-full p-4 rounded-2xl border-2 flex items-center justify-between transition-all ${formData.isFavorite ? 'bg-pastel-pink/10 border-pastel-pink text-slate-800' : 'bg-white border-slate-100 text-slate-400'}`}
                             >
-                                <span className="font-bold">Mark as absolute favorite?</span>
+                                <span className="font-bold">{t('restaurant.favorite')}</span>
                                 <Star fill={formData.isFavorite ? '#E91E63' : 'none'} color={formData.isFavorite ? '#E91E63' : 'currentColor'} />
                             </button>
                         </div>
@@ -231,7 +233,7 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
                             onClick={handleNext}
                             disabled={!formData.name}
                         >
-                            Next Step <ChevronRight size={18} />
+                            {t('restaurant.next')} <ChevronRight size={18} />
                         </Button>
                     ) : (
                         <Button
@@ -239,7 +241,7 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
                             onClick={handleSubmit}
                             disabled={loading}
                         >
-                            {loading ? <Loader2 className="animate-spin" /> : 'Save Restaurant'}
+                            {loading ? <Loader2 className="animate-spin" /> : t('restaurant.save')}
                         </Button>
                     )}
                 </div>

@@ -13,10 +13,14 @@ import { FilterBar } from './components/feed/FilterBar';
 import { RestaurantCard } from './components/feed/RestaurantCard';
 import { calculateDistance } from './lib/distance';
 import { PairStats } from './components/stats/PairStats';
+import { useTranslation } from 'react-i18next';
+import { Settings } from 'lucide-react';
+import { LanguageSelector } from './components/ui/LanguageSelector';
 
 function App() {
   const { isLoaded } = useUser();
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (isLoaded) {
@@ -24,7 +28,7 @@ function App() {
     }
   }, [isLoaded]);
 
-  if (loading) return <div className="min-h-screen bg-background flex items-center justify-center font-medium text-slate-400">Loading App...</div>;
+  if (loading) return <div className="min-h-screen bg-background flex items-center justify-center font-medium text-slate-400">{t('app.loading')}</div>;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -33,7 +37,7 @@ function App() {
           <div className="w-10 h-10 bg-pastel-peach rounded-full flex items-center justify-center shadow-sm">
             <Utensils className="w-6 h-6 text-slate-800" />
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-800">FoodiePair</h1>
+          <h1 className="text-xl font-bold tracking-tight text-slate-800">{t('app.title')}</h1>
         </div>
         <div>
           <SignedIn>
@@ -42,7 +46,7 @@ function App() {
           <SignedOut>
             <SignInButton mode="modal">
               <button className="px-4 py-2 bg-pastel-peach rounded-full font-medium text-slate-800 text-sm shadow-sm hover:translate-y-[-1px] transition-all">
-                Sign In
+                {t('app.signIn')}
               </button>
             </SignInButton>
           </SignedOut>
@@ -52,11 +56,11 @@ function App() {
       <main className="flex-1 flex flex-col">
         <SignedOut>
           <div className="flex-1 flex flex-col items-center justify-center text-center max-w-sm mx-auto p-4">
-            <h2 className="text-3xl font-bold mb-4 text-slate-800">Track your foodie adventures, together.</h2>
-            <p className="text-slate-500 mb-8">Share a map, rate restaurants, and discover who's the pickiest eater in the relationship.</p>
+            <h2 className="text-3xl font-bold mb-4 text-slate-800">{t('app.heroTitle')}</h2>
+            <p className="text-slate-500 mb-8">{t('app.heroSubtitle')}</p>
             <SignInButton mode="modal">
               <button className="px-8 py-3 bg-pastel-peach rounded-full font-bold text-slate-800 shadow-md hover:scale-105 transition-all text-lg">
-                Get Started
+                {t('app.getStarted')}
               </button>
             </SignInButton>
           </div>
@@ -77,7 +81,8 @@ function AppContent() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [view, setView] = useState<'feed' | 'map' | 'stats'>('feed');
+  const [view, setView] = useState<'feed' | 'map' | 'stats' | 'settings'>('feed');
+  const { t, i18n } = useTranslation();
 
   // Geolocation
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -111,7 +116,12 @@ function AppContent() {
           .select('*')
           .eq('id', user.id);
         if (data && data.length > 0) {
-          setProfile(data[0] as Profile);
+          const profileData = data[0] as Profile;
+          setProfile(profileData);
+          // Set language from profile if it exists
+          if (profileData.language) {
+            i18n.changeLanguage(profileData.language);
+          }
         }
         setLoading(false);
       }
@@ -159,7 +169,7 @@ function AppContent() {
     return Array.from(set) as string[];
   }, [restaurants]);
 
-  if (loading) return <div className="flex-1 flex items-center justify-center font-medium text-slate-400">Loading user data...</div>;
+  if (loading) return <div className="flex-1 flex items-center justify-center font-medium text-slate-400">{t('app.loadingData')}</div>;
 
   if (!profile?.pair_id) {
     return <div className="p-4"><PairingFlow /></div>;
@@ -171,8 +181,8 @@ function AppContent() {
         {view === 'feed' ? (
           <div className="flex-1 overflow-y-auto p-4 no-scrollbar">
             <header className="mb-6">
-              <h2 className="text-2xl font-bold text-slate-800 mb-1">Your Foodie Feed</h2>
-              <p className="text-slate-500 text-sm">Discover where you and your partner have been.</p>
+              <h2 className="text-2xl font-bold text-slate-800 mb-1">{t('feed.title')}</h2>
+              <p className="text-slate-500 text-sm">{t('feed.subtitle')}</p>
             </header>
 
             <FilterBar
@@ -190,8 +200,8 @@ function AppContent() {
                 <div className="w-20 h-20 bg-pastel-blue rounded-full flex items-center justify-center mb-4">
                   <Utensils className="w-10 h-10 text-slate-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-700">No restaurants found</h3>
-                <p className="text-slate-500 max-w-[240px]">Try adjusting your filters or add your first restaurant!</p>
+                <h3 className="text-lg font-semibold text-slate-700">{t('feed.noRestaurants')}</h3>
+                <p className="text-slate-500 max-w-[240px]">{t('feed.noRestaurantsSubtitle')}</p>
               </div>
             ) : (
               <div className="space-y-4 mt-2">
@@ -214,9 +224,16 @@ function AppContent() {
               </div>
             </div>
           </div>
-        ) : (
+        ) : view === 'stats' ? (
           <div className="flex-1 overflow-y-auto">
             <PairStats pairId={profile.pair_id} />
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto p-4">
+            <header className="mb-6">
+              <h2 className="text-2xl font-bold text-slate-800 mb-1">{t('settings.title')}</h2>
+            </header>
+            <LanguageSelector />
           </div>
         )}
       </div>
@@ -242,7 +259,14 @@ function AppContent() {
           className={`flex-1 max-w-[100px] flex flex-col items-center gap-1 p-2 rounded-2xl transition-all ${view === 'stats' ? 'bg-pastel-peach text-slate-800 shadow-sm' : 'text-slate-400'}`}
         >
           <BarChart2 className="w-5 h-5" />
-          <span className="text-[10px] font-bold uppercase tracking-wider">Stats</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider">{t('nav.stats')}</span>
+        </button>
+        <button
+          onClick={() => setView('settings')}
+          className={`flex-1 max-w-[100px] flex flex-col items-center gap-1 p-2 rounded-2xl transition-all ${view === 'settings' ? 'bg-pastel-peach text-slate-800 shadow-sm' : 'text-slate-400'}`}
+        >
+          <Settings className="w-5 h-5" />
+          <span className="text-[10px] font-bold uppercase tracking-wider">{t('nav.settings')}</span>
         </button>
       </div>
 
