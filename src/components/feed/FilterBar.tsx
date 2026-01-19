@@ -16,7 +16,7 @@ export function FilterBar({ filters, setFilters, cuisines }: FilterBarProps) {
     const { t } = useTranslation();
 
     return (
-        <div className="flex gap-2 overflow-x-auto pb-4 px-1 no-scrollbar scroll-smooth items-center">
+        <div className="flex gap-2 overflow-x-auto px-1 no-scrollbar scroll-smooth items-center">
             {/* Favorites Toggle */}
             <button
                 onClick={() => setFilters({ ...filters, favoritesOnly: !filters.favoritesOnly })}
