@@ -3,10 +3,11 @@ import type { Restaurant } from '../../types';
 import { useTranslation } from 'react-i18next';
 
 interface RestaurantCardProps {
-    restaurant: Restaurant & { avg_score?: number; distance?: number };
+    restaurant: Restaurant & { avg_score?: number; distance?: number; user_has_rated?: boolean };
+    onRate: (restaurant: Restaurant) => void;
 }
 
-export function RestaurantCard({ restaurant }: RestaurantCardProps) {
+export function RestaurantCard({ restaurant, onRate }: RestaurantCardProps) {
     const { t, i18n } = useTranslation();
     return (
         <div className="bg-white border border-pastel-mint shadow-sm rounded-2xl overflow-hidden flex flex-col transition-all hover:shadow-md">
@@ -23,10 +24,22 @@ export function RestaurantCard({ restaurant }: RestaurantCardProps) {
             <div className="p-4">
                 <div className="flex justify-between items-start mb-1">
                     <h4 className="font-bold text-slate-800 text-lg leading-tight">{restaurant.name}</h4>
-                    <div className="bg-pastel-peach px-2 py-1 rounded-lg flex items-center gap-1 shrink-0">
-                        <Star size={14} className="text-orange-400 fill-orange-400" />
-                        <span className="font-bold text-sm text-slate-700">{restaurant.avg_score?.toFixed(1) || 'N/A'}</span>
-                    </div>
+                    {!restaurant.user_has_rated ? (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onRate(restaurant);
+                            }}
+                            className="bg-pastel-blue text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm active:scale-95 transition-transform"
+                        >
+                            {t('restaurant.rateNow') || 'Rate Now'}
+                        </button>
+                    ) : (
+                        <div className="bg-pastel-peach px-2 py-1 rounded-lg flex items-center gap-1 shrink-0">
+                            <Star size={14} className="text-orange-400 fill-orange-400" />
+                            <span className="font-bold text-sm text-slate-700">{restaurant.avg_score?.toFixed(1) || 'N/A'}</span>
+                        </div>
+                    )}
                 </div>
 
                 <p className="text-slate-500 text-sm mb-3 font-medium">

@@ -178,6 +178,8 @@ function AppContent() {
             cuisines={uniqueCuisines}
             geoError={geoError}
             retryGeo={retryGeo}
+            onRefresh={refreshRestaurants}
+            profile={profile}
           />
         );
       case 'map':

@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FilterBar } from '../feed/FilterBar';
 import { GeolocationBanner } from '../ui/GeolocationBanner';
 import { RestaurantCard } from '../feed/RestaurantCard';
+import { RateRestaurantDrawer } from '../restaurant/RateRestaurantDrawer';
 import { Utensils } from 'lucide-react';
-import type { Restaurant } from '../../types';
+import type { Restaurant, Profile } from '../../types';
 
 interface FeedViewProps {
     restaurants: any[];
@@ -13,6 +15,8 @@ interface FeedViewProps {
     cuisines: string[];
     geoError: { message: string } | null;
     retryGeo: () => void;
+    onRefresh: () => void;
+    profile: Profile | null;
 }
 
 export function FeedView({
@@ -22,9 +26,12 @@ export function FeedView({
     setFilters,
     cuisines,
     geoError,
-    retryGeo
+    retryGeo,
+    onRefresh,
+    profile
 }: FeedViewProps) {
     const { t } = useTranslation();
+    const [ratingRestaurant, setRatingRestaurant] = useState<Restaurant | null>(null);
 
     return (
         <div className="flex-1 overflow-y-auto p-4 no-scrollbar">
@@ -56,9 +63,23 @@ export function FeedView({
             ) : (
                 <div className="space-y-4 mt-2">
                     {restaurants.map(r => (
-                        <RestaurantCard key={r.id} restaurant={r} />
+                        <RestaurantCard
+                            key={r.id}
+                            restaurant={r}
+                            onRate={(restaurant) => setRatingRestaurant(restaurant)}
+                        />
                     ))}
                 </div>
+            )}
+
+            {ratingRestaurant && (
+                <RateRestaurantDrawer
+                    isOpen={!!ratingRestaurant}
+                    onClose={() => setRatingRestaurant(null)}
+                    restaurantId={ratingRestaurant.id}
+                    profile={profile}
+                    onSuccess={onRefresh}
+                />
             )}
         </div>
     );
