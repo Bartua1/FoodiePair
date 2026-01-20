@@ -16,3 +16,30 @@ export async function geocodeAddress(address: string): Promise<{ lat: number; ln
         return null;
     }
 }
+
+export interface GeocodingResult {
+    place_id: number;
+    licence: string;
+    osm_type: string;
+    osm_id: number;
+    boundingbox: string[];
+    lat: string;
+    lon: string;
+    display_name: string;
+    class: string;
+    type: string;
+    importance: number;
+}
+
+export async function searchLocations(query: string): Promise<GeocodingResult[]> {
+    try {
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`
+        );
+        const data = await response.json();
+        return data || [];
+    } catch (error) {
+        console.error('Search locations error:', error);
+        return [];
+    }
+}

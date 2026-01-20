@@ -206,22 +206,27 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
                             { label: t('restaurant.service'), key: 'service_score' },
                             { label: t('restaurant.vibe'), key: 'vibe_score' },
                             { label: t('restaurant.priceQuality'), key: 'price_quality_score' }
-                        ].map((cat) => (
-                            <div key={cat.key} className="flex items-center gap-3">
-                                <span className="text-xs font-bold text-slate-500 w-24">{cat.label}</span>
-                                <div className="flex-1 h-2 bg-white rounded-full overflow-hidden flex">
-                                    {/* Comparative Bar */}
-                                    <div
-                                        className="h-full bg-pastel-blue opacity-80"
-                                        style={{ width: `${myRating ? (myRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
-                                    />
-                                    <div
-                                        className="h-full bg-pastel-peach opacity-80"
-                                        style={{ width: `${partnerRating ? (partnerRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
-                                    />
+                        ].map((cat) => {
+                            const myScore = myRating ? myRating[cat.key as keyof Rating] as number : null;
+                            const partnerScore = partnerRating ? partnerRating[cat.key as keyof Rating] as number : null;
+
+                            return (
+                                <div key={cat.key} className="flex items-center justify-between py-1">
+                                    {/* My Score */}
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-sm ${myScore ? 'bg-pastel-blue text-slate-700' : 'bg-slate-100 text-slate-300'}`}>
+                                        {myScore || '-'}
+                                    </div>
+
+                                    {/* Category Label */}
+                                    <span className="text-sm font-bold text-slate-500 uppercase tracking-wide px-2">{cat.label}</span>
+
+                                    {/* Partner Score */}
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-sm ${partnerScore ? 'bg-pastel-peach text-slate-800' : 'bg-slate-100 text-slate-300'}`}>
+                                        {partnerScore || '-'}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
 

@@ -1,10 +1,11 @@
 import { useState, useRef } from 'react';
-import { X, MapPin, Utensils, Star, Camera, ChevronRight, ChevronLeft, Loader2, Trash2 } from 'lucide-react';
+import { X, MapPin, Utensils, Star, Camera, ChevronRight, ChevronLeft, Loader2, Trash2, Search } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { geocodeAddress } from '../../lib/geocoding';
 import { supabase } from '../../lib/supabase';
 import type { Profile, Restaurant } from '../../types';
 import { useTranslation } from 'react-i18next';
+import { LocationSearchModal } from './LocationSearchModal';
 
 interface AddRestaurantDrawerProps {
     isOpen: boolean;
@@ -23,6 +24,10 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
+
+    // Location Search Modal State
+    const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+    const [selectedCoordinates, setSelectedCoordinates] = useState<{ lat: number; lng: number } | null>(null);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -68,9 +73,15 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
         if (!profile?.pair_id || !profile.id) return;
         setLoading(true);
 
-        // 1. Geocode address
+        // 1. Geocode address or use selected coordinates
         let lat = 0, lng = 0;
-        if (formData.address) {
+
+        if (selectedCoordinates && formData.address) {
+            // Use selected coordinates if they match the current address intent
+            lat = selectedCoordinates.lat;
+            lng = selectedCoordinates.lng;
+        } else if (formData.address) {
+            // Fallback to manual geocoding if address was manipulated manually (though we try to prevent that now)
             const coords = await geocodeAddress(formData.address);
             if (coords) {
                 lat = coords.lat;
@@ -165,7 +176,13 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
         });
         setSelectedFile(null);
         setImagePreview(null);
+        setSelectedCoordinates(null);
         onClose();
+    };
+
+    const handleLocationSelect = (location: { address: string; lat: number; lng: number }) => {
+        setFormData(prev => ({ ...prev, address: location.address }));
+        setSelectedCoordinates({ lat: location.lat, lng: location.lng });
     };
 
     if (!isOpen) return null;
@@ -205,15 +222,18 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
                             </div>
                             <div className="space-y-1">
                                 <label className="text-sm font-bold text-slate-700 ml-1">{t('restaurant.location')}</label>
-                                <div className="relative">
+                                <div className="relative" onClick={() => setIsLocationModalOpen(true)}>
                                     <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-pastel-blue" size={18} />
                                     <input
                                         type="text"
-                                        className="w-full bg-slate-50 border-none rounded-2xl p-4 pl-12 focus:ring-2 focus:ring-pastel-blue outline-none"
+                                        className="w-full bg-slate-50 border-none rounded-2xl p-4 pl-12 focus:ring-2 focus:ring-pastel-blue outline-none cursor-pointer"
                                         placeholder={t('restaurant.locationPlaceholder')}
                                         value={formData.address}
-                                        onChange={e => setFormData({ ...formData, address: e.target.value })}
+                                        readOnly
                                     />
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 bg-white p-1.5 rounded-lg shadow-sm">
+                                        <Search size={14} className="text-slate-400" />
+                                    </div>
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
@@ -346,6 +366,12 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
                     )}
                 </div>
             </div>
-        </div>
+
+            <LocationSearchModal
+                isOpen={isLocationModalOpen}
+                onClose={() => setIsLocationModalOpen(false)}
+                onSelect={handleLocationSelect}
+            />
+        </div >
     );
 }
