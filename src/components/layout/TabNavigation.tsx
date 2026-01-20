@@ -1,19 +1,16 @@
 import { List, Map as MapIcon, BarChart2, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useAppStore } from '../../store/useAppStore';
+import type { ViewType } from '../../types';
 
-export type ViewType = 'feed' | 'map' | 'stats' | 'settings';
-
-interface TabNavigationProps {
-    view: ViewType;
-    setView: (view: ViewType) => void;
-}
-
-export function TabNavigation({ view, setView }: TabNavigationProps) {
+export function TabNavigation() {
     const { t } = useTranslation();
+    const view = useAppStore(state => state.view);
+    const setView = useAppStore(state => state.setView);
 
     const tabs = [
-        { id: 'feed', icon: List, label: 'Feed' }, // Label hardcoded as in original App.tsx
-        { id: 'map', icon: MapIcon, label: 'Map' }, // Label hardcoded as in original App.tsx
+        { id: 'feed', icon: List, label: 'Feed' },
+        { id: 'map', icon: MapIcon, label: 'Map' },
         { id: 'stats', icon: BarChart2, label: t('nav.stats') },
         { id: 'settings', icon: Settings, label: t('nav.settings') },
     ];
@@ -25,8 +22,8 @@ export function TabNavigation({ view, setView }: TabNavigationProps) {
                     key={id}
                     onClick={() => setView(id as ViewType)}
                     className={`flex-1 max-w-[100px] flex flex-col items-center gap-1 p-2 rounded-2xl transition-all ${view === id
-                            ? 'bg-pastel-peach text-slate-800 shadow-sm'
-                            : 'text-slate-400'
+                        ? 'bg-pastel-peach text-slate-800 shadow-sm'
+                        : 'text-slate-400'
                         }`}
                 >
                     <Icon className="w-5 h-5" />

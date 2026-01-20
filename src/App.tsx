@@ -1,19 +1,18 @@
 import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/clerk-react';
 import { UserSync } from './components/auth/UserSync';
 import { PairingFlow } from './components/pairing/PairingFlow';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from './lib/supabase';
-import type { Profile, Restaurant } from './types';
+import type { Profile } from './types';
 import { Utensils } from 'lucide-react';
 import { RestaurantFAB } from './components/restaurant/RestaurantFAB';
 import { AddRestaurantDrawer } from './components/restaurant/AddRestaurantDrawer';
-import { useRestaurants } from './hooks/useRestaurants';
-import { calculateDistance } from './lib/distance';
 import { useTranslation } from 'react-i18next';
 import { useGeolocation } from './hooks/useGeolocation';
+import { useAppStore } from './store/useAppStore';
 
 // New components
-import { TabNavigation, type ViewType } from './components/layout/TabNavigation';
+import { TabNavigation } from './components/layout/TabNavigation';
 import { FeedView } from './components/views/FeedView';
 import { MapView } from './components/views/MapView';
 import { StatsView } from './components/views/StatsView';
@@ -81,24 +80,26 @@ function App() {
 
 function AppContent() {
   const { user } = useUser();
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [view, setView] = useState<ViewType>('feed');
-  const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
   const { i18n } = useTranslation();
+
+  // Store
+  const profile = useAppStore(state => state.profile);
+  const setProfile = useAppStore(state => state.setProfile);
+  const view = useAppStore(state => state.view);
+  const isDrawerOpen = useAppStore(state => state.isDrawerOpen);
+  const setIsDrawerOpen = useAppStore(state => state.setIsDrawerOpen);
+  const selectedRestaurant = useAppStore(state => state.selectedRestaurant);
+  const setSelectedRestaurant = useAppStore(state => state.setSelectedRestaurant);
+  const fetchRestaurants = useAppStore(state => state.fetchRestaurants);
+  const setUserLocation = useAppStore(state => state.setUserLocation);
 
   // Geolocation
   const { location: userLocation, error: geoError, retry: retryGeo } = useGeolocation();
 
-  // Filters State
-  const [filters, setFilters] = useState({
-    distance: 'any',
-    price: null as number | null,
-    favoritesOnly: false,
-    cuisine: 'all',
-    sort: 'rating'
-  });
+  // Sync user location to store
+  useEffect(() => {
+    setUserLocation(userLocation);
+  }, [userLocation, setUserLocation]);
 
   useEffect(() => {
     const channel = supabase
@@ -121,8 +122,9 @@ function AppContent() {
           if (profileData.language) {
             i18n.changeLanguage(profileData.language);
           }
+          // Fetch restaurants once profile is loaded
+          fetchRestaurants(profileData);
         }
-        setLoading(false);
       }
     }
     getInitialProfile();
@@ -130,50 +132,7 @@ function AppContent() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, i18n]);
-
-  const { restaurants, loading: resLoading, refresh: refreshRestaurants } = useRestaurants(profile?.pair_id || null);
-
-  const processedRestaurants = useMemo(() => {
-    let result = restaurants.map(r => {
-      let distance: number | undefined;
-      if (userLocation && r.lat && r.lng) {
-        distance = calculateDistance(userLocation.lat, userLocation.lng, r.lat, r.lng);
-      }
-      return { ...r, distance };
-    });
-
-    if (filters.favoritesOnly) {
-      result = result.filter(r => r.is_favorite);
-    }
-    if (filters.price) {
-      result = result.filter(r => r.price_range === filters.price);
-    }
-    if (filters.cuisine !== 'all') {
-      result = result.filter(r => r.cuisine_type === filters.cuisine);
-    }
-    if (filters.distance !== 'any' && userLocation) {
-      const maxDist = parseFloat(filters.distance);
-      result = result.filter(r => r.distance !== undefined && r.distance <= maxDist);
-    }
-
-    return result.sort((a, b) => {
-      if (filters.sort === 'distance') {
-        const distA = a.distance ?? Infinity;
-        const distB = b.distance ?? Infinity;
-        return distA - distB;
-      }
-      // Default: sort by rating (avg_score)
-      const scoreA = a.avg_score || 0;
-      const scoreB = b.avg_score || 0;
-      return scoreB - scoreA;
-    });
-  }, [restaurants, filters, userLocation]);
-
-  const uniqueCuisines = useMemo(() => {
-    const set = new Set(restaurants.map(r => r.cuisine_type).filter((c): c is string => Boolean(c)));
-    return Array.from(set);
-  }, [restaurants]);
+  }, [user, i18n, setProfile, fetchRestaurants]);
 
   if (!profile?.pair_id) {
     return <div className="p-4"><PairingFlow /></div>;
@@ -195,27 +154,14 @@ function AppContent() {
       case 'feed':
         return (
           <FeedView
-            restaurants={processedRestaurants}
-            loading={resLoading}
-            filters={filters}
-            setFilters={setFilters}
-            cuisines={uniqueCuisines}
             geoError={geoError}
             retryGeo={retryGeo}
-            onRefresh={refreshRestaurants}
-            profile={profile}
-            onViewDetails={setSelectedRestaurant}
+            onRefresh={() => fetchRestaurants(profile)}
           />
         );
       case 'map':
         return (
-          <MapView
-            restaurants={processedRestaurants}
-            filters={filters}
-            setFilters={setFilters}
-            cuisines={uniqueCuisines}
-            userLocation={userLocation}
-          />
+          <MapView />
         );
       case 'stats':
         return <StatsView pairId={profile!.pair_id!} />;
@@ -230,15 +176,15 @@ function AppContent() {
         {renderView()}
       </div>
 
-      <TabNavigation view={view} setView={setView} />
+      <TabNavigation />
 
-      <RestaurantFAB onClick={() => setIsDrawerOpen(true)} />
+      <RestaurantFAB />
 
       <AddRestaurantDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
         profile={profile}
-        onSuccess={refreshRestaurants}
+        onSuccess={() => fetchRestaurants(profile)}
       />
     </div>
   );

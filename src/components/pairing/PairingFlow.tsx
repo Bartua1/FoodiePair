@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { useUser } from '@clerk/clerk-react';
 import { supabase } from '../../lib/supabase';
 import type { Profile, Pair } from '../../types';
@@ -73,6 +74,7 @@ export function PairingFlow() {
                 .eq('id', user.id);
 
             fetchProfile();
+            toast.success(t('pairing.createSuccess'));
         }
         setLoading(false);
     }
@@ -91,9 +93,10 @@ export function PairingFlow() {
         try {
             if (navigator.share) {
                 await navigator.share(shareData);
+                toast.success(t('pairing.shareSuccess'));
             } else {
                 await navigator.clipboard.writeText(shareUrl);
-                alert('Invitation link copied to clipboard!');
+                toast.success(t('pairing.linkCopied'));
             }
         } catch (err) {
             // navigator.share can be aborted by user, that's not really an error to show
@@ -101,7 +104,7 @@ export function PairingFlow() {
                 console.error('Error sharing:', err);
                 // Fallback to clipboard if share fails
                 await navigator.clipboard.writeText(shareUrl);
-                alert('Sharing failed. Invitation link copied to clipboard instead.');
+                toast.info(t('pairing.shareFailedButCopied'));
             }
         }
     }
@@ -144,6 +147,7 @@ export function PairingFlow() {
             if (createError || !newPair) {
                 console.error('Error creating pair on the fly:', createError);
                 setError(t('pairing.invalidError'));
+                toast.error(t('pairing.joinError'));
                 setLoading(false);
                 return;
             }
@@ -155,6 +159,7 @@ export function PairingFlow() {
             ]);
 
             fetchProfile();
+            toast.success(t('pairing.joinSuccess'));
             setLoading(false);
             return;
         }
@@ -172,6 +177,7 @@ export function PairingFlow() {
                 .eq('id', user.id);
 
             fetchProfile();
+            toast.success(t('pairing.joinSuccess'));
         }
         setLoading(false);
     }

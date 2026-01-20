@@ -5,36 +5,34 @@ import { GeolocationBanner } from '../ui/GeolocationBanner';
 import { RestaurantCard } from '../feed/RestaurantCard';
 import { RateRestaurantDrawer } from '../restaurant/RateRestaurantDrawer';
 import { Utensils } from 'lucide-react';
-import type { Restaurant, Profile } from '../../types';
+import type { Restaurant } from '../../types';
 import { supabase } from '../../lib/supabase';
+import { useAppStore } from '../../store/useAppStore';
+import { useProcessedRestaurants } from '../../hooks/useProcessedRestaurants';
 
 interface FeedViewProps {
-    restaurants: any[];
-    loading: boolean;
-    filters: any;
-    setFilters: (filters: any) => void;
-    cuisines: string[];
     geoError: { message: string } | null;
     retryGeo: () => void;
     onRefresh: () => void;
-    profile: Profile | null;
-    onViewDetails: (restaurant: Restaurant) => void;
 }
 
 export function FeedView({
-    restaurants,
-    loading,
-    filters,
-    setFilters,
-    cuisines,
     geoError,
     retryGeo,
     onRefresh,
-    profile,
-    onViewDetails
 }: FeedViewProps) {
     const { t } = useTranslation();
     const [ratingRestaurant, setRatingRestaurant] = useState<Restaurant | null>(null);
+
+    // Store state
+    const loading = useAppStore(state => state.loadingRestaurants);
+    const filters = useAppStore(state => state.filters);
+    const setFilters = useAppStore(state => state.setFilters);
+    const profile = useAppStore(state => state.profile);
+    const setSelectedRestaurant = useAppStore(state => state.setSelectedRestaurant);
+
+    // Processed data
+    const { processedRestaurants, uniqueCuisines } = useProcessedRestaurants();
 
     const handleToggleFavorite = async (restaurant: Restaurant) => {
         if (!profile) return;
@@ -68,7 +66,7 @@ export function FeedView({
             <FilterBar
                 filters={filters}
                 setFilters={setFilters}
-                cuisines={cuisines}
+                cuisines={uniqueCuisines}
             />
 
             <GeolocationBanner geoError={geoError} retryGeo={retryGeo} />
@@ -77,7 +75,7 @@ export function FeedView({
                 <div className="animate-pulse space-y-4 mt-6">
                     {[1, 2, 3].map(i => <div key={i} className="h-48 bg-slate-100 rounded-2xl w-full" />)}
                 </div>
-            ) : restaurants.length === 0 ? (
+            ) : processedRestaurants.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 text-center px-4">
                     <div className="w-20 h-20 bg-pastel-blue rounded-full flex items-center justify-center mb-4">
                         <Utensils className="w-10 h-10 text-slate-400" />
@@ -87,12 +85,12 @@ export function FeedView({
                 </div>
             ) : (
                 <div className="space-y-4 mt-2">
-                    {restaurants.map(r => (
+                    {processedRestaurants.map(r => (
                         <RestaurantCard
                             key={r.id}
                             restaurant={r}
                             onRate={(restaurant) => setRatingRestaurant(restaurant)}
-                            onViewDetails={onViewDetails}
+                            onViewDetails={setSelectedRestaurant}
                             onToggleFavorite={() => handleToggleFavorite(r)}
                         />
                     ))}

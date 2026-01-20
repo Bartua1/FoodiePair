@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { X, MapPin, Search, Loader2, Save } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { geocodeAddress } from '../../lib/geocoding';
@@ -63,9 +64,11 @@ export function EditLocationDrawer({ isOpen, onClose, restaurant, onSuccess }: E
                 .eq('id', restaurant.id);
 
             if (error) throw error;
+            toast.success(t('restaurant.locationUpdated'));
             onSuccess();
             onClose();
         } catch (error) {
+            toast.error(t('restaurant.updateLocationError'));
             console.error('Error updating location:', error);
         } finally {
             setIsSaving(false);

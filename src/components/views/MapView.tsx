@@ -1,24 +1,26 @@
 import { RestaurantMap } from '../map/RestaurantMap';
 import { FilterBar } from '../feed/FilterBar';
+import { useAppStore } from '../../store/useAppStore';
+import { useProcessedRestaurants } from '../../hooks/useProcessedRestaurants';
 
-interface MapViewProps {
-    restaurants: any[];
-    filters: any;
-    setFilters: (filters: any) => void;
-    cuisines: string[];
-    userLocation?: { lat: number; lng: number } | null;
-}
+export function MapView() {
+    // Store
+    const filters = useAppStore(state => state.filters);
+    const setFilters = useAppStore(state => state.setFilters);
+    const userLocation = useAppStore(state => state.userLocation);
 
-export function MapView({ restaurants, filters, setFilters, cuisines, userLocation }: MapViewProps) {
+    // Processed data
+    const { processedRestaurants, uniqueCuisines } = useProcessedRestaurants();
+
     return (
         <div className="flex-1 relative w-full h-full">
-            <RestaurantMap restaurants={restaurants} userLocation={userLocation} />
+            <RestaurantMap restaurants={processedRestaurants} userLocation={userLocation} />
             <div className="absolute top-4 left-4 right-4 z-[1000]">
                 <div className="bg-white/80 backdrop-blur-md p-2 rounded-3xl shadow-lg border border-white/50">
                     <FilterBar
                         filters={filters}
                         setFilters={setFilters}
-                        cuisines={cuisines}
+                        cuisines={uniqueCuisines}
                     />
                 </div>
             </div>

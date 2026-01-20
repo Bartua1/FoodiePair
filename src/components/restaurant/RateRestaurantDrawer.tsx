@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { X, Loader2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { supabase } from '../../lib/supabase';
@@ -40,9 +41,11 @@ export function RateRestaurantDrawer({ isOpen, onClose, restaurantId, profile, o
         });
 
         if (!error) {
+            toast.success(t('restaurant.rateSuccess'));
             onSuccess();
             onClose();
         } else {
+            toast.error(t('restaurant.rateError'));
             console.error('Error submitting rating:', error);
         }
         setLoading(false);

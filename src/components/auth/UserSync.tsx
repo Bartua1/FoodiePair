@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { useUser, useAuth } from '@clerk/clerk-react';
 import { supabase, setSupabaseToken } from '../../lib/supabase';
 import type { Profile } from '../../types';
@@ -44,6 +45,7 @@ export function UserSync({ children }: { children: React.ReactNode }) {
 
                 if (error) {
                     console.error('Error fetching profile:', error);
+                    toast.error('Failed to load user profile');
                 } else if (!profile) {
                     console.log('Profile missing, attempting to create...');
                     // Profile doesn't exist, create it
@@ -61,16 +63,10 @@ export function UserSync({ children }: { children: React.ReactNode }) {
                             details: insertError.details,
                             hint: insertError.hint
                         });
+                        toast.error('Failed to create user profile. Please reload.');
                     } else {
                         console.log('Profile created successfully for:', user.id);
                     }
-                } else if (error) {
-                    console.error('Error fetching profile:', {
-                        message: error.message,
-                        code: error.code,
-                        details: error.details,
-                        status: error.hint
-                    });
                 } else if (profile) {
                     // Update display name or avatar if changed
                     const currentName = user.fullName || user.username || 'User';
