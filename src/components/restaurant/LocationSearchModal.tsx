@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Search, MapPin, Loader2, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { GeocodingResult, searchLocations } from '../../lib/geocoding';
+import { searchLocations, type GeocodingResult } from '../../lib/geocoding';
 import { Button } from '../ui/Button';
 
 interface LocationSearchModalProps {
@@ -106,8 +106,8 @@ export function LocationSearchModal({ isOpen, onClose, onSelect }: LocationSearc
                             key={result.place_id}
                             onClick={() => handleSelect(result)}
                             className={`w-full text-left p-3 rounded-xl transition-all flex items-start gap-3 border ${selectedLocation?.place_id === result.place_id
-                                    ? 'bg-pastel-blue/10 border-pastel-blue shadow-sm'
-                                    : 'bg-white border-transparent hover:bg-slate-50'
+                                ? 'bg-pastel-blue/10 border-pastel-blue shadow-sm'
+                                : 'bg-white border-transparent hover:bg-slate-50'
                                 }`}
                         >
                             <MapPin
