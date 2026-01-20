@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS profiles (
     id TEXT PRIMARY KEY, -- matches Clerk user_id
     pair_id UUID REFERENCES pairs(id),
     display_name TEXT,
+    avatar_url TEXT,
     language TEXT DEFAULT 'es',
     theme TEXT DEFAULT 'light',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -61,6 +62,14 @@ ALTER TABLE pairs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE restaurants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ratings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE photos ENABLE ROW LEVEL SECURITY;
+
+-- Ensure avatar_url exists (migration for existing tables)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'avatar_url') THEN
+        ALTER TABLE profiles ADD COLUMN avatar_url TEXT;
+    END IF;
+END $$;
 
 -- Policies
 -- Users can read/write their own profile

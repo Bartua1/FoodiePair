@@ -24,28 +24,7 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
     const [newComment, setNewComment] = useState('');
     const [lightboxOpen, setLightboxOpen] = useState(false);
     const [currentLightboxIndex, setCurrentLightboxIndex] = useState(0);
-    const heroScrollRef = useRef<HTMLDivElement>(null);
-    const [heroIndex, setHeroIndex] = useState(0);
 
-    const handleHeroScroll = () => {
-        if (heroScrollRef.current) {
-            const { scrollLeft, clientWidth } = heroScrollRef.current;
-            const newIndex = Math.round(scrollLeft / clientWidth);
-            if (newIndex !== heroIndex) {
-                setHeroIndex(newIndex);
-            }
-        }
-    };
-
-    const scrollToHero = (index: number) => {
-        if (heroScrollRef.current) {
-            const { clientWidth } = heroScrollRef.current;
-            heroScrollRef.current.scrollTo({
-                left: index * clientWidth,
-                behavior: 'smooth'
-            });
-        }
-    };
 
     const openLightbox = (index: number) => {
         setCurrentLightboxIndex(index);
@@ -175,53 +154,7 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-8 pb-32">
-                {/* Hero Carousel */}
-                {photos.length > 0 && (
-                    <div className="rounded-2xl overflow-hidden relative group aspect-video shadow-sm">
-                        <div
-                            ref={heroScrollRef}
-                            onScroll={handleHeroScroll}
-                            className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
-                        >
-                            {photos.map((photo, index) => (
-                                <img
-                                    key={index}
-                                    src={photo.url}
-                                    alt={`Hero ${index + 1}`}
-                                    className="w-full h-full object-cover flex-shrink-0 snap-center cursor-pointer"
-                                    onClick={() => openLightbox(index)}
-                                    loading="lazy"
-                                />
-                            ))}
-                        </div>
 
-                        {/* Hero Controls */}
-                        {photos.length > 1 && (
-                            <>
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); scrollToHero((heroIndex - 1 + photos.length) % photos.length); }}
-                                    className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-colors"
-                                >
-                                    <ChevronLeft size={20} />
-                                </button>
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); scrollToHero((heroIndex + 1) % photos.length); }}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-colors"
-                                >
-                                    <ChevronRight size={20} />
-                                </button>
-                                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 p-1 rounded-full bg-black/20 backdrop-blur-sm">
-                                    {photos.map((_, idx) => (
-                                        <div
-                                            key={idx}
-                                            className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${idx === heroIndex ? 'bg-white scale-125' : 'bg-white/50'}`}
-                                        />
-                                    ))}
-                                </div>
-                            </>
-                        )}
-                    </div>
-                )}
                 {/* Map Section */}
                 <div className="space-y-2">
                     <div className="flex items-center gap-2 text-slate-500 text-sm">
@@ -340,7 +273,7 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
                 <div>
                     <div className="flex justify-between items-end mb-4">
                         <h3 className="font-bold text-slate-800 text-lg">{t('restaurant.photos') || 'Photos'}</h3>
-                        <label className="text-xs font-bold text-pastel-blue cursor-pointer hover:underline flex items-center gap-1">
+                        <label className="text-xs font-bold text-slate-700 bg-pastel-blue px-3 py-1.5 rounded-full cursor-pointer hover:opacity-90 transition-opacity flex items-center gap-2 shadow-sm">
                             <Camera size={14} />
                             {t('restaurant.addPhoto')}
                             <input type="file" className="hidden" accept="image/*" onChange={handlePhotoUpload} disabled={uploading} />
