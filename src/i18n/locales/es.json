@@ -129,9 +129,10 @@
     "existingLinkFound": "Enlace existente encontrado para esta configuración"
   },
   "wishlist": {
-    "addToWishlist": "Añadir a Por Ir",
-    "addedToWishlist": "¡Añadido a Por Ir!",
+    "addToWishlist": "Añadir a la lista",
+    "addedToWishlist": "¡Añadido a la lista!",
+    "subtitle": "Añade restaurantes que quieras visitar",
     "visited": "Visitados",
-    "toGo": "Por Ir"
+    "toGo": "Por ir"
   }
 }
