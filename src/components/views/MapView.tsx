@@ -7,12 +7,17 @@ interface MapViewProps {
     setFilters: (filters: any) => void;
     cuisines: string[];
     userLocation?: { lat: number; lng: number } | null;
+    onViewDetails: (restaurant: any) => void;
 }
 
-export function MapView({ restaurants, filters, setFilters, cuisines, userLocation }: MapViewProps) {
+export function MapView({ restaurants, filters, setFilters, cuisines, userLocation, onViewDetails }: MapViewProps) {
     return (
         <div className="flex-1 relative w-full h-full">
-            <RestaurantMap restaurants={restaurants} userLocation={userLocation} />
+            <RestaurantMap
+                restaurants={restaurants}
+                userLocation={userLocation}
+                onViewDetails={onViewDetails}
+            />
             <div className="absolute top-4 left-4 right-4 z-[1000]">
                 <div className="bg-white/80 backdrop-blur-md p-2 rounded-3xl shadow-lg border border-white/50">
                     <FilterBar

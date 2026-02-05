@@ -61,10 +61,12 @@
     "addYourRating": "Add your rating for this spot",
     "saveRating": "Save Rating",
     "photos": "Photos",
+    "editDetails": "Edit Details",
     "editLocation": "Edit Location",
     "addressNotFound": "Address not found",
     "searchError": "Error searching address",
     "searchToPreview": "Search for an address to see the map preview",
+    "saveChanges": "Save Changes",
     "saveLocation": "Save Location",
     "chat": "Chat",
     "noComments": "No comments yet. Start the conversation!",
@@ -101,5 +103,35 @@
     "language": "Language",
     "english": "English",
     "spanish": "Spanish"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "You're all set! No restaurants pending your rating.",
+    "pendingRating": "Pending rating",
+    "footer": "Your opinion matters"
+  },
+  "share": {
+    "title": "Share Restaurant",
+    "parameters": "Parameters",
+    "showPhotos": "Show Photos",
+    "showRatings": "Show Ratings",
+    "showComments": "Show Comments",
+    "allowPhotos": "Allow Adding Photos",
+    "allowComments": "Allow Comments",
+    "creatingLink": "Creating Link...",
+    "createLink": "Create Share Link",
+    "linkReady": "Link Ready!",
+    "linkReadySubtitle": "Anyone with this link can view the restaurant as configured.",
+    "close": "Close",
+    "accessDenied": "Access Denied",
+    "accessDeniedSubtitle": "This shared link is private or you don't have permission to view it.",
+    "goHome": "Go Home",
+    "existingLinkFound": "Existing link found for this configuration"
+  },
+  "wishlist": {
+    "addToWishlist": "Add to To-Go List",
+    "addedToWishlist": "Added to To-Go List!",
+    "visited": "Visited",
+    "toGo": "To Go"
   }
 }

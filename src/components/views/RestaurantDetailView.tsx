@@ -1,31 +1,69 @@
 import { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, MapPin, Camera, Trash2, Send, Pencil, Heart, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, MapPin, Camera, Trash2, Send, Pencil, Heart, X, ChevronLeft, ChevronRight, Loader2, Share2, Bookmark, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '../ui/Button';
 import { RateRestaurantDrawer } from '../restaurant/RateRestaurantDrawer';
-import { EditLocationDrawer } from '../restaurant/EditLocationDrawer';
+import { EditRestaurantDrawer } from '../restaurant/EditRestaurantDrawer';
 import { RestaurantMap } from '../map/RestaurantMap';
+import { ShareConfigurationModal } from '../restaurant/ShareConfigurationModal';
 import { useRestaurantDetails } from '../../hooks/useRestaurantDetails';
 import { supabase } from '../../lib/supabase';
-import type { Restaurant, Profile, Rating } from '../../types';
+import type { Restaurant, Profile, Rating, SharedRestaurantConfig } from '../../types';
 
 interface RestaurantDetailViewProps {
-    restaurant: Restaurant;
+    restaurant?: Restaurant;
     currentUser: Profile | null;
-    onBack: () => void;
+    onBack?: () => void;
+    viewConfig?: SharedRestaurantConfig;
 }
 
-export function RestaurantDetailView({ restaurant, currentUser, onBack }: RestaurantDetailViewProps) {
+export function RestaurantDetailView({ restaurant: initialRestaurant, currentUser, onBack, viewConfig }: RestaurantDetailViewProps) {
+    const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
     const { t } = useTranslation();
-    const { ratings, photos, profiles, comments, favoriteUserIds, refresh, addComment } = useRestaurantDetails(restaurant.id, currentUser?.pair_id || undefined);
+
+    const [restaurant, setRestaurant] = useState<Restaurant | null>(initialRestaurant || null);
+    const [fetchingRestaurant, setFetchingRestaurant] = useState(!initialRestaurant);
+
+    const { ratings, photos, profiles, comments, favoriteUserIds, refresh, addComment } = useRestaurantDetails(
+        restaurant?.id || id,
+        currentUser?.pair_id || undefined
+    );
+
     const [ratingDrawerOpen, setRatingDrawerOpen] = useState(false);
-    const [editLocationDrawerOpen, setEditLocationDrawerOpen] = useState(false);
+    const [editRestaurantDrawerOpen, setEditRestaurantDrawerOpen] = useState(false);
+    const [shareModalOpen, setShareModalOpen] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [newComment, setNewComment] = useState('');
     const [lightboxOpen, setLightboxOpen] = useState(false);
     const [currentLightboxIndex, setCurrentLightboxIndex] = useState(0);
     const heroScrollRef = useRef<HTMLDivElement>(null);
     const [heroIndex, setHeroIndex] = useState(0);
+
+    // Wishlist State
+    const [addingToWishlist, setAddingToWishlist] = useState(false);
+    const [addedToWishlist, setAddedToWishlist] = useState(false);
+
+    // Fetch restaurant if missing (deep link case)
+    useEffect(() => {
+        if (!restaurant && id) {
+            const fetchRest = async () => {
+                setFetchingRestaurant(true);
+                const { data, error } = await supabase
+                    .from('restaurants')
+                    .select('*')
+                    .eq('id', id)
+                    .single();
+
+                if (!error && data) {
+                    setRestaurant(data as Restaurant);
+                }
+                setFetchingRestaurant(false);
+            };
+            fetchRest();
+        }
+    }, [id, restaurant]);
 
     const handleHeroScroll = () => {
         if (heroScrollRef.current) {
@@ -72,7 +110,7 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
     }, [favoriteUserIds, currentUser]);
 
     const handleToggleFavorite = async () => {
-        if (!currentUser) return;
+        if (!currentUser || !restaurant) return;
 
         if (isFavorite) {
             await supabase.from('restaurant_favorites').delete().eq('user_id', currentUser.id).eq('restaurant_id', restaurant.id);
@@ -94,7 +132,7 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
 
     const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (!file) return;
+        if (!file || !restaurant) return;
 
         setUploading(true);
         const fileExt = file.name.split('.').pop();
@@ -125,6 +163,65 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
         refresh();
     };
 
+    const handleAddToWishlist = async () => {
+        if (!currentUser || !restaurant) return;
+        setAddingToWishlist(true);
+
+        try {
+            const { error } = await supabase.from('restaurants').insert({
+                pair_id: currentUser.pair_id,
+                name: restaurant.name,
+                address: restaurant.address,
+                cuisine_type: restaurant.cuisine_type,
+                price_range: restaurant.price_range,
+                lat: restaurant.lat,
+                lng: restaurant.lng,
+                visit_status: 'wishlist',
+                // We don't copy photos/ratings/comments as this is a fresh start for the pair
+            });
+
+            if (!error) {
+                setAddedToWishlist(true);
+                setTimeout(() => {
+                    navigate('/'); // Navigate to feed (where wishlist tab will be)
+                }, 1500);
+            } else {
+                console.error('Error adding to wishlist:', error);
+            }
+        } catch (e) {
+            console.error('Error:', e);
+        } finally {
+            setAddingToWishlist(false);
+        }
+    };
+
+    const handleBack = () => {
+        if (onBack) {
+            onBack();
+        } else {
+            navigate(-1);
+        }
+    }
+
+    if (fetchingRestaurant) {
+        return (
+            <div className="flex-1 flex items-center justify-center bg-white">
+                <Loader2 className="w-8 h-8 animate-spin text-pastel-blue" />
+            </div>
+        );
+    }
+
+    if (!restaurant) {
+        return (
+            <div className="flex-1 flex flex-col items-center justify-center bg-white p-6 text-center">
+                <p className="text-slate-500 mb-4">No pudimos encontrar este restaurante.</p>
+                <Button onClick={() => navigate('/')} className="bg-pastel-peach text-slate-800 rounded-full px-6">
+                    Volver al Feed
+                </Button>
+            </div>
+        );
+    }
+
     const myRating = ratings.find(r => r.user_id === currentUser?.id);
     const partnerRating = ratings.find(r => r.user_id !== currentUser?.id);
     const partnerProfile = partnerRating ? profiles[partnerRating.user_id] : null;
@@ -140,43 +237,74 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
         <div className="flex-1 flex flex-col bg-white h-full relative overflow-hidden">
             {/* Header */}
             <div className="p-4 border-b border-slate-100 flex items-center gap-4 sticky top-0 bg-white z-10">
-                <button onClick={onBack} className="p-2 bg-pastel-peach rounded-full hover:scale-105 active:scale-95 transition-all shadow-sm">
+                <button onClick={handleBack} className="p-2 bg-pastel-peach rounded-full hover:scale-105 active:scale-95 transition-all shadow-sm">
                     <ArrowLeft size={24} className="text-slate-800" />
                 </button>
-                <div className="flex-1">
-                    <h2 className="text-xl font-bold text-slate-800 leading-tight">{restaurant.name}</h2>
-                    <p className="text-xs text-slate-500 font-medium">{restaurant.cuisine_type} • {'€'.repeat(restaurant.price_range)}</p>
+                <div className="flex-1 overflow-hidden">
+                    <h2 className="text-xl font-bold text-slate-800 leading-tight truncate">{restaurant.name}</h2>
+                    <div className="flex items-start gap-2 text-slate-500 text-sm">
+                        <p className="text-xs text-slate-500 font-medium">{restaurant.cuisine_type} • {'€'.repeat(restaurant.price_range)}</p>
+                    </div>
                 </div>
 
-                {/* Favorites Section in Header */}
+                {/* Favorites/Wishlist Section in Header */}
                 <div className="flex items-center gap-2">
-                    {favoriteProfiles.length > 0 && (
-                        <div className="flex -space-x-2">
-                            {favoriteProfiles.map(p => (
-                                <div key={p.id} className="w-8 h-8 rounded-full border-2 border-white overflow-hidden shadow-sm" title={p.display_name || ''}>
-                                    {p.avatar_url ? (
-                                        <img src={p.avatar_url} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="w-full h-full bg-pastel-peach flex items-center justify-center text-[10px] font-bold text-slate-700">
-                                            {p.display_name?.[0]}
+                    {viewConfig ? (
+                        <Button
+                            onClick={handleAddToWishlist}
+                            disabled={addingToWishlist || addedToWishlist}
+                            className={`rounded-full px-4 py-2 font-bold transition-all flex items-center gap-2 ${addedToWishlist ? 'bg-green-500 text-white' : 'bg-pastel-blue text-slate-800'}`}
+                        >
+                            {addedToWishlist ? (
+                                <>
+                                    <Check size={18} />
+                                    {t('wishlist.addedToWishlist')}
+                                </>
+                            ) : (
+                                <>
+                                    <Bookmark size={18} />
+                                    {t('wishlist.addToWishlist')}
+                                </>
+                            )}
+                        </Button>
+                    ) : (
+                        <>
+                            <button
+                                onClick={() => setShareModalOpen(true)}
+                                className="p-2 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 transition-colors"
+                                title="Share"
+                            >
+                                <Share2 size={20} />
+                            </button>
+                            {favoriteProfiles.length > 0 && (
+                                <div className="flex -space-x-2">
+                                    {favoriteProfiles.map(p => (
+                                        <div key={p.id} className="w-8 h-8 rounded-full border-2 border-white overflow-hidden shadow-sm" title={p.display_name || ''}>
+                                            {p.avatar_url ? (
+                                                <img src={p.avatar_url} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full bg-pastel-peach flex items-center justify-center text-[10px] font-bold text-slate-700">
+                                                    {p.display_name?.[0]}
+                                                </div>
+                                            )}
                                         </div>
-                                    )}
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
+                            )}
+                            <button
+                                onClick={handleToggleFavorite}
+                                className={`p-2 rounded-full transition-colors ${isFavorite ? 'bg-red-50 text-red-500' : 'bg-slate-50 text-slate-300 hover:bg-slate-100'}`}
+                            >
+                                <Heart size={20} fill={isFavorite ? "currentColor" : "none"} />
+                            </button>
+                        </>
                     )}
-                    <button
-                        onClick={handleToggleFavorite}
-                        className={`p-2 rounded-full transition-colors ${isFavorite ? 'bg-red-50 text-red-500' : 'bg-slate-50 text-slate-300 hover:bg-slate-100'}`}
-                    >
-                        <Heart size={20} fill={isFavorite ? "currentColor" : "none"} />
-                    </button>
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-8 pb-32">
+            <div className={`flex-1 overflow-y-auto p-4 space-y-8 pb-32 ${viewConfig?.theme === 'dark' ? 'bg-slate-900 text-white' : ''}`}>
                 {/* Hero Carousel */}
-                {photos.length > 0 && (
+                {(photos.length > 0 && (!viewConfig || viewConfig.show_photos)) && (
                     <div className="rounded-2xl overflow-hidden relative group aspect-video shadow-sm">
                         <div
                             ref={heroScrollRef}
@@ -224,16 +352,18 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
                 )}
                 {/* Map Section */}
                 <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-slate-500 text-sm">
-                        <MapPin size={16} />
+                    <div className="flex items-start gap-2 text-slate-500 text-sm">
+                        <MapPin size={16} className="mt-0.5" />
                         <span className="flex-1">{restaurant.address}</span>
-                        <button
-                            onClick={() => setEditLocationDrawerOpen(true)}
-                            className="p-1.5 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-colors"
-                            title={t('restaurant.editLocation')}
-                        >
-                            <Pencil size={14} />
-                        </button>
+                        {!viewConfig && (
+                            <button
+                                onClick={() => setEditRestaurantDrawerOpen(true)}
+                                className="p-1.5 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-colors"
+                                title={t('restaurant.editDetails')}
+                            >
+                                <Pencil size={14} />
+                            </button>
+                        )}
                     </div>
                     <div className="h-48 rounded-2xl overflow-hidden border border-slate-100 shadow-sm relative z-0">
                         <RestaurantMap restaurants={[{ ...restaurant, avg_score: avgScore }]} />
@@ -241,143 +371,157 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
                 </div>
 
                 {/* Comparative Ratings */}
-                <div>
-                    <h3 className="font-bold text-slate-800 mb-4 text-lg">{t('stats.averageScore')}</h3>
+                {(!viewConfig || viewConfig.show_ratings) && (
+                    <div>
+                        <h3 className="font-bold text-slate-800 mb-4 text-lg">{t('stats.averageScore')}</h3>
 
-                    <div className="grid grid-cols-3 gap-4 mb-6">
-                        {/* Me */}
-                        <div className="flex flex-col items-center">
-                            <div className="w-12 h-12 rounded-full bg-pastel-blue flex items-center justify-center text-white font-bold text-xl mb-2 shadow-sm">
-                                {myRating ? ((myRating.food_score + myRating.service_score + myRating.vibe_score + myRating.price_quality_score) / 4).toFixed(1) : '-'}
-                            </div>
-                            <span className="text-xs font-bold text-slate-600 text-center line-clamp-1">{currentUser?.display_name || 'Me'}</span>
-                        </div>
-
-                        {/* VS */}
-                        <div className="flex flex-col items-center justify-center pt-2">
-                            <span className="text-xs font-black text-slate-300 uppercase tracking-widest">VS</span>
-                        </div>
-
-                        {/* Partner */}
-                        <div className="flex flex-col items-center">
-                            <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-xl mb-2 shadow-sm ${partnerRating ? 'bg-pastel-peach text-slate-800' : 'bg-slate-100 text-slate-300'}`}>
-                                {partnerRating ? ((partnerRating.food_score + partnerRating.service_score + partnerRating.vibe_score + partnerRating.price_quality_score) / 4).toFixed(1) : '?'}
-                            </div>
-                            <span className="text-xs font-bold text-slate-600 text-center line-clamp-1">{partnerProfile?.display_name || t('restaurant.partner')}</span>
-                        </div>
-                    </div>
-
-                    <div className="space-y-3 bg-slate-50 p-4 rounded-2xl">
-                        {[
-                            { label: t('restaurant.food'), key: 'food_score' },
-                            { label: t('restaurant.service'), key: 'service_score' },
-                            { label: t('restaurant.vibe'), key: 'vibe_score' },
-                            { label: t('restaurant.priceQuality'), key: 'price_quality_score' }
-                        ].map((cat) => (
-                            <div key={cat.key} className="flex items-center gap-3">
-                                <span className="text-xs font-bold text-slate-500 w-24">{cat.label}</span>
-                                <div className="flex-1 h-2 bg-white rounded-full overflow-hidden flex">
-                                    {/* Comparative Bar */}
-                                    <div
-                                        className="h-full bg-pastel-blue opacity-80"
-                                        style={{ width: `${myRating ? (myRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
-                                    />
-                                    <div
-                                        className="h-full bg-pastel-peach opacity-80"
-                                        style={{ width: `${partnerRating ? (partnerRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
-                                    />
+                        <div className="grid grid-cols-3 gap-4 mb-6">
+                            {/* Me */}
+                            <div className="flex flex-col items-center">
+                                <div className="w-12 h-12 rounded-full bg-pastel-blue flex items-center justify-center text-white font-bold text-xl mb-2 shadow-sm">
+                                    {myRating ? ((myRating.food_score + myRating.service_score + myRating.vibe_score + myRating.price_quality_score) / 4).toFixed(1) : '-'}
                                 </div>
+                                <span className="text-xs font-bold text-slate-600 text-center line-clamp-1">{currentUser?.display_name || 'Me'}</span>
                             </div>
-                        ))}
+
+                            {/* VS */}
+                            <div className="flex flex-col items-center justify-center pt-2">
+                                <span className="text-xs font-black text-slate-300 uppercase tracking-widest">VS</span>
+                            </div>
+
+                            {/* Partner */}
+                            <div className="flex flex-col items-center">
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-xl mb-2 shadow-sm ${partnerRating ? 'bg-pastel-peach text-slate-800' : 'bg-slate-100 text-slate-300'}`}>
+                                    {partnerRating ? ((partnerRating.food_score + partnerRating.service_score + partnerRating.vibe_score + partnerRating.price_quality_score) / 4).toFixed(1) : '?'}
+                                </div>
+                                <span className="text-xs font-bold text-slate-600 text-center line-clamp-1">{partnerProfile?.display_name || t('restaurant.partner')}</span>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3 bg-slate-50 p-4 rounded-2xl">
+                            {[
+                                { label: t('restaurant.food'), key: 'food_score' },
+                                { label: t('restaurant.service'), key: 'service_score' },
+                                { label: t('restaurant.vibe'), key: 'vibe_score' },
+                                { label: t('restaurant.priceQuality'), key: 'price_quality_score' }
+                            ].map((cat) => (
+                                <div key={cat.key} className="flex items-center gap-3">
+                                    <span className="text-xs font-bold text-slate-500 w-24">{cat.label}</span>
+                                    <div className="flex-1 h-2 bg-white rounded-full overflow-hidden flex">
+                                        {/* Comparative Bar */}
+                                        <div
+                                            className="h-full bg-pastel-blue opacity-80"
+                                            style={{ width: `${myRating ? (myRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
+                                        />
+                                        <div
+                                            className="h-full bg-pastel-peach opacity-80"
+                                            style={{ width: `${partnerRating ? (partnerRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Comments Section */}
-                <div className="bg-slate-50 p-4 rounded-2xl">
-                    <h3 className="font-bold text-slate-800 mb-4 text-lg">{t('restaurant.chat')}</h3>
+                {(!viewConfig || viewConfig.show_comments) && (
+                    <div className="bg-slate-50 p-4 rounded-2xl">
+                        <h3 className="font-bold text-slate-800 mb-4 text-lg">{t('restaurant.chat')}</h3>
 
-                    <div className="space-y-4 mb-4 max-h-60 overflow-y-auto pr-2">
-                        {(comments || []).map((comment) => {
-                            const isMe = comment.user_id === currentUser?.id;
-                            const profile = profiles[comment.user_id];
-                            return (
-                                <div key={comment.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                                    <div className={`p-3 rounded-2xl max-w-[80%] text-sm ${isMe ? 'bg-pastel-blue text-slate-800 rounded-br-none' : 'bg-white border border-slate-100 text-slate-700 rounded-bl-none'}`}>
-                                        {comment.content}
+                        <div className="space-y-4 mb-4 max-h-60 overflow-y-auto pr-2">
+                            {(comments || []).map((comment) => {
+                                const isMe = comment.user_id === currentUser?.id;
+                                const profile = profiles[comment.user_id];
+                                return (
+                                    <div key={comment.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                                        <div className={`p-3 rounded-2xl max-w-[80%] text-sm ${isMe ? 'bg-pastel-blue text-slate-800 rounded-br-none' : 'bg-white border border-slate-100 text-slate-700 rounded-bl-none'}`}>
+                                            {comment.content}
+                                        </div>
+                                        <span className="text-[10px] text-slate-400 mt-1 px-1">
+                                            {profile?.display_name || t('restaurant.user')} • {new Date(comment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </span>
                                     </div>
-                                    <span className="text-[10px] text-slate-400 mt-1 px-1">
-                                        {profile?.display_name || t('restaurant.user')} • {new Date(comment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </span>
+                                );
+                            })}
+                            {(!comments || comments.length === 0) && (
+                                <div className="text-center text-slate-400 text-xs py-4">
+                                    {t('restaurant.noComments')}
                                 </div>
-                            );
-                        })}
-                        {(!comments || comments.length === 0) && (
-                            <div className="text-center text-slate-400 text-xs py-4">
-                                {t('restaurant.noComments')}
-                            </div>
+                            )}
+                        </div>
+
+                        {(!viewConfig || viewConfig.allow_comments) && (
+                            <form onSubmit={handleSendComment} className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={newComment}
+                                    onChange={(e) => setNewComment(e.target.value)}
+                                    placeholder={t('restaurant.addCommentPlaceholder')}
+                                    className="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-pastel-blue"
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={!newComment.trim()}
+                                    className="bg-pastel-blue text-white p-2 rounded-xl disabled:opacity-50"
+                                >
+                                    <Send size={18} />
+                                </button>
+                            </form>
                         )}
                     </div>
-
-                    <form onSubmit={handleSendComment} className="flex gap-2">
-                        <input
-                            type="text"
-                            value={newComment}
-                            onChange={(e) => setNewComment(e.target.value)}
-                            placeholder={t('restaurant.addCommentPlaceholder')}
-                            className="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-pastel-blue"
-                        />
-                        <button
-                            type="submit"
-                            disabled={!newComment.trim()}
-                            className="bg-pastel-blue text-white p-2 rounded-xl disabled:opacity-50"
-                        >
-                            <Send size={18} />
-                        </button>
-                    </form>
-                </div>
+                )}
 
                 {/* Photos */}
-                <div>
-                    <div className="flex justify-between items-end mb-4">
-                        <h3 className="font-bold text-slate-800 text-lg">{t('restaurant.photos') || 'Photos'}</h3>
-                        <label className="text-xs font-bold text-pastel-blue cursor-pointer hover:underline flex items-center gap-1">
-                            <Camera size={14} />
-                            {t('restaurant.addPhoto')}
-                            <input type="file" className="hidden" accept="image/*" onChange={handlePhotoUpload} disabled={uploading} />
-                        </label>
-                    </div>
+                {(!viewConfig || viewConfig.show_photos) && (
+                    <div>
+                        <div className="flex justify-between items-end mb-4">
+                            <h3 className="font-bold text-slate-800 text-lg">{t('restaurant.photos') || 'Photos'}</h3>
+                            {(!viewConfig || viewConfig.allow_photos) && (
+                                <label className="text-xs font-bold text-pastel-blue cursor-pointer hover:underline flex items-center gap-1">
+                                    <Camera size={14} />
+                                    {t('restaurant.addPhoto')}
+                                    <input type="file" className="hidden" accept="image/*" onChange={handlePhotoUpload} disabled={uploading} />
+                                </label>
+                            )}
+                        </div>
 
-                    <div className="grid grid-cols-2 gap-2">
-                        {photos.map((p, index) => (
-                            <div key={p.id} className="aspect-square rounded-xl overflow-hidden relative group bg-slate-100 cursor-pointer" onClick={() => openLightbox(index)}>
-                                <img src={p.url} className="w-full h-full object-cover" loading="lazy" />
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); handleDeletePhoto(p.id); }}
-                                    className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                    <Trash2 size={14} />
-                                </button>
-                            </div>
-                        ))}
-                        {photos.length === 0 && (
-                            <div className="col-span-2 aspect-video bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-slate-300 gap-2">
-                                <Camera size={24} />
-                                <span className="text-xs font-medium">No photos yet</span>
-                            </div>
-                        )}
+                        <div className="grid grid-cols-2 gap-2">
+                            {photos.map((p, index) => (
+                                <div key={p.id} className="aspect-square rounded-xl overflow-hidden relative group bg-slate-100 cursor-pointer" onClick={() => openLightbox(index)}>
+                                    <img src={p.url} className="w-full h-full object-cover" loading="lazy" />
+                                    {(!viewConfig || viewConfig.allow_photos) && (
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); handleDeletePhoto(p.id); }}
+                                            className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                            {photos.length === 0 && (
+                                <div className="col-span-2 aspect-video bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-slate-300 gap-2">
+                                    <Camera size={24} />
+                                    <span className="text-xs font-medium">No photos yet</span>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
 
             {/* Bottom Action */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-slate-100 pb-8 z-20">
-                <Button
-                    className="w-full bg-pastel-mint text-slate-800 rounded-2xl py-4 font-bold text-lg shadow-lg active:scale-[0.98] transition-transform"
-                    onClick={() => setRatingDrawerOpen(true)}
-                >
-                    {myRating ? t('restaurant.saveRating') : t('restaurant.rateNow')}
-                </Button>
-            </div>
+            {!viewConfig && (
+                <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-slate-100 pb-8 z-20">
+                    <Button
+                        className="w-full bg-pastel-mint text-slate-800 rounded-2xl py-4 font-bold text-lg shadow-lg active:scale-[0.98] transition-transform"
+                        onClick={() => setRatingDrawerOpen(true)}
+                    >
+                        {myRating ? t('restaurant.saveRating') : t('restaurant.rateNow')}
+                    </Button>
+                </div>
+            )}
 
             <RateRestaurantDrawer
                 isOpen={ratingDrawerOpen}
@@ -387,11 +531,18 @@ export function RestaurantDetailView({ restaurant, currentUser, onBack }: Restau
                 onSuccess={refresh}
             />
 
-            <EditLocationDrawer
-                isOpen={editLocationDrawerOpen}
-                onClose={() => setEditLocationDrawerOpen(false)}
+            <EditRestaurantDrawer
+                isOpen={editRestaurantDrawerOpen}
+                onClose={() => setEditRestaurantDrawerOpen(false)}
                 restaurant={restaurant}
-                onSuccess={refresh}
+                onSuccess={() => { refresh(); handleBack(); }}
+            />
+
+            <ShareConfigurationModal
+                isOpen={shareModalOpen}
+                onClose={() => setShareModalOpen(false)}
+                restaurant={restaurant}
+                currentUser={currentUser}
             />
 
             {/* Lightbox */}

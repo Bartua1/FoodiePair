@@ -64,13 +64,6 @@ export function UserSync({ children }: { children: React.ReactNode }) {
                     } else {
                         console.log('Profile created successfully for:', user.id);
                     }
-                } else if (error) {
-                    console.error('Error fetching profile:', {
-                        message: error.message,
-                        code: error.code,
-                        details: error.details,
-                        status: error.hint
-                    });
                 } else if (profile) {
                     // Update display name or avatar if changed
                     const currentName = user.fullName || user.username || 'User';

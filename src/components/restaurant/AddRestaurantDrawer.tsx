@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { X, MapPin, Utensils, Star, Camera, ChevronRight, ChevronLeft, Loader2, Trash2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { geocodeAddress } from '../../lib/geocoding';
@@ -10,10 +10,12 @@ interface AddRestaurantDrawerProps {
     isOpen: boolean;
     onClose: () => void;
     profile: Profile | null;
+    profile: Profile | null;
     onSuccess: () => void;
+    initialStatus?: 'visited' | 'wishlist';
 }
 
-export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: AddRestaurantDrawerProps) {
+export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess, initialStatus = 'visited' }: AddRestaurantDrawerProps) {
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const { t } = useTranslation();
@@ -35,8 +37,21 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
         serviceScore: 4,
         vibeScore: 4,
         priceQualityScore: 4,
-        comment: ''
+        vibeScore: 4,
+        priceQualityScore: 4,
+        comment: '',
+        visitStatus: initialStatus // Initialize with prop
     });
+
+    // Reset form when opening
+    useEffect(() => {
+        if (isOpen) {
+            setFormData(prev => ({
+                ...prev,
+                visitStatus: initialStatus // Use prop as default, but allow changes
+            }));
+        }
+    }, [isOpen, initialStatus]);
 
     const handleNext = () => setStep(step + 1);
     const handleBack = () => setStep(step - 1);
@@ -89,8 +104,11 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
                 price_range: formData.priceRange,
                 lat,
                 lng,
+                lat,
+                lng,
                 // is_favorite: deprecated, moved to separate table
-                visit_date: new Date().toISOString(),
+                visit_date: formData.visitStatus === 'visited' ? new Date().toISOString() : null,
+                visit_status: formData.visitStatus,
                 created_by: profile.id
             })
             .select()
@@ -161,7 +179,9 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
         setStep(1);
         setFormData({
             name: '', address: '', cuisine: '', priceRange: 2, isFavorite: false,
-            foodScore: 4, serviceScore: 4, vibeScore: 4, priceQualityScore: 4, comment: ''
+            name: '', address: '', cuisine: '', priceRange: 2, isFavorite: false,
+            foodScore: 4, serviceScore: 4, vibeScore: 4, priceQualityScore: 4, comment: '',
+            visitStatus: initialStatus
         });
         setSelectedFile(null);
         setImagePreview(null);
@@ -190,6 +210,24 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess }: Add
                 <div className="min-h-[300px]">
                     {step === 1 && (
                         <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                            {/* Status Toggle */}
+                            <div className="bg-slate-100 p-1.5 rounded-2xl flex gap-1">
+                                <button
+                                    onClick={() => setFormData({ ...formData, visitStatus: 'visited' })}
+                                    className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${formData.visitStatus === 'visited' ? 'bg-white text-slate-800 shadow-sm ring-1 ring-black/5' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-200/50'}`}
+                                >
+                                    <span className={`w-2 h-2 rounded-full ${formData.visitStatus === 'visited' ? 'bg-pastel-mint' : 'bg-slate-300'}`} />
+                                    {t('wishlist.visited')}
+                                </button>
+                                <button
+                                    onClick={() => setFormData({ ...formData, visitStatus: 'wishlist' })}
+                                    className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${formData.visitStatus === 'wishlist' ? 'bg-white text-slate-800 shadow-sm ring-1 ring-black/5' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-200/50'}`}
+                                >
+                                    <span className={`w-2 h-2 rounded-full ${formData.visitStatus === 'wishlist' ? 'bg-pastel-blue' : 'bg-slate-300'}`} />
+                                    {t('wishlist.toGo')}
+                                </button>
+                            </div>
+
                             <div className="space-y-1">
                                 <label className="text-sm font-bold text-slate-700 ml-1">{t('restaurant.name')}</label>
                                 <div className="relative">

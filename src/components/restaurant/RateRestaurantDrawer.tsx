@@ -39,7 +39,13 @@ export function RateRestaurantDrawer({ isOpen, onClose, restaurantId, profile, o
             favorite_dish: ''
         });
 
-        if (!error) {
+        // Also mark as visited if it was in wishlist
+        const { error: updateError } = await supabase
+            .from('restaurants')
+            .update({ visit_status: 'visited' })
+            .eq('id', restaurantId);
+
+        if (!error && !updateError) {
             onSuccess();
             onClose();
         } else {

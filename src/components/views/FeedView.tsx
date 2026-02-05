@@ -19,6 +19,7 @@ interface FeedViewProps {
     onRefresh: () => void;
     profile: Profile | null;
     onViewDetails: (restaurant: Restaurant) => void;
+    activeTab?: 'visited' | 'wishlist';
 }
 
 export function FeedView({
@@ -31,10 +32,20 @@ export function FeedView({
     retryGeo,
     onRefresh,
     profile,
-    onViewDetails
+    onViewDetails,
+    activeTab = 'visited'
 }: FeedViewProps) {
     const { t } = useTranslation();
     const [ratingRestaurant, setRatingRestaurant] = useState<Restaurant | null>(null);
+
+    // Filter restaurants based on tab
+    const filteredByTab = restaurants.filter(r => {
+        if (activeTab === 'visited') {
+            return !r.visit_status || r.visit_status === 'visited';
+        } else {
+            return r.visit_status === 'wishlist';
+        }
+    });
 
     const handleToggleFavorite = async (restaurant: Restaurant) => {
         if (!profile) return;
@@ -59,10 +70,14 @@ export function FeedView({
     };
 
     return (
-        <div className="flex-1 overflow-y-auto p-4 no-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 pb-32 no-scrollbar">
             <header className="mb-6">
-                <h2 className="text-2xl font-bold text-slate-800 mb-1">{t('feed.title')}</h2>
-                <p className="text-slate-500 text-sm">{t('feed.subtitle')}</p>
+                <h2 className="text-2xl font-bold text-slate-800 mb-1">
+                    {activeTab === 'visited' ? t('feed.title') : t('wishlist.toGo')}
+                </h2>
+                <p className="text-slate-500 text-sm">
+                    {activeTab === 'visited' ? t('feed.subtitle') : t('wishlist.subtitle')}
+                </p>
             </header>
 
             <FilterBar
@@ -77,17 +92,19 @@ export function FeedView({
                 <div className="animate-pulse space-y-4 mt-6">
                     {[1, 2, 3].map(i => <div key={i} className="h-48 bg-slate-100 rounded-2xl w-full" />)}
                 </div>
-            ) : restaurants.length === 0 ? (
+            ) : filteredByTab.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 text-center px-4">
                     <div className="w-20 h-20 bg-pastel-blue rounded-full flex items-center justify-center mb-4">
                         <Utensils className="w-10 h-10 text-slate-400" />
                     </div>
                     <h3 className="text-lg font-semibold text-slate-700">{t('feed.noRestaurants')}</h3>
-                    <p className="text-slate-500 max-w-[240px]">{t('feed.noRestaurantsSubtitle')}</p>
+                    <p className="text-slate-500 max-w-[240px]">
+                        {activeTab === 'visited' ? t('feed.noRestaurantsSubtitle') : 'Start adding places to your wishlist!'}
+                    </p>
                 </div>
             ) : (
                 <div className="space-y-4 mt-2">
-                    {restaurants.map(r => (
+                    {filteredByTab.map(r => (
                         <RestaurantCard
                             key={r.id}
                             restaurant={r}

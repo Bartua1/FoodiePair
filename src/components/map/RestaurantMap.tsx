@@ -49,9 +49,10 @@ const createCustomIcon = (isFavorite: boolean) => {
 interface RestaurantMapProps {
     restaurants: (Restaurant & { avg_score?: number })[];
     userLocation?: { lat: number; lng: number } | null;
+    onViewDetails?: (restaurant: Restaurant) => void;
 }
 
-export function RestaurantMap({ restaurants, userLocation }: RestaurantMapProps) {
+export function RestaurantMap({ restaurants, userLocation, onViewDetails }: RestaurantMapProps) {
     const center: [number, number] = restaurants.length > 0
         ? [restaurants[0].lat, restaurants[0].lng]
         : userLocation
@@ -100,7 +101,15 @@ export function RestaurantMap({ restaurants, userLocation }: RestaurantMapProps)
                                     <span className="font-bold text-slate-700">{r.avg_score?.toFixed(1) || 'N/A'}</span>
                                     <span className="text-slate-400 text-xs text-uppercase ml-auto uppercase font-medium">{r.cuisine_type}</span>
                                 </div>
-                                <p className="text-xs text-slate-500 line-clamp-2">{r.address}</p>
+                                <p className="text-xs text-slate-500 line-clamp-2 mb-3">{r.address}</p>
+                                {onViewDetails && (
+                                    <button
+                                        onClick={() => onViewDetails(r)}
+                                        className="w-full py-2 bg-pastel-peach text-slate-800 rounded-xl text-xs font-bold hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                    >
+                                        Ver detalles
+                                    </button>
+                                )}
                             </div>
                         </Popup>
                     </Marker>

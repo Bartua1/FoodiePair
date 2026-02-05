@@ -26,6 +26,16 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Also support .no-scrollbar as used in FilterBar.tsx */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer base {

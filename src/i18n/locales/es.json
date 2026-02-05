@@ -61,10 +61,12 @@
     "addYourRating": "Añade tu puntuación a este sitio",
     "saveRating": "Guardar Puntuación",
     "photos": "Fotos",
+    "editDetails": "Editar Detalles",
     "editLocation": "Editar Ubicación",
     "addressNotFound": "Dirección no encontrada",
     "searchError": "Error buscando dirección",
     "searchToPreview": "Busca una dirección para ver la vista previa",
+    "saveChanges": "Guardar Cambios",
     "saveLocation": "Guardar Ubicación",
     "chat": "Chat",
     "noComments": "Aún no hay comentarios. ¡Empezad la conversación!",
@@ -101,5 +103,35 @@
     "language": "Idioma",
     "english": "Inglés",
     "spanish": "Español"
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "empty": "¡Estás al día! No tienes restaurantes pendientes de puntuar.",
+    "pendingRating": "Pendiente de puntuar",
+    "footer": "Tu opinión importa"
+  },
+  "share": {
+    "title": "Compartir Restaurante",
+    "parameters": "Parámetros",
+    "showPhotos": "Mostrar Fotos",
+    "showRatings": "Mostrar Puntuaciones",
+    "showComments": "Mostrar Comentarios",
+    "allowPhotos": "Permitir Añadir Fotos",
+    "allowComments": "Permitir Comentarios",
+    "creatingLink": "Creando Enlace...",
+    "createLink": "Crear Enlace",
+    "linkReady": "¡Enlace Listo!",
+    "linkReadySubtitle": "Cualquiera con este enlace puede ver el restaurante según la configuración.",
+    "close": "Cerrar",
+    "accessDenied": "Acceso Denegado",
+    "accessDeniedSubtitle": "Este enlace es privado o no tienes permiso para verlo.",
+    "goHome": "Ir al Inicio",
+    "existingLinkFound": "Enlace existente encontrado para esta configuración"
+  },
+  "wishlist": {
+    "addToWishlist": "Añadir a Por Ir",
+    "addedToWishlist": "¡Añadido a Por Ir!",
+    "visited": "Visitados",
+    "toGo": "Por Ir"
   }
 }
