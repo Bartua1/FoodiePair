@@ -113,7 +113,7 @@
     "markAllRead": "Marcar leídas",
     "restaurant_match": "Nuevo restaurante añadido: {{restaurant_name}}. ¡Míralo!",
     "new_comment": "Nuevo comentario en {{restaurant_name}}",
-    "comment_liked": "A alguien le gustó tu comentario: \"{{comment_preview}}\""
+    "comment_liked": "A {{liker_name}} le gustó tu comentario: \"{{comment_preview}}\""
   },
   "share": {
     "title": "Compartir Restaurante",
