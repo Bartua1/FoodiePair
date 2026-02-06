@@ -25,7 +25,7 @@ export function NavigationFAB() {
     };
 
     return (
-        <div className="fixed bottom-6 left-6 z-50 flex flex-col items-start gap-4">
+        <div className="fixed bottom-6 left-6 z-[2000] flex flex-col items-start gap-4">
             <div className={`flex flex-col gap-3 transition-all duration-300 origin-bottom-left ${isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-50 translate-y-10 pointer-events-none absolute bottom-0 left-0'}`}>
                 {tabs.map(({ id, icon: Icon, label }) => (
                     <button
