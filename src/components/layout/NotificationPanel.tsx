@@ -52,7 +52,7 @@ export function NotificationPanel({ isOpen, onClose, unratedRestaurants, notific
     };
 
     return (
-        <div className="absolute top-full right-0 mt-3 w-[360px] max-h-[500px] bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col z-[100] animate-in fade-in slide-in-from-top-2 duration-300 overflow-hidden">
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 w-[95vw] sm:absolute sm:top-full sm:right-0 sm:left-auto sm:translate-x-0 sm:w-[360px] sm:mt-3 max-h-[80vh] sm:max-h-[500px] bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col z-[100] animate-in fade-in slide-in-from-top-2 duration-300 overflow-hidden">
             <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-white sticky top-0 z-10">
                 <h3 className="font-bold text-slate-800 flex items-center gap-2">
                     <Bell size={18} className="shrink-0 text-orange-500" />
@@ -66,7 +66,7 @@ export function NotificationPanel({ isOpen, onClose, unratedRestaurants, notific
                 {unreadNotificationsCount > 0 && onMarkAllAsRead && (
                     <button
                         onClick={onMarkAllAsRead}
-                        className="text-xs font-bold text-pastel-blue-dark hover:text-pastel-blue-darker transition-colors flex items-center gap-1"
+                        className="px-3 py-1 bg-pastel-blue/20 text-pastel-blue-dark hover:bg-pastel-blue/30 rounded-full text-xs font-bold transition-all flex items-center gap-1.5"
                     >
                         <CheckCircle2 size={14} />
                         {t('notifications.markAllRead', 'Marcar leídas')}
