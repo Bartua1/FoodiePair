@@ -56,33 +56,40 @@ function App() {
 
   return (
     <div className="h-[100dvh] bg-background flex flex-col overflow-hidden">
-      <Header unratedRestaurants={unratedRestaurants} />
+      <div className="flex-1 overflow-hidden flex flex-col relative w-full">
+        <Routes>
+          <Route path="/shared/:id" element={<SharedRestaurantView currentUser={profile} />} />
+          <Route path="*" element={
+            <div className="flex flex-col h-full">
+              <Header unratedRestaurants={unratedRestaurants} />
+              <main className="flex-1 flex flex-col overflow-hidden relative">
+                <SignedOut>
+                  <div className="flex-1 flex flex-col items-center justify-center text-center max-w-sm mx-auto p-4 overflow-y-auto">
+                    <h2 className="text-3xl font-bold mb-4 text-slate-800">{t('app.heroTitle')}</h2>
+                    <p className="text-slate-500 mb-8">{t('app.heroSubtitle')}</p>
+                    <SignInButton mode="modal">
+                      <button className="px-8 py-3 bg-pastel-peach rounded-full font-bold text-slate-800 shadow-md hover:scale-105 transition-all text-lg">
+                        {t('app.getStarted')}
+                      </button>
+                    </SignInButton>
+                  </div>
+                </SignedOut>
 
-      <main className="flex-1 flex flex-col overflow-hidden relative">
-
-
-        <SignedOut>
-          <div className="flex-1 flex flex-col items-center justify-center text-center max-w-sm mx-auto p-4 overflow-y-auto">
-            <h2 className="text-3xl font-bold mb-4 text-slate-800">{t('app.heroTitle')}</h2>
-            <p className="text-slate-500 mb-8">{t('app.heroSubtitle')}</p>
-            <SignInButton mode="modal">
-              <button className="px-8 py-3 bg-pastel-peach rounded-full font-bold text-slate-800 shadow-md hover:scale-105 transition-all text-lg">
-                {t('app.getStarted')}
-              </button>
-            </SignInButton>
-          </div>
-        </SignedOut>
-
-        <SignedIn>
-          <UserSync>
-            <AppContent />
-          </UserSync>
-        </SignedIn>
-      </main>
+                <SignedIn>
+                  <UserSync>
+                    <AppContent />
+                  </UserSync>
+                </SignedIn>
+              </main>
+            </div>
+          } />
+        </Routes>
+      </div>
     </div>
   );
 }
 
+// AppContent remains strictly for authenticated routes and standard layout
 function AppContent() {
   const { user } = useUser();
   const [profile, setProfile] = useState<Profile | null>(null);

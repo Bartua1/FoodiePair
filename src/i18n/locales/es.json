@@ -14,11 +14,16 @@
       "retry": "Intentar de Nuevo"
     }
   },
+  "joinUs": {
+    "prompt": "¡Únete a FoodiePair para crear tus propias listas y puntuar!",
+    "action": "Registrarse / Iniciar Sesión"
+  },
   "nav": {
     "feed": "Feed",
     "map": "Mapa",
     "stats": "Estadísticas",
-    "settings": "Ajustes"
+    "settings": "Ajustes",
+    "loginToView": "Inicia sesión para ver comentarios"
   },
   "feed": {
     "title": "Vuestro Feed Gastronómico",
@@ -70,6 +75,7 @@
     "saveLocation": "Guardar Ubicación",
     "chat": "Chat",
     "noComments": "Aún no hay comentarios. ¡Empezad la conversación!",
+    "loginToView": "Inicia sesión para ver los comentarios",
     "addCommentPlaceholder": "Escribe un comentario...",
     "partner": "Pareja",
     "user": "Usuario"

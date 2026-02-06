@@ -228,13 +228,13 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess, initi
                             <div className="bg-slate-100 p-1.5 rounded-2xl flex gap-1">
                                 <button
                                     onClick={() => setFormData({ ...formData, visitStatus: 'visited' })}
-                                    className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${formData.visitStatus === 'visited' ? 'bg-pastel-mint text-slate-800 shadow-sm' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-200/50'}`}
+                                    className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${formData.visitStatus === 'visited' ? 'bg-pastel-blue-dark text-slate-800 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                                 >
                                     {t('wishlist.visited')}
                                 </button>
                                 <button
                                     onClick={() => setFormData({ ...formData, visitStatus: 'wishlist' })}
-                                    className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${formData.visitStatus === 'wishlist' ? 'bg-pastel-blue text-slate-800 shadow-sm' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-200/50'}`}
+                                    className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${formData.visitStatus === 'wishlist' ? 'bg-pastel-blue-dark text-slate-800 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                                 >
                                     {t('wishlist.toGo')}
                                 </button>
@@ -284,7 +284,7 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess, initi
                                             <button
                                                 key={p}
                                                 onClick={() => setFormData({ ...formData, priceRange: p })}
-                                                className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${formData.priceRange === p ? 'bg-white shadow-sm text-slate-800' : 'text-slate-300'}`}
+                                                className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${formData.priceRange === p ? 'bg-pastel-blue-dark shadow-sm text-slate-800' : 'text-slate-400 hover:text-slate-600'}`}
                                             >
                                                 {'€'.repeat(p)}
                                             </button>

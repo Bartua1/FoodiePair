@@ -14,11 +14,16 @@
       "retry": "Try Again"
     }
   },
+  "joinUs": {
+    "prompt": "Join FoodiePair to create your own lists and rate restaurants!",
+    "action": "Sign Up / Log In"
+  },
   "nav": {
     "feed": "Feed",
     "map": "Map",
     "stats": "Stats",
-    "settings": "Settings"
+    "settings": "Settings",
+    "loginToView": "Log in to view comments"
   },
   "feed": {
     "title": "Your Foodie Feed",
@@ -70,6 +75,7 @@
     "saveLocation": "Save Location",
     "chat": "Chat",
     "noComments": "No comments yet. Start the conversation!",
+    "loginToView": "Log in to view comments",
     "addCommentPlaceholder": "Add a comment...",
     "partner": "Partner",
     "user": "User"

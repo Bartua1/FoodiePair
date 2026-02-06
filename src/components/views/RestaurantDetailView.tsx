@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, MapPin, Camera, Trash2, Send, Pencil, Heart, X, ChevronLeft, ChevronRight, Loader2, Share2, Bookmark, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useClerk } from '@clerk/clerk-react';
 import { Button } from '../ui/Button';
 import { RateRestaurantDrawer } from '../restaurant/RateRestaurantDrawer';
 import { EditRestaurantDrawer } from '../restaurant/EditRestaurantDrawer';
@@ -11,6 +12,7 @@ import { useRestaurantDetails } from '../../hooks/useRestaurantDetails';
 import { supabase } from '../../lib/supabase';
 import type { Restaurant, Profile, Rating, SharedRestaurantConfig } from '../../types';
 import { CommentItem } from '../restaurant/CommentItem';
+import { JoinUsPrompt } from '../common/JoinUsPrompt';
 
 interface RestaurantDetailViewProps {
     restaurant?: Restaurant;
@@ -23,6 +25,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { t } = useTranslation();
+    const { openSignIn } = useClerk();
 
     const [restaurant, setRestaurant] = useState<Restaurant | null>(initialRestaurant || null);
     const [fetchingRestaurant, setFetchingRestaurant] = useState(!initialRestaurant);
@@ -111,7 +114,11 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
     }, [favoriteUserIds, currentUser]);
 
     const handleToggleFavorite = async () => {
-        if (!currentUser || !restaurant) return;
+        if (!currentUser) {
+            openSignIn();
+            return;
+        }
+        if (!restaurant) return;
 
         if (isFavorite) {
             await supabase.from('restaurant_favorites').delete().eq('user_id', currentUser.id).eq('restaurant_id', restaurant.id);
@@ -183,7 +190,11 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
     };
 
     const handleAddToWishlist = async () => {
-        if (!currentUser || !restaurant) return;
+        if (!currentUser) {
+            openSignIn();
+            return;
+        }
+        if (!restaurant) return;
         setAddingToWishlist(true);
 
         try {
@@ -268,7 +279,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
 
                 {/* Favorites/Wishlist Section in Header */}
                 <div className="flex items-center gap-2">
-                    {viewConfig ? (
+                    {viewConfig && currentUser ? (
                         <Button
                             onClick={handleAddToWishlist}
                             disabled={addingToWishlist || addedToWishlist}
@@ -444,10 +455,10 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
 
                 {/* Comments Section */}
                 {(!viewConfig || viewConfig.show_comments) && (
-                    <div className="bg-slate-50 p-4 rounded-2xl">
+                    <div className="bg-slate-50 p-4 rounded-2xl relative overflow-hidden">
                         <h3 className="font-bold text-slate-800 mb-4 text-lg">{t('restaurant.chat')}</h3>
 
-                        <div className="space-y-4 mb-4 max-h-60 overflow-y-auto pr-2">
+                        <div className={`space-y-4 mb-4 max-h-60 overflow-y-auto pr-2 ${!currentUser ? 'blur-sm select-none' : ''}`}>
                             {(comments || []).map((comment) => {
                                 const isMe = comment.user_id === currentUser?.id;
                                 const profile = profiles[comment.user_id];
@@ -467,7 +478,18 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                             )}
                         </div>
 
-                        {(!viewConfig || viewConfig.allow_comments) && (
+                        {!currentUser && (
+                            <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/30 backdrop-blur-[1px]">
+                                <Button
+                                    onClick={() => openSignIn()}
+                                    className="bg-slate-800 text-white rounded-full px-6 py-2 font-bold shadow-lg hover:bg-slate-700 transition-colors"
+                                >
+                                    {t('nav.loginToView')}
+                                </Button>
+                            </div>
+                        )}
+
+                        {currentUser && (!viewConfig || viewConfig.allow_comments) && (
                             <form onSubmit={handleSendComment} className="flex gap-2">
                                 <input
                                     type="text"
@@ -528,7 +550,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
             </div>
 
             {/* Bottom Action */}
-            {!viewConfig && (
+            {!viewConfig && currentUser && (
                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-slate-100 pb-8 z-20">
                     <Button
                         className={`w-full rounded-2xl py-4 font-bold text-lg shadow-lg active:scale-[0.98] transition-transform ${restaurant.visit_status === 'wishlist'
@@ -550,6 +572,8 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                     </Button>
                 </div>
             )}
+
+            {!currentUser && <JoinUsPrompt />}
 
             <RateRestaurantDrawer
                 isOpen={ratingDrawerOpen}

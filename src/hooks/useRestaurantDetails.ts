@@ -15,7 +15,7 @@ export function useRestaurantDetails(restaurantId: string | undefined, pairId: s
     const [loading, setLoading] = useState(true);
 
     async function fetchData() {
-        if (!restaurantId || !pairId) return;
+        if (!restaurantId) return; // pairId can be undefined now
         setLoading(true);
 
         try {
@@ -38,12 +38,29 @@ export function useRestaurantDetails(restaurantId: string | undefined, pairId: s
                 .eq('restaurant_id', restaurantId)
                 .order('created_at', { ascending: true });
 
-            // 4. Fetch Profiles for the pair (to map user_id to name)
-            // We fetch profiles linked to the pair_id
-            const { data: profilesData } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('pair_id', pairId);
+            // 4. Fetch Profiles
+            let profilesData: any[] | null = null;
+            if (pairId) {
+                // Fetch profiles linked to the pair_id
+                const { data } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('pair_id', pairId);
+                profilesData = data;
+            } else {
+                // Public view: Fetch profiles for all users found in ratings and comments
+                const userIds = new Set<string>();
+                if (ratingsData) ratingsData.forEach((r: Rating) => userIds.add(r.user_id));
+                if (commentsData) commentsData.forEach((c: Comment) => userIds.add(c.user_id));
+
+                if (userIds.size > 0) {
+                    const { data } = await supabase
+                        .from('profiles')
+                        .select('*')
+                        .in('id', Array.from(userIds));
+                    profilesData = data;
+                }
+            }
 
             const profilesMap: Record<string, Profile> = {};
             if (profilesData) {
