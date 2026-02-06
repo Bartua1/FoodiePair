@@ -25,7 +25,7 @@ import { Header } from './components/layout/Header';
 function App() {
   const { isLoaded, user } = useUser();
   const [loading, setLoading] = useState(true);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [profile, setProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
@@ -37,6 +37,9 @@ function App() {
           .eq('id', user.id);
         if (data && data.length > 0) {
           setProfile(data[0] as Profile);
+          if (data[0].language) {
+            i18n.changeLanguage(data[0].language);
+          }
         }
       }
     }
