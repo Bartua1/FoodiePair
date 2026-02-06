@@ -53,10 +53,10 @@ interface RestaurantMapProps {
 }
 
 export function RestaurantMap({ restaurants, userLocation, onViewDetails }: RestaurantMapProps) {
-    const center: [number, number] = restaurants.length > 0
-        ? [restaurants[0].lat, restaurants[0].lng]
-        : userLocation
-            ? [userLocation.lat, userLocation.lng]
+    const center: [number, number] = userLocation
+        ? [userLocation.lat, userLocation.lng]
+        : restaurants.length > 0
+            ? [restaurants[0].lat, restaurants[0].lng]
             : [37.3890, -5.9949]; // Default to Seville if no restaurants and no location
 
     return (
