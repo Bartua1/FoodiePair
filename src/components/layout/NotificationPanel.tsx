@@ -33,8 +33,23 @@ export function NotificationPanel({ isOpen, onClose, unratedRestaurants, notific
         onClose();
     };
 
-    const getIcon = (type: Notification['type']) => {
-        switch (type) {
+    const getIcon = (notification: Notification) => {
+        if (notification.type === 'comment_liked' && notification.data?.liker_avatar) {
+            return (
+                <div className="relative w-full h-full">
+                    <img
+                        src={notification.data.liker_avatar}
+                        alt="User"
+                        className="w-full h-full object-cover rounded-xl"
+                    />
+                    <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm border border-white">
+                        <Heart size={10} className="text-pastel-pink-dark fill-pastel-pink-dark" />
+                    </div>
+                </div>
+            );
+        }
+
+        switch (notification.type) {
             case 'restaurant_match': return <Utensils className="w-5 h-5 text-pastel-mint-dark" />;
             case 'new_comment': return <MessageCircle className="w-5 h-5 text-pastel-blue-dark" />;
             case 'comment_liked': return <Heart className="w-5 h-5 text-pastel-pink-dark" />;
@@ -130,7 +145,7 @@ export function NotificationPanel({ isOpen, onClose, unratedRestaurants, notific
                                         className={`w-full p-3 flex items-start gap-3 border hover:scale-[1.02] active:scale-[0.98] rounded-2xl transition-all group text-left ${notification.read ? 'bg-white border-slate-100 opacity-70' : 'bg-blue-50/50 border-blue-100'}`}
                                     >
                                         <div className={`w-10 h-10 ${getBgColor(notification.type)} rounded-xl flex-none flex items-center justify-center text-slate-800 shadow-sm group-hover:scale-105 transition-transform`}>
-                                            {getIcon(notification.type)}
+                                            {getIcon(notification)}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="font-medium text-slate-800 text-sm leading-snug mb-1">

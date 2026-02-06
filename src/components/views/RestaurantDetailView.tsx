@@ -397,7 +397,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                         <div className="grid grid-cols-3 gap-4 mb-6">
                             {/* Me */}
                             <div className="flex flex-col items-center">
-                                <div className="w-12 h-12 rounded-full bg-pastel-blue flex items-center justify-center text-white font-bold text-xl mb-2 shadow-sm">
+                                <div className="w-12 h-12 rounded-full bg-pastel-blue-dark flex items-center justify-center text-white font-bold text-xl mb-2 shadow-sm">
                                     {myRating ? ((myRating.food_score + myRating.service_score + myRating.vibe_score + myRating.price_quality_score) / 4).toFixed(1) : '-'}
                                 </div>
                                 <span className="text-xs font-bold text-slate-600 text-center line-clamp-1">{currentUser?.display_name || 'Me'}</span>
@@ -495,7 +495,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                         <div className="flex justify-between items-end mb-4">
                             <h3 className="font-bold text-slate-800 text-lg">{t('restaurant.photos') || 'Photos'}</h3>
                             {(!viewConfig || viewConfig.allow_photos) && (
-                                <label className="text-xs font-bold text-pastel-blue cursor-pointer hover:underline flex items-center gap-1">
+                                <label className="text-xs font-bold text-pastel-blue-dark cursor-pointer hover:underline flex items-center gap-1">
                                     <Camera size={14} />
                                     {t('restaurant.addPhoto')}
                                     <input type="file" className="hidden" accept="image/*" onChange={handlePhotoUpload} disabled={uploading} />
