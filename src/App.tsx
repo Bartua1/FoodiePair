@@ -49,7 +49,7 @@ function App() {
 
   // Calculate unrated restaurants for the current user
   const unratedRestaurants = useMemo(() => {
-    return restaurants.filter(r => !r.user_has_rated);
+    return restaurants.filter(r => !r.user_has_rated && r.visit_status !== 'wishlist');
   }, [restaurants]);
 
   if (loading) return <div className="h-[100dvh] bg-background flex items-center justify-center font-medium text-slate-400">{t('app.loading')}</div>;

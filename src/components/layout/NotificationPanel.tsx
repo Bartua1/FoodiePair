@@ -1,4 +1,4 @@
-import { X, Star, Utensils, Bell } from 'lucide-react';
+import { Star, Utensils, Bell } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import type { Restaurant } from '../../types';
@@ -46,7 +46,7 @@ export function NotificationPanel({ isOpen, onClose, unratedRestaurants }: Notif
                                     navigate(`/restaurant/${restaurant.id}`);
                                     onClose();
                                 }}
-                                className="w-full p-3 flex items-start gap-3 hover:bg-slate-50 rounded-2xl transition-all group text-left"
+                                className="w-full p-3 flex items-start gap-3 bg-white border border-slate-100 hover:bg-slate-50 rounded-2xl transition-all group text-left shadow-sm"
                             >
                                 <div className="w-10 h-10 bg-pastel-peach rounded-xl flex-none flex items-center justify-center text-slate-800 shadow-sm group-hover:scale-105 transition-transform">
                                     <Utensils className="w-5 h-5" />
