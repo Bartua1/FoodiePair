@@ -431,8 +431,9 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                             className="h-full bg-pastel-blue-darker opacity-80"
                                             style={{ width: `${myRating ? (myRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
                                         />
-                                        className="h-full bg-pastel-peach opacity-80"
-                                        style={{ width: `${partnerRating ? (partnerRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
+                                        <div
+                                            className="h-full bg-pastel-peach opacity-80"
+                                            style={{ width: `${partnerRating ? (partnerRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
                                         />
                                     </div>
                                 </div>
