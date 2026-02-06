@@ -427,11 +427,12 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                 <div key={cat.key} className="flex items-center gap-3">
                                     <span className="text-xs font-bold text-slate-500 w-24">{cat.label}</span>
                                     <div className="flex-1 h-2 bg-white rounded-full overflow-hidden flex">
-                                        {/* Comparative Bar */}
-                                        className="h-full bg-pastel-blue-darker opacity-80"
                                         <div
-                                            className="h-full bg-pastel-peach opacity-80"
-                                            style={{ width: `${partnerRating ? (partnerRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
+                                            className="h-full bg-pastel-blue-darker opacity-80"
+                                            style={{ width: `${myRating ? (myRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
+                                        />
+                                        className="h-full bg-pastel-peach opacity-80"
+                                        style={{ width: `${partnerRating ? (partnerRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
                                         />
                                     </div>
                                 </div>
@@ -477,7 +478,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                 <button
                                     type="submit"
                                     disabled={!newComment.trim()}
-                                    className="bg-pastel-blue text-white p-2 rounded-xl disabled:opacity-50"
+                                    className="bg-pastel-blue-darker text-white p-2 rounded-xl disabled:opacity-50"
                                 >
                                     <Send size={18} />
                                 </button>
