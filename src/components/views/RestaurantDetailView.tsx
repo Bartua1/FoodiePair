@@ -10,6 +10,7 @@ import { ShareConfigurationModal } from '../restaurant/ShareConfigurationModal';
 import { useRestaurantDetails } from '../../hooks/useRestaurantDetails';
 import { supabase } from '../../lib/supabase';
 import type { Restaurant, Profile, Rating, SharedRestaurantConfig } from '../../types';
+import { CommentItem } from '../restaurant/CommentItem';
 
 interface RestaurantDetailViewProps {
     restaurant?: Restaurant;
@@ -452,14 +453,12 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                 const isMe = comment.user_id === currentUser?.id;
                                 const profile = profiles[comment.user_id];
                                 return (
-                                    <div key={comment.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                                        <div className={`p-3 rounded-2xl max-w-[80%] text-sm ${isMe ? 'bg-pastel-blue text-slate-800 rounded-br-none' : 'bg-white border border-slate-100 text-slate-700 rounded-bl-none'}`}>
-                                            {comment.content}
-                                        </div>
-                                        <span className="text-[10px] text-slate-400 mt-1 px-1">
-                                            {profile?.display_name || t('restaurant.user')} • {new Date(comment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                        </span>
-                                    </div>
+                                    <CommentItem
+                                        key={comment.id}
+                                        comment={comment}
+                                        isMe={isMe}
+                                        profile={profile}
+                                    />
                                 );
                             })}
                             {(!comments || comments.length === 0) && (
@@ -534,8 +533,8 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-slate-100 pb-8 z-20">
                     <Button
                         className={`w-full rounded-2xl py-4 font-bold text-lg shadow-lg active:scale-[0.98] transition-transform ${restaurant.visit_status === 'wishlist'
-                                ? 'bg-slate-800 text-white'
-                                : 'bg-pastel-mint text-slate-800'
+                            ? 'bg-slate-800 text-white'
+                            : 'bg-pastel-mint text-slate-800'
                             }`}
                         onClick={() => {
                             if (restaurant.visit_status === 'wishlist') {

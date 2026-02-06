@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { NotificationPanel } from './NotificationPanel';
 import type { Restaurant } from '../../types';
+import { useNotifications } from '../../hooks/useNotifications';
 
 interface HeaderProps {
     unratedRestaurants: Restaurant[];
@@ -14,6 +15,9 @@ export function Header({ unratedRestaurants }: HeaderProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+    const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+
+    const totalNotifications = unratedRestaurants.length + unreadCount;
 
     return (
         <header className="p-4 bg-white/80 backdrop-blur-md border-b border-pastel-mint flex items-center justify-between sticky top-0 z-50 flex-none">
@@ -39,9 +43,9 @@ export function Header({ unratedRestaurants }: HeaderProps) {
                                 className={`shrink-0 transition-all ${isNotificationsOpen ? 'fill-orange-500 stroke-orange-500' : 'fill-none stroke-slate-600'}`}
                                 strokeWidth={2.5}
                             />
-                            {unratedRestaurants.length > 0 && (
+                            {totalNotifications > 0 && (
                                 <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-orange-600 text-[10px] font-bold text-white border-2 border-white shadow-md animate-in zoom-in">
-                                    {unratedRestaurants.length}
+                                    {totalNotifications}
                                 </span>
                             )}
                         </button>
@@ -50,6 +54,9 @@ export function Header({ unratedRestaurants }: HeaderProps) {
                             isOpen={isNotificationsOpen}
                             onClose={() => setIsNotificationsOpen(false)}
                             unratedRestaurants={unratedRestaurants}
+                            notifications={notifications}
+                            onMarkAsRead={markAsRead}
+                            onMarkAllAsRead={markAllAsRead}
                         />
                     </div>
 
