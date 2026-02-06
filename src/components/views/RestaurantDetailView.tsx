@@ -48,6 +48,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
     // Wishlist State
     const [addingToWishlist, setAddingToWishlist] = useState(false);
     const [addedToWishlist, setAddedToWishlist] = useState(false);
+    const [linkCopied, setLinkCopied] = useState(false);
 
     // Fetch restaurant if missing (deep link case)
     useEffect(() => {
@@ -280,23 +281,40 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                 {/* Favorites/Wishlist Section in Header */}
                 <div className="flex items-center gap-2">
                     {viewConfig && currentUser ? (
-                        <Button
-                            onClick={handleAddToWishlist}
-                            disabled={addingToWishlist || addedToWishlist}
-                            className={`rounded-full px-4 py-2 font-bold transition-all flex items-center gap-2 ${addedToWishlist ? 'bg-green-500 text-white' : 'bg-pastel-blue text-slate-800'}`}
-                        >
-                            {addedToWishlist ? (
-                                <>
-                                    <Check size={18} />
-                                    {t('wishlist.addedToWishlist')}
-                                </>
-                            ) : (
-                                <>
-                                    <Bookmark size={18} />
-                                    {t('wishlist.addToWishlist')}
-                                </>
-                            )}
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                onClick={handleAddToWishlist}
+                                disabled={addingToWishlist || addedToWishlist}
+                                className={`rounded-full px-4 py-2 font-bold transition-all flex items-center gap-2 ${addedToWishlist ? 'bg-green-500 text-white' : 'bg-pastel-blue text-slate-800'}`}
+                            >
+                                {addedToWishlist ? (
+                                    <>
+                                        <Check size={18} />
+                                        {t('wishlist.addedToWishlist')}
+                                    </>
+                                ) : (
+                                    <>
+                                        <Bookmark size={18} />
+                                        {t('wishlist.addToWishlist')}
+                                    </>
+                                )}
+                            </Button>
+                            <button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(window.location.href);
+                                    // Use a temporary state or reuse addedToWishlist mechanism if appropriate, 
+                                    // but better to have own state. 
+                                    // Limited state here, let's use a simple alert or better: reuse the check icon pattern locally?
+                                    // Let's add a local state for this button.
+                                    setLinkCopied(true);
+                                    setTimeout(() => setLinkCopied(false), 2000);
+                                }}
+                                className="p-2 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 transition-colors"
+                                title={t('share.createLink')}
+                            >
+                                {linkCopied ? <Check size={20} className="text-green-500" /> : <Share2 size={20} />}
+                            </button>
+                        </div>
                     ) : (
                         <>
                             <button
