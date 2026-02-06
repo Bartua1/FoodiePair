@@ -108,7 +108,12 @@
     "title": "Notificaciones",
     "empty": "¡Estás al día! No tienes restaurantes pendientes de puntuar.",
     "pendingRating": "Pendiente de puntuar",
-    "footer": "Tu opinión importa"
+    "footer": "Tu opinión importa",
+    "recent": "Recientes",
+    "markAllRead": "Marcar leídas",
+    "restaurant_match": "Nuevo restaurante añadido: {{restaurant_name}}. ¡Míralo!",
+    "new_comment": "Nuevo comentario en {{restaurant_name}}",
+    "comment_liked": "A alguien le gustó tu comentario: \"{{comment_preview}}\""
   },
   "share": {
     "title": "Compartir Restaurante",

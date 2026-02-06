@@ -134,7 +134,7 @@ export function NotificationPanel({ isOpen, onClose, unratedRestaurants, notific
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="font-medium text-slate-800 text-sm leading-snug mb-1">
-                                                {notification.message}
+                                                {t(`notifications.${notification.type}`, notification.data || { defaultValue: notification.message }) as string}
                                             </p>
                                             <p className="text-[10px] text-slate-400 font-bold">
                                                 {new Intl.DateTimeFormat(i18n.language || 'es', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(notification.created_at))}

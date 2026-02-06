@@ -118,6 +118,7 @@ export interface Notification {
     message: string;
     restaurant_id: string | null;
     read: boolean;
+    data?: Record<string, any>;
     created_at: string;
     updated_at: string;
 }

@@ -108,7 +108,12 @@
     "title": "Notifications",
     "empty": "You're all set! No restaurants pending your rating.",
     "pendingRating": "Pending rating",
-    "footer": "Your opinion matters"
+    "footer": "Your opinion matters",
+    "recent": "Recent",
+    "markAllRead": "Mark all as read",
+    "restaurant_match": "New restaurant added: {{restaurant_name}}. Check it out!",
+    "new_comment": "New comment on {{restaurant_name}}",
+    "comment_liked": "Someone liked your comment: \"{{comment_preview}}\""
   },
   "share": {
     "title": "Share Restaurant",
