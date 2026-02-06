@@ -49,6 +49,21 @@ export function NotificationPanel({ isOpen, onClose, unratedRestaurants, notific
             );
         }
 
+        if (notification.type === 'new_comment' && notification.data?.commenter_avatar) {
+            return (
+                <div className="relative w-full h-full">
+                    <img
+                        src={notification.data.commenter_avatar}
+                        alt="User"
+                        className="w-full h-full object-cover rounded-xl"
+                    />
+                    <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm border border-white">
+                        <MessageCircle size={10} className="text-pastel-blue-dark fill-pastel-blue-dark" />
+                    </div>
+                </div>
+            );
+        }
+
         switch (notification.type) {
             case 'restaurant_match': return <Utensils className="w-5 h-5 text-pastel-mint-dark" />;
             case 'new_comment': return <MessageCircle className="w-5 h-5 text-pastel-blue-dark" />;

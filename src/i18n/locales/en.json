@@ -112,7 +112,7 @@
     "recent": "Recent",
     "markAllRead": "Mark all as read",
     "restaurant_match": "New restaurant added: {{restaurant_name}}. Check it out!",
-    "new_comment": "New comment on {{restaurant_name}}",
+    "new_comment": "{{commenter_name}} commented on {{restaurant_name}}",
     "comment_liked": "{{liker_name}} liked your comment: \"{{comment_preview}}\""
   },
   "share": {
