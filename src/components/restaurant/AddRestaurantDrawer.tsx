@@ -10,7 +10,6 @@ interface AddRestaurantDrawerProps {
     isOpen: boolean;
     onClose: () => void;
     profile: Profile | null;
-    profile: Profile | null;
     onSuccess: () => void;
     initialStatus?: 'visited' | 'wishlist';
 }
@@ -37,8 +36,6 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess, initi
         serviceScore: 4,
         vibeScore: 4,
         priceQualityScore: 4,
-        vibeScore: 4,
-        priceQualityScore: 4,
         comment: '',
         visitStatus: initialStatus // Initialize with prop
     });
@@ -53,8 +50,21 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess, initi
         }
     }, [isOpen, initialStatus]);
 
-    const handleNext = () => setStep(step + 1);
-    const handleBack = () => setStep(step - 1);
+    const handleNext = () => {
+        if (step === 1 && formData.visitStatus === 'wishlist') {
+            setStep(3); // Skip ratings
+        } else {
+            setStep(step + 1);
+        }
+    };
+
+    const handleBack = () => {
+        if (step === 3 && formData.visitStatus === 'wishlist') {
+            setStep(1); // Back to details
+        } else {
+            setStep(step - 1);
+        }
+    };
 
     const handlePhotoClick = () => {
         fileInputRef.current?.click();
@@ -104,8 +114,6 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess, initi
                 price_range: formData.priceRange,
                 lat,
                 lng,
-                lat,
-                lng,
                 // is_favorite: deprecated, moved to separate table
                 visit_date: formData.visitStatus === 'visited' ? new Date().toISOString() : null,
                 visit_status: formData.visitStatus,
@@ -125,16 +133,18 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess, initi
                 });
             }
 
-            // 3. Insert Rating
-            await supabase.from('ratings').insert({
-                restaurant_id: restaurant.id,
-                user_id: profile.id,
-                food_score: formData.foodScore,
-                service_score: formData.serviceScore,
-                vibe_score: formData.vibeScore,
-                price_quality_score: formData.priceQualityScore,
-                favorite_dish: ''
-            });
+            // 3. Insert Rating (Only if visited)
+            if (formData.visitStatus === 'visited') {
+                await supabase.from('ratings').insert({
+                    restaurant_id: restaurant.id,
+                    user_id: profile.id,
+                    food_score: formData.foodScore,
+                    service_score: formData.serviceScore,
+                    vibe_score: formData.vibeScore,
+                    price_quality_score: formData.priceQualityScore,
+                    favorite_dish: ''
+                });
+            }
 
             // Added Comment insertion
             if (formData.comment.trim()) {
@@ -179,7 +189,6 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess, initi
         setStep(1);
         setFormData({
             name: '', address: '', cuisine: '', priceRange: 2, isFavorite: false,
-            name: '', address: '', cuisine: '', priceRange: 2, isFavorite: false,
             foodScore: 4, serviceScore: 4, vibeScore: 4, priceQualityScore: 4, comment: '',
             visitStatus: initialStatus
         });
@@ -200,7 +209,12 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess, initi
                 <div className="flex justify-between items-center mb-6">
                     <div>
                         <h2 className="text-xl font-bold text-slate-800">{t('restaurant.newSpot')}</h2>
-                        <p className="text-xs text-slate-400 font-medium uppercase tracking-widest">{t('restaurant.step', { current: step, total: 3 })}</p>
+                        <p className="text-xs text-slate-400 font-medium uppercase tracking-widest">
+                            {formData.visitStatus === 'wishlist'
+                                ? t('restaurant.step', { current: step === 3 ? 2 : 1, total: 2 })
+                                : t('restaurant.step', { current: step, total: 3 })
+                            }
+                        </p>
                     </div>
                     <button onClick={handleClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
                         <X size={20} className="text-slate-400" />

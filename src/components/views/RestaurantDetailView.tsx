@@ -163,6 +163,24 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
         refresh();
     };
 
+    const handleMarkAsVisited = async () => {
+        if (!restaurant) return;
+
+        const { error } = await supabase
+            .from('restaurants')
+            .update({
+                visit_status: 'visited',
+                visit_date: new Date().toISOString()
+            })
+            .eq('id', restaurant.id);
+
+        if (!error) {
+            setRestaurant(prev => prev ? ({ ...prev, visit_status: 'visited', visit_date: new Date().toISOString() }) : null);
+            // Optionally open rate drawer immediately?
+            // setRatingDrawerOpen(true);
+        }
+    };
+
     const handleAddToWishlist = async () => {
         if (!currentUser || !restaurant) return;
         setAddingToWishlist(true);
@@ -371,7 +389,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                 </div>
 
                 {/* Comparative Ratings */}
-                {(!viewConfig || viewConfig.show_ratings) && (
+                {(!viewConfig || viewConfig.show_ratings) && restaurant.visit_status !== 'wishlist' && (
                     <div>
                         <h3 className="font-bold text-slate-800 mb-4 text-lg">{t('stats.averageScore')}</h3>
 
@@ -515,10 +533,22 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
             {!viewConfig && (
                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-slate-100 pb-8 z-20">
                     <Button
-                        className="w-full bg-pastel-mint text-slate-800 rounded-2xl py-4 font-bold text-lg shadow-lg active:scale-[0.98] transition-transform"
-                        onClick={() => setRatingDrawerOpen(true)}
+                        className={`w-full rounded-2xl py-4 font-bold text-lg shadow-lg active:scale-[0.98] transition-transform ${restaurant.visit_status === 'wishlist'
+                                ? 'bg-slate-800 text-white'
+                                : 'bg-pastel-mint text-slate-800'
+                            }`}
+                        onClick={() => {
+                            if (restaurant.visit_status === 'wishlist') {
+                                handleMarkAsVisited();
+                            } else {
+                                setRatingDrawerOpen(true);
+                            }
+                        }}
                     >
-                        {myRating ? t('restaurant.saveRating') : t('restaurant.rateNow')}
+                        {restaurant.visit_status === 'wishlist'
+                            ? t('wishlist.markAsVisited')
+                            : (myRating ? t('restaurant.saveRating') : t('restaurant.rateNow'))
+                        }
                     </Button>
                 </div>
             )}

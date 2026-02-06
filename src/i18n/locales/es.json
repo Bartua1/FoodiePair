@@ -133,6 +133,7 @@
     "addedToWishlist": "¡Añadido a la lista!",
     "subtitle": "Añade restaurantes que quieras visitar",
     "visited": "Visitados",
-    "toGo": "Por ir"
+    "toGo": "Por ir",
+    "markAsVisited": "Marcar como visitado"
   }
 }
