@@ -78,7 +78,8 @@
     "loginToView": "Inicia sesión para ver los comentarios",
     "addCommentPlaceholder": "Escribe un comentario...",
     "partner": "Pareja",
-    "user": "Usuario"
+    "user": "Usuario",
+    "rateToSeePartnerScore": "¡Puntuad para ver la nota de vuestra pareja!"
   },
   "stats": {
     "title": "Analíticas de Pareja",

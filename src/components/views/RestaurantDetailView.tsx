@@ -439,12 +439,25 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
 
                             {/* Partner */}
                             <div className="flex flex-col items-center">
-                                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-xl mb-2 shadow-sm ${partnerRating ? 'bg-pastel-peach text-slate-800' : 'bg-slate-100 text-slate-300'}`}>
-                                    {partnerRating ? ((partnerRating.food_score + partnerRating.service_score + partnerRating.vibe_score + partnerRating.price_quality_score) / 4).toFixed(1) : '?'}
+                                <div className={`relative w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-xl mb-2 shadow-sm ${partnerRating ? 'bg-pastel-peach text-slate-800' : 'bg-slate-100 text-slate-300'}`}>
+                                    <div className={!myRating && partnerRating ? 'blur-[4px] select-none pointer-events-none' : ''}>
+                                        {partnerRating ? ((partnerRating.food_score + partnerRating.service_score + partnerRating.vibe_score + partnerRating.price_quality_score) / 4).toFixed(1) : '?'}
+                                    </div>
+                                    {!myRating && partnerRating && (
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <span className="text-[10px] text-slate-400 font-black">?</span>
+                                        </div>
+                                    )}
                                 </div>
                                 <span className="text-xs font-bold text-slate-600 text-center line-clamp-1">{partnerProfile?.display_name || t('restaurant.partner')}</span>
                             </div>
                         </div>
+
+                        {!myRating && partnerRating && (
+                            <p className="text-[10px] text-center text-slate-400 font-bold uppercase tracking-wider mb-4 animate-pulse">
+                                {t('restaurant.rateToSeePartnerScore') || 'Rate to reveal partner\'s score!'}
+                            </p>
+                        )}
 
                         <div className="space-y-3 bg-slate-50 p-4 rounded-2xl">
                             {[
@@ -461,7 +474,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                             style={{ width: `${myRating ? (myRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
                                         />
                                         <div
-                                            className="h-full bg-pastel-peach opacity-80"
+                                            className={`h-full bg-pastel-peach opacity-80 transition-all duration-500 ${!myRating ? 'blur-sm' : ''}`}
                                             style={{ width: `${partnerRating ? (partnerRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
                                         />
                                     </div>

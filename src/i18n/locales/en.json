@@ -78,7 +78,8 @@
     "loginToView": "Log in to view comments",
     "addCommentPlaceholder": "Add a comment...",
     "partner": "Partner",
-    "user": "User"
+    "user": "User",
+    "rateToSeePartnerScore": "Rate to reveal partner's score!"
   },
   "stats": {
     "title": "Pair Analytics",

@@ -145,21 +145,23 @@ export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavo
             <div className="p-4">
                 <div className="flex justify-between items-start mb-1">
                     <h4 className="font-bold text-slate-800 text-lg leading-tight cursor-pointer" onClick={() => onViewDetails(restaurant)}>{restaurant.name}</h4>
-                    {!restaurant.user_has_rated ? (
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onRate(restaurant);
-                            }}
-                            className="bg-pastel-mint text-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm active:scale-95 transition-transform"
-                        >
-                            {t('restaurant.rateNow')}
-                        </button>
-                    ) : (
-                        <div className="bg-pastel-peach px-2 py-1 rounded-lg flex items-center gap-1 shrink-0">
-                            <Star size={14} className="text-orange-400 fill-orange-400" />
-                            <span className="font-bold text-sm text-slate-700">{restaurant.avg_score?.toFixed(1) || 'N/A'}</span>
-                        </div>
+                    {restaurant.visit_status !== 'wishlist' && (
+                        !restaurant.user_has_rated ? (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onRate(restaurant);
+                                }}
+                                className="bg-pastel-mint text-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm active:scale-95 transition-transform"
+                            >
+                                {t('restaurant.rateNow')}
+                            </button>
+                        ) : (
+                            <div className="bg-pastel-peach px-2 py-1 rounded-lg flex items-center gap-1 shrink-0">
+                                <Star size={14} className="text-orange-400 fill-orange-400" />
+                                <span className="font-bold text-sm text-slate-700">{restaurant.avg_score?.toFixed(1) || 'N/A'}</span>
+                            </div>
+                        )
                     )}
                 </div>
 
@@ -179,7 +181,7 @@ export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavo
 
                 <div className="border-t border-slate-50 pt-3 flex items-center justify-between">
                     <span className="text-[10px] text-slate-300 uppercase font-bold tracking-wider">
-                        {new Date(restaurant.visit_date!).toLocaleDateString(i18n.language, { month: 'short', day: 'numeric', year: 'numeric' })}
+                        {restaurant.visit_date ? new Date(restaurant.visit_date).toLocaleDateString(i18n.language, { month: 'short', day: 'numeric', year: 'numeric' }) : t('restaurant.notVisited')}
                     </span>
                     <button
                         onClick={() => onViewDetails(restaurant)}
