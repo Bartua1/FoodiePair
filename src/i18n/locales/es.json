@@ -154,32 +154,36 @@
     "subtitle": "Basado en vuestro historial compartido",
     "why": "¿Por qué esto?",
     "getSuggestions": "Obtener sugerencias",
+    "cravingPrompt": "¿Qué os apetece?",
+    "all": "Todo",
+    "added": "Añadido",
+    "addressUnknown": "Dirección desconocida",
+    "noHistorySubtitle": "¡Empezad a añadir sitios a vuestra lista!",
+    "reasons": {
+        "craving": "¡Justo lo que buscabais!",
+        "bothLoveCuisine": "¡A ambos os encanta la comida {{cuisine}}!",
+        "veryClose": "A {{distance}}km - ¡muy cerca!",
+        "distanceAway": "A {{distance}}km.",
+        "favorite": "¡Está en vuestros favoritos!",
+        "newDiscovery": "¡Nuevo sitio cerca!",
+        "matchesCraving": "¡Coincide con vuestro antojo!",
+        "highlyRated": "Muy bien valorado en OSM ({{rating}}⭐)",
+        "noRatingsYet": "¡Nueva aventura! (Sin valoraciones aún)"
+    },
     "noWishlist": "¡Añade restaurantes a tu lista 'Para ir' para recibir recomendaciones!",
     "noHistory": "Puntuad algunos restaurantes juntos para mejorar las recomendaciones.",
     "topPicks": "Mejores opciones para vosotros",
-    "cravingLabel": "¿Qué os apetece?",
-    "all": "Todos",
-    "added": "Añadido",
-    "reasons": {
-      "newDiscovery": "¡Nuevo descubrimiento cerca!",
-      "matchesCraving": "¡Justo lo que queréis!",
-      "kmAway": "A {{count}}km de distancia",
-      "veryClose": "¡Muy cerca! (A {{count}}km)",
-      "highlyRated": "Muy valorado en OSM ({{rating}}⭐)",
-      "favoriteCuisine": "¡A ambos os encanta la comida {{cuisine}}!",
-      "matchesInterest": "Coincide con vuestro interés por la comida {{cuisine}}.",
-      "favoriteList": "¡Está en vuestra lista de favoritos!",
-      "newAdventure": "¡Nueva aventura! (Sin valoraciones todavía)"
-    },
+    "nearbyDiscoveries": "Nuevos sitios cerca",
+    "fromWishlist": "De vuestra lista 'Para ir'",
     "cuisines": {
-      "Sushi": "Sushi",
-      "Pizza": "Pizza",
-      "Italian": "Italiana",
-      "Mexican": "Mexicana",
-      "Burger": "Hamburguesas",
-      "Asian": "Asiática",
-      "Coffee": "Café",
-      "Dessert": "Postres"
+        "Sushi": "Sushi",
+        "Pizza": "Pizza",
+        "Italian": "Italiana",
+        "Mexican": "Mexicana",
+        "Burger": "Hamburguesa",
+        "Asian": "Asiática",
+        "Coffee": "Café",
+        "Dessert": "Postre"
     }
   }
 }

@@ -83,15 +83,13 @@ export function FeedView({
                     </p>
                 </div>
 
-                {activeTab === 'wishlist' && (
-                    <button
-                        onClick={() => setIsRecommendOpen(true)}
-                        className="p-3 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all flex items-center gap-2 group shadow-lg"
-                    >
-                        <Sparkles size={20} className="text-pastel-peach-darker group-hover:scale-110 transition-transform" />
-                        <span className="hidden sm:inline text-sm font-bold">{t('recommendations.getSuggestions')}</span>
-                    </button>
-                )}
+                <button
+                    onClick={() => setIsRecommendOpen(true)}
+                    className="p-3 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all flex items-center gap-2 group shadow-lg"
+                >
+                    <Sparkles size={20} className="text-pastel-peach-darker group-hover:scale-110 transition-transform" />
+                    <span className="hidden sm:inline text-sm font-bold">{t('recommendations.getSuggestions')}</span>
+                </button>
             </header>
 
             <FilterBar
@@ -113,7 +111,7 @@ export function FeedView({
                     </div>
                     <h3 className="text-lg font-semibold text-slate-700">{t('feed.noRestaurants')}</h3>
                     <p className="text-slate-500 max-w-[240px]">
-                        {activeTab === 'visited' ? t('feed.noRestaurantsSubtitle') : 'Start adding places to your wishlist!'}
+                        {activeTab === 'visited' ? t('feed.noRestaurantsSubtitle') : t('recommendations.noHistorySubtitle')}
                     </p>
                 </div>
             ) : (

@@ -59,6 +59,86 @@ export function RecommendationDrawer({
         }
     };
 
+    const renderRecommendationCard = (rec: any) => {
+        const isExternal = rec.restaurant.id.startsWith('osm-');
+        const isAdded = addedIds.includes(rec.restaurant.id);
+
+        return (
+            <div
+                key={rec.restaurant.id}
+                onClick={() => {
+                    if (!isExternal) {
+                        onSelectRestaurant(rec.restaurant.id);
+                        onClose();
+                    }
+                }}
+                className={`bg-slate-50 rounded-2xl p-4 transition-all border border-transparent group ${!isExternal ? 'cursor-pointer hover:bg-slate-100 hover:border-pastel-mint' : ''}`}
+            >
+                <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                        <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                            {isExternal && <Globe size={14} className="text-pastel-blue" />}
+                            {rec.restaurant.name}
+                            {rec.restaurant.price_range && (
+                                <span className="text-[10px] text-pastel-mint-dark bg-pastel-mint/20 px-1.5 py-0.5 rounded">
+                                    {'€'.repeat(rec.restaurant.price_range)}
+                                </span>
+                            )}
+                        </h3>
+                        <div className="flex items-center gap-1 text-xs text-slate-400 mt-1">
+                            <MapPin size={12} />
+                            <span className="truncate max-w-[200px]">
+                                {rec.restaurant.address || t('recommendations.addressUnknown')}
+                            </span>
+                            {rec.distance !== undefined && (
+                                <span className="ml-auto text-pastel-blue-darker font-bold">
+                                    {rec.distance.toFixed(1)}km
+                                </span>
+                            )}
+                        </div>
+                    </div>
+
+                    {isExternal ? (
+                        <button
+                            onClick={(e) => handleQuickAdd(e, rec)}
+                            disabled={addingId === rec.restaurant.id || isAdded}
+                            className={`p-2 rounded-xl transition-all flex items-center gap-2 ${isAdded ? 'bg-pastel-mint/20 text-pastel-mint-dark' : 'bg-white shadow-sm hover:bg-pastel-peach hover:text-white'}`}
+                        >
+                            {addingId === rec.restaurant.id ? (
+                                <Loader2 size={18} className="animate-spin" />
+                            ) : isAdded ? (
+                                <>
+                                    <Check size={18} />
+                                    {t('recommendations.added')}
+                                </>
+                            ) : (
+                                <Plus size={18} />
+                            )}
+                        </button>
+                    ) : (
+                        <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:bg-pastel-mint transition-colors">
+                            <ChevronRight size={18} className="text-slate-400 group-hover:text-white" />
+                        </div>
+                    )}
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-slate-200/50">
+                    <div className="flex flex-wrap gap-2">
+                        {rec.reasons.map((reason: any, i: number) => (
+                            <div
+                                key={i}
+                                className="flex items-center gap-1.5 text-[11px] font-medium text-slate-600 bg-white px-2.5 py-1 rounded-full border border-slate-100 shadow-sm"
+                            >
+                                <Info size={10} className="text-pastel-peach-darker" />
+                                {t(reason.key, reason.params) as string}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -91,9 +171,7 @@ export function RecommendationDrawer({
 
                 {/* Cuisine Picker */}
                 <div className="mb-6">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1">
-                        {t('recommendations.cravingLabel')}
-                    </p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1">{t('recommendations.cravingPrompt')}</p>
                     <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
                         <button
                             onClick={() => setSelectedCuisine(null)}
@@ -130,89 +208,26 @@ export function RecommendationDrawer({
                             </div>
                         </div>
                     ) : (
-                        <div className="space-y-4">
-                            <p className="text-sm font-bold text-slate-500 ml-1">
-                                {t('recommendations.topPicks')}
-                            </p>
-                            {recommendations.map((rec) => {
-                                const isExternal = rec.restaurant.id.startsWith('osm-');
-                                const isAdded = addedIds.includes(rec.restaurant.id);
-
-                                return (
-                                    <div
-                                        key={rec.restaurant.id}
-                                        onClick={() => {
-                                            if (!isExternal) {
-                                                onSelectRestaurant(rec.restaurant.id);
-                                                onClose();
-                                            }
-                                        }}
-                                        className={`bg-slate-50 rounded-2xl p-4 transition-all border border-transparent group ${!isExternal ? 'cursor-pointer hover:bg-slate-100 hover:border-pastel-mint' : ''}`}
-                                    >
-                                        <div className="flex justify-between items-start">
-                                            <div className="flex-1">
-                                                <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                                                    {isExternal && <Globe size={14} className="text-pastel-blue-darker" />}
-                                                    {rec.restaurant.name}
-                                                    {rec.restaurant.price_range && (
-                                                        <span className="text-[10px] text-pastel-mint-darker bg-pastel-mint/30 px-1.5 py-0.5 rounded">
-                                                            {'€'.repeat(rec.restaurant.price_range)}
-                                                        </span>
-                                                    )}
-                                                </h3>
-                                                <div className="flex items-center gap-1 text-xs text-slate-400 mt-1">
-                                                    <MapPin size={12} />
-                                                    <span className="truncate max-w-[200px]">
-                                                        {rec.restaurant.address || 'Unknown address'}
-                                                    </span>
-                                                    {rec.reasons.find(r => r.key === 'kmAway' || r.key === 'veryClose') && (
-                                                        <span className="ml-auto text-pastel-blue-darker font-bold">
-                                                            {rec.reasons.find(r => r.key === 'kmAway' || r.key === 'veryClose')?.params?.count}km
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            {isExternal ? (
-                                                <button
-                                                    onClick={(e) => handleQuickAdd(e, rec)}
-                                                    disabled={addingId === rec.restaurant.id || isAdded}
-                                                    className={`p-2 rounded-xl transition-all flex items-center gap-2 ${isAdded ? 'bg-pastel-mint/20 text-pastel-mint-darker font-bold text-xs' : 'bg-white shadow-sm hover:bg-pastel-peach-darker hover:text-white'}`}
-                                                >
-                                                    {addingId === rec.restaurant.id ? (
-                                                        <Loader2 size={18} className="animate-spin" />
-                                                    ) : isAdded ? (
-                                                        <>
-                                                            <Check size={18} />
-                                                            {t('recommendations.added')}
-                                                        </>
-                                                    ) : (
-                                                        <Plus size={18} />
-                                                    )}
-                                                </button>
-                                            ) : (
-                                                <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:bg-pastel-mint transition-colors">
-                                                    <ChevronRight size={18} className="text-slate-400 group-hover:text-white" />
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div className="mt-4 pt-3 border-t border-slate-200/50">
-                                            <div className="flex flex-wrap gap-2">
-                                                {rec.reasons.map((reason, i) => (
-                                                    <div
-                                                        key={i}
-                                                        className="flex items-center gap-1.5 text-[11px] font-medium text-slate-600 bg-white px-2.5 py-1 rounded-full border border-slate-100 shadow-sm"
-                                                    >
-                                                        <Info size={10} className="text-pastel-peach-darker" />
-                                                        {t(`recommendations.reasons.${reason.key}`, reason.params)}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
+                        <div className="space-y-6">
+                            {(recommendations.filter(r => r.restaurant.id.startsWith('osm-')).length > 0) && (
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">
+                                        <Globe size={14} />
+                                        {t('recommendations.nearbyDiscoveries')}
                                     </div>
-                                );
-                            })}
+                                    {recommendations.filter(r => r.restaurant.id.startsWith('osm-')).map((rec) => renderRecommendationCard(rec))}
+                                </div>
+                            )}
+
+                            {(recommendations.filter(r => !r.restaurant.id.startsWith('osm-')).length > 0) && (
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 pt-2">
+                                        <Utensils size={14} />
+                                        {t('recommendations.fromWishlist')}
+                                    </div>
+                                    {recommendations.filter(r => !r.restaurant.id.startsWith('osm-')).map((rec) => renderRecommendationCard(rec))}
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

@@ -154,32 +154,36 @@
     "subtitle": "Based on your shared foodie history",
     "why": "Why this?",
     "getSuggestions": "Get suggestions",
+    "cravingPrompt": "What are you craving?",
+    "all": "All",
+    "added": "Added",
+    "addressUnknown": "Address unknown",
+    "noHistorySubtitle": "Start adding places to your wishlist!",
+    "reasons": {
+        "craving": "Exactly what you're craving!",
+        "bothLoveCuisine": "You both love {{cuisine}} food!",
+        "veryClose": "{{distance}}km away - very close!",
+        "distanceAway": "{{distance}}km away.",
+        "favorite": "It's on your favorites list!",
+        "newDiscovery": "New discovery nearby!",
+        "matchesCraving": "Matches your craving!",
+        "highlyRated": "Highly rated in OSM ({{rating}}⭐)",
+        "noRatingsYet": "New adventure! (No ratings yet)"
+    },
     "noWishlist": "Add some restaurants to your 'To Go' list to get recommendations!",
     "noHistory": "Rate some restaurants together to improve recommendations.",
     "topPicks": "Top Picks for You",
-    "cravingLabel": "What are you craving?",
-    "all": "All",
-    "added": "Added",
-    "reasons": {
-      "newDiscovery": "New discovery nearby!",
-      "matchesCraving": "Matches your craving!",
-      "kmAway": "{{count}}km away",
-      "veryClose": "{{count}}km away - very close!",
-      "highlyRated": "Highly rated in OSM ({{rating}}⭐)",
-      "favoriteCuisine": "You both love {{cuisine}} food!",
-      "matchesInterest": "Matches your interest in {{cuisine}}.",
-      "favoriteList": "It's on your favorites list!",
-      "newAdventure": "New adventure! (No ratings yet)"
-    },
+    "nearbyDiscoveries": "New Places Nearby",
+    "fromWishlist": "From Your Wishlist",
     "cuisines": {
-      "Sushi": "Sushi",
-      "Pizza": "Pizza",
-      "Italian": "Italian",
-      "Mexican": "Mexican",
-      "Burger": "Burger",
-      "Asian": "Asian",
-      "Coffee": "Coffee",
-      "Dessert": "Dessert"
+        "Sushi": "Sushi",
+        "Pizza": "Pizza",
+        "Italian": "Italian",
+        "Mexican": "Mexican",
+        "Burger": "Burger",
+        "Asian": "Asian",
+        "Coffee": "Coffee",
+        "Dessert": "Dessert"
     }
   }
 }

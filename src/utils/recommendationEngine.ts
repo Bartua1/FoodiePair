@@ -9,6 +9,7 @@ export interface RecommendationResult {
     restaurant: Restaurant;
     score: number;
     reasons: RecommendationReason[];
+    distance?: number;
 }
 
 export function generateRecommendations(
@@ -25,7 +26,7 @@ export function generateRecommendations(
         return wishlist.slice(0, 3).map((r) => ({
             restaurant: r,
             score: 0,
-            reasons: [{ key: 'newAdventure' }],
+            reasons: [{ key: 'recommendations.reasons.noRatingsYet' }],
         }));
     }
 
@@ -93,25 +94,35 @@ export function generateRecommendations(
 
         // Cuisine bonus
         if (selectedCuisine && r.cuisine_type?.toLowerCase().includes(selectedCuisine.toLowerCase())) {
-            score += 10; // Major priority for selected cuisine
-            reasons.push({ key: 'matchesCraving' });
+            score += 10;
+            reasons.push({ key: 'recommendations.reasons.craving' });
         } else if (r.cuisine_type && avgCuisineScores[r.cuisine_type]) {
             const cuisineScore = avgCuisineScores[r.cuisine_type];
             if (cuisineScore >= 4) {
                 score += (cuisineScore - 3) * 2;
-                reasons.push({ key: 'favoriteCuisine', params: { cuisine: r.cuisine_type } });
+                reasons.push({
+                    key: 'recommendations.reasons.bothLoveCuisine',
+                    params: { cuisine: r.cuisine_type }
+                });
             }
         }
 
         // Distance bonus
+        let distance: number | undefined;
         if (userLocation && r.lat && r.lng) {
-            const dist = calculateDistance(userLocation.lat, userLocation.lng, r.lat, r.lng);
-            if (dist < 1) {
+            distance = calculateDistance(userLocation.lat, userLocation.lng, r.lat, r.lng);
+            if (distance < 1) {
                 score += 3;
-                reasons.push({ key: 'veryClose', params: { count: dist.toFixed(1) } });
-            } else if (dist < 3) {
+                reasons.push({
+                    key: 'recommendations.reasons.veryClose',
+                    params: { distance: distance.toFixed(1) }
+                });
+            } else if (distance < 3) {
                 score += 1.5;
-                reasons.push({ key: 'kmAway', params: { count: dist.toFixed(1) } });
+                reasons.push({
+                    key: 'recommendations.reasons.distanceAway',
+                    params: { distance: distance.toFixed(1) }
+                });
             }
         }
 
@@ -121,35 +132,42 @@ export function generateRecommendations(
         }
         if (r.is_favorite) {
             score += 2;
-            reasons.push({ key: 'favoriteList' });
+            reasons.push({ key: 'recommendations.reasons.favorite' });
         }
 
-        return { restaurant: r, score, reasons };
+        return { restaurant: r, score, reasons, distance };
     });
 
     // 5. Score external discoveries
     const externalRecommendations: RecommendationResult[] = externalDiscoveries.map((ext) => {
-        const reasons: RecommendationReason[] = [{ key: 'newDiscovery' }];
+        const reasons: RecommendationReason[] = [{ key: 'recommendations.reasons.newDiscovery' }];
         let score = 0.5;
+        let distance: number | undefined;
 
         if (selectedCuisine && ext.cuisine_type?.toLowerCase().includes(selectedCuisine.toLowerCase())) {
             score += 8;
-            reasons.push({ key: 'matchesCraving' });
+            reasons.push({ key: 'recommendations.reasons.matchesCraving' });
         }
 
         if (userLocation && ext.lat && ext.lng) {
-            const dist = calculateDistance(userLocation.lat, userLocation.lng, ext.lat, ext.lng);
-            if (dist < 1) {
+            distance = calculateDistance(userLocation.lat, userLocation.lng, ext.lat, ext.lng);
+            if (distance < 1) {
                 score += 3;
-                reasons.push({ key: 'kmAway', params: { count: dist.toFixed(1) } });
-            } else if (dist < 5) {
+                reasons.push({
+                    key: 'recommendations.reasons.distanceAway',
+                    params: { distance: distance.toFixed(1) }
+                });
+            } else if (distance < 5) {
                 score += 1;
             }
         }
 
         if (ext.rating && ext.rating >= 4) {
             score += (ext.rating - 3);
-            reasons.push({ key: 'highlyRated', params: { rating: ext.rating } });
+            reasons.push({
+                key: 'recommendations.reasons.highlyRated',
+                params: { rating: ext.rating }
+            });
         }
 
         return {
@@ -160,7 +178,8 @@ export function generateRecommendations(
                 pair_id: ''
             } as Restaurant,
             score,
-            reasons
+            reasons,
+            distance
         };
     });
 

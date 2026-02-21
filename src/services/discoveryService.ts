@@ -16,14 +16,32 @@ export async function discoverNearbyRestaurants(
     radius: number = 2000, // meters
     cuisine: string | null = null
 ): Promise<ExternalDiscovery[]> {
-    // Overpass QL query: find restaurants within radius of lat,lng
-    const cuisineFilter = cuisine ? `["cuisine"~"${cuisine}",i]` : '["amenity"="restaurant"]';
+    // Overpass QL query: find restaurants, fast_food, and cafes
+    const baseFilter = '["amenity"~"restaurant|fast_food|cafe",i]';
+
+    // Improved cuisine mapping for common terms
+    let filterPart = "";
+    let nameFilter = cuisine || "";
+    if (cuisine) {
+        if (cuisine.toLowerCase() === 'burger') {
+            filterPart = `["cuisine"~"burger|hamburger|fast_food",i]`;
+            nameFilter = "burger|hamburguesa";
+        } else {
+            filterPart = `["cuisine"~"${cuisine}",i]`;
+        }
+    } else {
+        filterPart = baseFilter;
+    }
 
     const query = `
     [out:json][timeout:25];
     (
-      node${cuisineFilter}(around:${radius},${lat},${lng});
-      way${cuisineFilter}(around:${radius},${lat},${lng});
+      node${filterPart}(around:${radius},${lat},${lng});
+      way${filterPart}(around:${radius},${lat},${lng});
+      relation${filterPart}(around:${radius},${lat},${lng});
+      // Also search name if cuisine filter is active
+      ${cuisine ? `node["amenity"~"restaurant|fast_food|cafe",i]["name"~"${nameFilter}",i](around:${radius},${lat},${lng});` : ''}
+      ${cuisine ? `way["amenity"~"restaurant|fast_food|cafe",i]["name"~"${nameFilter}",i](around:${radius},${lat},${lng});` : ''}
     );
     out center;
   `;
