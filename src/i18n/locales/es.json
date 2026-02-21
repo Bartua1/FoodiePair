@@ -79,7 +79,8 @@
     "addCommentPlaceholder": "Escribe un comentario...",
     "partner": "Pareja",
     "user": "Usuario",
-    "rateToSeePartnerScore": "¡Puntuad para ver la nota de vuestra pareja!"
+    "rateToSeePartnerScore": "¡Puntuad para ver la nota de vuestra pareja!",
+    "notVisited": "No visitado"
   },
   "stats": {
     "title": "Analíticas de Pareja",
@@ -147,5 +148,38 @@
     "visited": "Visitados",
     "toGo": "Por ir",
     "markAsVisited": "Marcar como visitado"
+  },
+  "recommendations": {
+    "title": "Sugerencias del Chef",
+    "subtitle": "Basado en vuestro historial compartido",
+    "why": "¿Por qué esto?",
+    "getSuggestions": "Obtener sugerencias",
+    "noWishlist": "¡Añade restaurantes a tu lista 'Para ir' para recibir recomendaciones!",
+    "noHistory": "Puntuad algunos restaurantes juntos para mejorar las recomendaciones.",
+    "topPicks": "Mejores opciones para vosotros",
+    "cravingLabel": "¿Qué os apetece?",
+    "all": "Todos",
+    "added": "Añadido",
+    "reasons": {
+      "newDiscovery": "¡Nuevo descubrimiento cerca!",
+      "matchesCraving": "¡Justo lo que queréis!",
+      "kmAway": "A {{count}}km de distancia",
+      "veryClose": "¡Muy cerca! (A {{count}}km)",
+      "highlyRated": "Muy valorado en OSM ({{rating}}⭐)",
+      "favoriteCuisine": "¡A ambos os encanta la comida {{cuisine}}!",
+      "matchesInterest": "Coincide con vuestro interés por la comida {{cuisine}}.",
+      "favoriteList": "¡Está en vuestra lista de favoritos!",
+      "newAdventure": "¡Nueva aventura! (Sin valoraciones todavía)"
+    },
+    "cuisines": {
+      "Sushi": "Sushi",
+      "Pizza": "Pizza",
+      "Italian": "Italiana",
+      "Mexican": "Mexicana",
+      "Burger": "Hamburguesas",
+      "Asian": "Asiática",
+      "Coffee": "Café",
+      "Dessert": "Postres"
+    }
   }
 }

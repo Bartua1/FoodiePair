@@ -4,9 +4,10 @@ import { FilterBar } from '../feed/FilterBar';
 import { GeolocationBanner } from '../ui/GeolocationBanner';
 import { RestaurantCard } from '../feed/RestaurantCard';
 import { RateRestaurantDrawer } from '../restaurant/RateRestaurantDrawer';
-import { Utensils } from 'lucide-react';
+import { Utensils, Sparkles } from 'lucide-react';
 import type { Restaurant, Profile } from '../../types';
 import { supabase } from '../../lib/supabase';
+import { RecommendationDrawer } from '../recommendations/RecommendationDrawer';
 
 interface FeedViewProps {
     restaurants: any[];
@@ -37,6 +38,7 @@ export function FeedView({
 }: FeedViewProps) {
     const { t } = useTranslation();
     const [ratingRestaurant, setRatingRestaurant] = useState<Restaurant | null>(null);
+    const [isRecommendOpen, setIsRecommendOpen] = useState(false);
 
     // Filter restaurants based on tab
     const filteredByTab = restaurants.filter(r => {
@@ -71,13 +73,25 @@ export function FeedView({
 
     return (
         <div className="flex-1 overflow-y-auto p-4 pb-32 no-scrollbar">
-            <header className="mb-6">
-                <h2 className="text-2xl font-bold text-slate-800 mb-1">
-                    {activeTab === 'visited' ? t('feed.title') : t('wishlist.toGo')}
-                </h2>
-                <p className="text-slate-500 text-sm">
-                    {activeTab === 'visited' ? t('feed.subtitle') : t('wishlist.subtitle')}
-                </p>
+            <header className="mb-6 flex justify-between items-start">
+                <div>
+                    <h2 className="text-2xl font-bold text-slate-800 mb-1">
+                        {activeTab === 'visited' ? t('feed.title') : t('wishlist.toGo')}
+                    </h2>
+                    <p className="text-slate-500 text-sm">
+                        {activeTab === 'visited' ? t('feed.subtitle') : t('wishlist.subtitle')}
+                    </p>
+                </div>
+
+                {activeTab === 'wishlist' && (
+                    <button
+                        onClick={() => setIsRecommendOpen(true)}
+                        className="p-3 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all flex items-center gap-2 group shadow-lg"
+                    >
+                        <Sparkles size={20} className="text-pastel-peach-darker group-hover:scale-110 transition-transform" />
+                        <span className="hidden sm:inline text-sm font-bold">{t('recommendations.getSuggestions')}</span>
+                    </button>
+                )}
             </header>
 
             <FilterBar
@@ -125,6 +139,18 @@ export function FeedView({
                     onSuccess={onRefresh}
                 />
             )}
+
+            <RecommendationDrawer
+                isOpen={isRecommendOpen}
+                onClose={() => setIsRecommendOpen(false)}
+                pairId={profile?.pair_id || null}
+                profileId={profile?.id || null}
+                onRefreshList={onRefresh}
+                onSelectRestaurant={(id) => {
+                    const r = restaurants.find(res => res.id === id);
+                    if (r) onViewDetails(r);
+                }}
+            />
         </div>
     );
 }
