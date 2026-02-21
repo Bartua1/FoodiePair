@@ -79,7 +79,8 @@
     "addCommentPlaceholder": "Add a comment...",
     "partner": "Partner",
     "user": "User",
-    "rateToSeePartnerScore": "Rate to reveal partner's score!"
+    "rateToSeePartnerScore": "Rate to reveal partner's score!",
+    "notVisited": "Not visited"
   },
   "stats": {
     "title": "Pair Analytics",
@@ -147,5 +148,38 @@
     "subtitle": "Add restaurants you want to visit",
     "toGo": "To Go",
     "markAsVisited": "Mark as Visited"
+  },
+  "recommendations": {
+    "title": "Chef's Suggestions",
+    "subtitle": "Based on your shared foodie history",
+    "why": "Why this?",
+    "getSuggestions": "Get suggestions",
+    "noWishlist": "Add some restaurants to your 'To Go' list to get recommendations!",
+    "noHistory": "Rate some restaurants together to improve recommendations.",
+    "topPicks": "Top Picks for You",
+    "cravingLabel": "What are you craving?",
+    "all": "All",
+    "added": "Added",
+    "reasons": {
+      "newDiscovery": "New discovery nearby!",
+      "matchesCraving": "Matches your craving!",
+      "kmAway": "{{count}}km away",
+      "veryClose": "{{count}}km away - very close!",
+      "highlyRated": "Highly rated in OSM ({{rating}}⭐)",
+      "favoriteCuisine": "You both love {{cuisine}} food!",
+      "matchesInterest": "Matches your interest in {{cuisine}}.",
+      "favoriteList": "It's on your favorites list!",
+      "newAdventure": "New adventure! (No ratings yet)"
+    },
+    "cuisines": {
+      "Sushi": "Sushi",
+      "Pizza": "Pizza",
+      "Italian": "Italian",
+      "Mexican": "Mexican",
+      "Burger": "Burger",
+      "Asian": "Asian",
+      "Coffee": "Coffee",
+      "Dessert": "Dessert"
+    }
   }
 }
