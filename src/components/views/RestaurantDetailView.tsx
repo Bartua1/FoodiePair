@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, MapPin, Camera, Trash2, Send, Pencil, Heart, X, ChevronLeft, ChevronRight, Loader2, Share2, Bookmark, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useClerk } from '@clerk/clerk-react';
@@ -13,6 +14,7 @@ import { supabase } from '../../lib/supabase';
 import type { Restaurant, Profile, Rating, SharedRestaurantConfig } from '../../types';
 import { CommentItem } from '../restaurant/CommentItem';
 import { JoinUsPrompt } from '../common/JoinUsPrompt';
+import { RestaurantDetailSkeleton } from '../restaurant/RestaurantDetailSkeleton';
 
 interface RestaurantDetailViewProps {
     restaurant?: Restaurant;
@@ -235,11 +237,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
     }
 
     if (fetchingRestaurant) {
-        return (
-            <div className="flex-1 flex items-center justify-center bg-white">
-                <Loader2 className="w-8 h-8 animate-spin text-pastel-blue" />
-            </div>
-        );
+        return <RestaurantDetailSkeleton />;
     }
 
     if (!restaurant) {
@@ -420,17 +418,21 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
 
                 {/* Comparative Ratings */}
                 {(!viewConfig || viewConfig.show_ratings) && restaurant.visit_status !== 'wishlist' && (
-                    <div>
+                    <div className="overflow-hidden">
                         <h3 className="font-bold text-slate-800 mb-4 text-lg">{t('stats.averageScore')}</h3>
-
+                        
                         <div className="grid grid-cols-3 gap-4 mb-6">
                             {/* Me */}
-                            <div className="flex flex-col items-center">
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="flex flex-col items-center"
+                            >
                                 <div className="w-12 h-12 rounded-full bg-pastel-blue-darker flex items-center justify-center text-white font-bold text-xl mb-2 shadow-sm">
                                     {myRating ? ((myRating.food_score + myRating.service_score + myRating.vibe_score + myRating.price_quality_score) / 4).toFixed(1) : '-'}
                                 </div>
                                 <span className="text-xs font-bold text-slate-600 text-center line-clamp-1">{currentUser?.display_name || 'Me'}</span>
-                            </div>
+                            </motion.div>
 
                             {/* VS */}
                             <div className="flex flex-col items-center justify-center pt-2">
@@ -438,26 +440,48 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                             </div>
 
                             {/* Partner */}
-                            <div className="flex flex-col items-center">
-                                <div className={`relative w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-xl mb-2 shadow-sm ${partnerRating ? 'bg-pastel-peach text-slate-800' : 'bg-slate-100 text-slate-300'}`}>
-                                    <div className={!myRating && partnerRating ? 'blur-[4px] select-none pointer-events-none' : ''}>
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="flex flex-col items-center"
+                            >
+                                <div className={`relative w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-xl mb-2 shadow-sm transition-all duration-700 ${partnerRating ? 'bg-pastel-peach text-slate-800' : 'bg-slate-100 text-slate-300'}`}>
+                                    <motion.div 
+                                        animate={{ 
+                                            filter: !myRating && partnerRating ? 'blur(4px)' : 'blur(0px)',
+                                            scale: !myRating && partnerRating ? 0.9 : 1
+                                        }}
+                                        className="select-none pointer-events-none"
+                                    >
                                         {partnerRating ? ((partnerRating.food_score + partnerRating.service_score + partnerRating.vibe_score + partnerRating.price_quality_score) / 4).toFixed(1) : '?'}
-                                    </div>
+                                    </motion.div>
                                     {!myRating && partnerRating && (
-                                        <div className="absolute inset-0 flex items-center justify-center">
+                                        <motion.div 
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            className="absolute inset-0 flex items-center justify-center"
+                                        >
                                             <span className="text-[10px] text-slate-400 font-black">?</span>
-                                        </div>
+                                        </motion.div>
                                     )}
                                 </div>
                                 <span className="text-xs font-bold text-slate-600 text-center line-clamp-1">{partnerProfile?.display_name || t('restaurant.partner')}</span>
-                            </div>
+                            </motion.div>
                         </div>
 
-                        {!myRating && partnerRating && (
-                            <p className="text-[10px] text-center text-slate-400 font-bold uppercase tracking-wider mb-4 animate-pulse">
-                                {t('restaurant.rateToSeePartnerScore') || 'Rate to reveal partner\'s score!'}
-                            </p>
-                        )}
+                        <AnimatePresence>
+                            {!myRating && partnerRating && (
+                                <motion.p 
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
+                                    className="text-[10px] text-center text-slate-400 font-bold uppercase tracking-wider mb-4 animate-pulse"
+                                >
+                                    {t('restaurant.rateToSeePartnerScore') || 'Rate to reveal partner\'s score!'}
+                                </motion.p>
+                            )}
+                        </AnimatePresence>
 
                         <div className="space-y-3 bg-slate-50 p-4 rounded-2xl">
                             {[
@@ -469,13 +493,20 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                 <div key={cat.key} className="flex items-center gap-3">
                                     <span className="text-xs font-bold text-slate-500 w-24">{cat.label}</span>
                                     <div className="flex-1 h-2 bg-white rounded-full overflow-hidden flex">
-                                        <div
+                                        <motion.div
+                                            initial={{ width: 0 }}
+                                            animate={{ width: `${myRating ? (myRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
+                                            transition={{ type: "spring", damping: 20, stiffness: 100 }}
                                             className="h-full bg-pastel-blue-darker opacity-80"
-                                            style={{ width: `${myRating ? (myRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
                                         />
-                                        <div
-                                            className={`h-full bg-pastel-peach opacity-80 transition-all duration-500 ${!myRating ? 'blur-sm' : ''}`}
-                                            style={{ width: `${partnerRating ? (partnerRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
+                                        <motion.div
+                                            initial={{ width: 0 }}
+                                            animate={{ 
+                                                width: `${partnerRating ? (partnerRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%`,
+                                                filter: !myRating ? 'blur(2px)' : 'blur(0px)'
+                                            }}
+                                            transition={{ type: "spring", damping: 20, stiffness: 100, delay: 0.1 }}
+                                            className="h-full bg-pastel-peach opacity-80"
                                         />
                                     </div>
                                 </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '../ui/Button';
 import { supabase } from '../../lib/supabase';
 import type { Profile } from '../../types';
@@ -54,57 +55,71 @@ export function RateRestaurantDrawer({ isOpen, onClose, restaurantId, profile, o
         setLoading(false);
     };
 
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 z-[2000] flex items-end justify-center">
-            {/* Backdrop */}
-            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
+        <AnimatePresence>
+            {isOpen && (
+                <div className="fixed inset-0 z-[2000] flex items-end justify-center">
+                    {/* Backdrop */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={onClose}
+                        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+                    />
 
-            {/* Drawer */}
-            <div className="relative bg-white w-full max-w-lg rounded-t-[32px] p-6 shadow-2xl animate-in slide-in-from-bottom duration-300">
-                <div className="flex justify-between items-center mb-6">
-                    <div>
-                        <h2 className="text-xl font-bold text-slate-800">{t('restaurant.rateSpot')}</h2>
-                        <p className="text-xs text-slate-400 font-medium uppercase tracking-widest">{t('restaurant.addYourRating')}</p>
-                    </div>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
-                        <X size={20} className="text-slate-400" />
-                    </button>
-                </div>
-
-                <div className="space-y-6 mb-8">
-                    {[
-                        { label: t('restaurant.food'), key: 'foodScore' },
-                        { label: t('restaurant.service'), key: 'serviceScore' },
-                        { label: t('restaurant.vibe'), key: 'vibeScore' },
-                        { label: t('restaurant.priceQuality'), key: 'priceQualityScore' }
-                    ].map((item) => (
-                        <div key={item.key} className="space-y-2">
-                            <div className="flex justify-between items-center px-1">
-                                <label className="text-sm font-bold text-slate-700">{item.label}</label>
-                                <span className="text-sm font-black text-pastel-mint bg-pastel-mint/10 px-2 py-0.5 rounded-lg">
-                                    {scores[item.key as keyof typeof scores]}
-                                </span>
+                    {/* Drawer */}
+                    <motion.div
+                        initial={{ y: "100%" }}
+                        animate={{ y: 0 }}
+                        exit={{ y: "100%" }}
+                        transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                        className="relative bg-white w-full max-w-lg rounded-t-[32px] p-6 shadow-2xl"
+                    >
+                        <div className="flex justify-between items-center mb-6">
+                            <div>
+                                <h2 className="text-xl font-bold text-slate-800">{t('restaurant.rateSpot')}</h2>
+                                <p className="text-xs text-slate-400 font-medium uppercase tracking-widest">{t('restaurant.addYourRating')}</p>
                             </div>
-                            <input
-                                type="range" min="1" max="5" step="0.5"
-                                className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-pastel-mint"
-                                value={scores[item.key as keyof typeof scores]}
-                                onChange={e => setScores({ ...scores, [item.key]: parseFloat(e.target.value) })}
-                            />
+                            <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                                <X size={20} className="text-slate-400" />
+                            </button>
                         </div>
-                    ))}
-                </div>
 
-                <Button
-                    className="w-full bg-pastel-mint text-slate-800 rounded-2xl py-4 font-bold flex items-center justify-center gap-2"
-                    onClick={handleSubmit}
-                    disabled={loading}
-                >
-                    {loading ? <Loader2 className="animate-spin" /> : t('restaurant.saveRating')}
-                </Button>
-            </div>
-        </div>
+                        <div className="space-y-6 mb-8">
+                            {[
+                                { label: t('restaurant.food'), key: 'foodScore' },
+                                { label: t('restaurant.service'), key: 'serviceScore' },
+                                { label: t('restaurant.vibe'), key: 'vibeScore' },
+                                { label: t('restaurant.priceQuality'), key: 'priceQualityScore' }
+                            ].map((item) => (
+                                <div key={item.key} className="space-y-2">
+                                    <div className="flex justify-between items-center px-1">
+                                        <label className="text-sm font-bold text-slate-700">{item.label}</label>
+                                        <span className="text-sm font-black text-pastel-mint bg-pastel-mint/10 px-2 py-0.5 rounded-lg">
+                                            {scores[item.key as keyof typeof scores]}
+                                        </span>
+                                    </div>
+                                    <input
+                                        type="range" min="1" max="5" step="0.5"
+                                        className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-pastel-mint"
+                                        value={scores[item.key as keyof typeof scores]}
+                                        onChange={e => setScores({ ...scores, [item.key]: parseFloat(e.target.value) })}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+
+                        <Button
+                            className="w-full bg-pastel-mint text-slate-800 rounded-2xl py-4 font-bold flex items-center justify-center gap-2"
+                            onClick={handleSubmit}
+                            disabled={loading}
+                        >
+                            {loading ? <Loader2 className="animate-spin" /> : t('restaurant.saveRating')}
+                        </Button>
+                    </motion.div>
+                </div>
+            )}
+        </AnimatePresence>
     );
 }

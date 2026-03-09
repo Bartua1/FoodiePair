@@ -1,0 +1,17 @@
+# User Experience Improvements
+
+- **[Frictionless Pairing Flow Enhancement]** (Priority: High)
+  - **Description:** The initial partner pairing process acts as the critical "Aha!" moment for FoodiePair's core value. Mandating users to manually dictate, identically type, and submit a raw pairing alphanumeric code generates unnecessary friction.
+  - **Implementation Details:** Extensively implement mobile deep-linking URLs alongside dynamic QR code generation visibly representing the exact pairing string. Offer an immediate "Share Invite Link" CTA generating a universal link akin to `foodiepair.com/pair?code=XYZ`. When a partner natively taps this link on their device, they are gracefully routed through the initial Clerk auth gate before automatically being mapped contextually via a chained backend RPC invocation.
+
+- **[PWA Offline Support and Background Sync]** (Priority: High)
+  - **Description:** Users physically checking their active wishlisted restaurants or proactively attempting to log a completed new diner often face poor, congested, or entirely non-existent cellular connectivity within the specific venue's physical layout itself.
+  - **Implementation Details:** Implement the comprehensive `vite-plugin-pwa` library, specifically configuring a robust Service Worker script to rigidly cache the core React app shell UI and requisite static assets. Integrate an optimistic UI mutation pattern distinctly coupled with an IndexedDB storage queue (potentially leveraging `idb` or `dexie` libraries) to temporarily cache localized "Add Restaurant" actions continuously offline, subsequently replaying them automatically to the primary Supabase endpoint upon seamless network restoration detection.
+
+- **[Graceful Geolocation Degradation]** (Priority: Medium)
+  - **Description:** An expanding segment of modern users immediately reject initial device location prompts outright due to generalized systemic privacy concerns. The application's map interaction must resiliently remain functional and visually intuitive completely without this explicitly provided data.
+  - **Implementation Details:** If the `useGeolocation` hook rapidly emits a targeted error state (location permission intentionally denied), gracefully default the core `MapView` component center to programmatically compute and zoom to a bounding box encompassing all currently saved restaurant geographic locations. Concurrently maintain a non-obtrusive, dismissible UI banner explicitly explaining the exact qualitative benefits of temporary localized access to enable accurate, dynamic sort-by-distance filtering functionalities.
+
+- **[Gamified Rating Reveal Celebration]** (Priority: Low)
+  - **Description:** FoodiePair's structured "blind rating" mechanic fundamentally removes preliminary bias effectively, but revealing the respective paired partner's final locked rating score should ideally conclude functionally as a surprisingly rewarding, engaging moment of cohesive alignment rather than a static text flip.
+  - **Implementation Details:** Immediately upon the current primary user submitting their own conclusive rating score value, seamlessly transition the UI off the hidden overlay state dynamically. Concurrently trigger a lightweight, programmatic visual celebratory CSS animation (incorporating `canvas-confetti` or similar minimal visual libraries) strictly only if the final independent numeric scores organically align highly.

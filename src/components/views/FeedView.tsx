@@ -8,6 +8,7 @@ import { Utensils, Sparkles } from 'lucide-react';
 import type { Restaurant, Profile } from '../../types';
 import { supabase } from '../../lib/supabase';
 import { RecommendationDrawer } from '../recommendations/RecommendationDrawer';
+import { RestaurantCardSkeleton } from '../feed/RestaurantCardSkeleton';
 
 interface FeedViewProps {
     restaurants: any[];
@@ -101,8 +102,8 @@ export function FeedView({
             <GeolocationBanner geoError={geoError} retryGeo={retryGeo} />
 
             {loading ? (
-                <div className="animate-pulse space-y-4 mt-6">
-                    {[1, 2, 3].map(i => <div key={i} className="h-48 bg-slate-100 rounded-2xl w-full" />)}
+                <div className="space-y-4 mt-6">
+                    {[1, 2, 3].map(i => <RestaurantCardSkeleton key={i} />)}
                 </div>
             ) : filteredByTab.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 text-center px-4">
