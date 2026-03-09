@@ -20,12 +20,12 @@ export function Header({ unratedRestaurants }: HeaderProps) {
     const totalNotifications = unratedRestaurants.length + unreadCount;
 
     return (
-        <header className="p-4 bg-white/80 backdrop-blur-md border-b border-pastel-mint flex items-center justify-between sticky top-0 z-50 flex-none">
+        <header className="p-4 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-pastel-mint dark:border-zinc-800 flex items-center justify-between sticky top-0 z-50 flex-none">
             <div
                 className="flex items-center gap-2 cursor-pointer"
                 onClick={() => navigate('/')}
             >
-                <div style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 700, fontSize: '24px', color: '#111827' }}>
+                <div style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 700, fontSize: '24px' }} className="text-gray-900 dark:text-white">
                     Foodie<span style={{ fontFamily: 'sans-serif', color: '#f97316', fontStyle: 'normal' }}>.</span>
                 </div>
             </div>
@@ -35,12 +35,12 @@ export function Header({ unratedRestaurants }: HeaderProps) {
                     <div className="relative group">
                         <button
                             onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                            className="relative w-10 h-10 flex items-center justify-center text-slate-700 bg-slate-100 border border-slate-200 hover:bg-slate-200 hover:text-slate-900 rounded-full transition-all shadow-sm active:scale-95 z-20"
+                            className="relative group w-10 h-10 flex items-center justify-center text-slate-700 dark:text-zinc-300 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-200 dark:hover:bg-zinc-700 hover:text-slate-900 dark:hover:text-white rounded-full transition-all shadow-sm active:scale-95 z-20"
                             aria-label="Notifications"
                         >
                             <Bell
                                 size={20}
-                                className={`shrink-0 transition-all ${isNotificationsOpen ? 'fill-orange-500 stroke-orange-500' : 'fill-none stroke-slate-600'}`}
+                                className={`shrink-0 transition-all ${isNotificationsOpen ? 'fill-orange-500 stroke-orange-500' : 'fill-none stroke-slate-600 dark:stroke-zinc-300 group-hover:dark:stroke-white'}`}
                                 strokeWidth={2.5}
                             />
                             {totalNotifications > 0 && (
@@ -60,7 +60,7 @@ export function Header({ unratedRestaurants }: HeaderProps) {
                         />
                     </div>
 
-                    <div className="w-10 h-10 flex items-center justify-center overflow-hidden border border-slate-300 bg-slate-200 rounded-full shadow-sm hover:border-slate-400 transition-all cursor-pointer ring-offset-2 hover:ring-2 ring-pastel-peach/50 active:scale-95">
+                    <div className="w-10 h-10 flex items-center justify-center overflow-hidden border border-slate-300 dark:border-zinc-700 bg-slate-200 dark:bg-zinc-800 rounded-full shadow-sm hover:border-slate-400 dark:hover:border-zinc-500 transition-all cursor-pointer ring-offset-2 hover:ring-2 ring-pastel-peach/50 active:scale-95">
                         <UserButton afterSignOutUrl="/" />
                     </div>
                 </SignedIn>

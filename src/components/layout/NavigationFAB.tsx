@@ -46,7 +46,7 @@ export function NavigationFAB() {
 
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-16 h-16 rounded-full shadow-xl flex items-center justify-center transition-all duration-500 hover:scale-105 active:scale-95 relative overflow-hidden ${isOpen ? 'bg-slate-800 text-white' : 'bg-white text-slate-800'
+                className={`w-16 h-16 rounded-full shadow-xl flex items-center justify-center transition-all duration-500 hover:scale-105 active:scale-95 relative overflow-hidden ${isOpen ? 'bg-slate-800 text-white' : 'bg-white text-slate-800 dark:text-white'
                     }`}
                 aria-label="Menu"
             >

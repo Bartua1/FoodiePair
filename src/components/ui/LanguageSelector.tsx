@@ -23,12 +23,12 @@ export function LanguageSelector() {
     };
 
     return (
-        <div className="flex flex-col gap-4 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
+        <div className="flex flex-col gap-4 p-4 bg-white dark:bg-zinc-900 rounded-2xl border border-slate-100 dark:border-zinc-800 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 bg-pastel-blue rounded-full flex items-center justify-center text-slate-700">
+                <div className="w-8 h-8 bg-pastel-blue dark:bg-pastel-blue-darker rounded-full flex items-center justify-center text-slate-700 dark:text-white">
                     <Languages size={18} />
                 </div>
-                <h3 className="font-bold text-slate-800">{t('settings.language')}</h3>
+                <h3 className="font-bold text-slate-800 dark:text-zinc-100">{t('settings.language')}</h3>
             </div>
 
             <div className="flex gap-2">
@@ -36,7 +36,7 @@ export function LanguageSelector() {
                     onClick={() => changeLanguage('en')}
                     className={`flex-1 py-3 rounded-xl font-bold transition-all ${i18n.language.startsWith('en')
                             ? 'bg-pastel-peach text-slate-800 shadow-sm scale-[1.02]'
-                            : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
+                            : 'bg-slate-50 dark:bg-zinc-800 text-slate-400 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-700'
                         }`}
                 >
                     {t('settings.english')}
@@ -45,7 +45,7 @@ export function LanguageSelector() {
                     onClick={() => changeLanguage('es')}
                     className={`flex-1 py-3 rounded-xl font-bold transition-all ${i18n.language.startsWith('es')
                             ? 'bg-pastel-peach text-slate-800 shadow-sm scale-[1.02]'
-                            : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
+                            : 'bg-slate-50 dark:bg-zinc-800 text-slate-400 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-700'
                         }`}
                 >
                     {t('settings.spanish')}
