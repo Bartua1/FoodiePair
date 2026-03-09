@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '@clerk/clerk-react';
+import { useThrottledCallback } from './useThrottledCallback';
 
 export function useCommentLikes(commentId: string) {
     const { userId } = useAuth();
@@ -32,6 +33,8 @@ export function useCommentLikes(commentId: string) {
         setHasLiked(!!userLike);
         setLoading(false);
     };
+
+    const throttledFetchLikes = useThrottledCallback(fetchLikes, 300);
 
     const toggleLike = async () => {
         if (!userId) return;
@@ -88,7 +91,7 @@ export function useCommentLikes(commentId: string) {
                     filter: `comment_id=eq.${commentId}`
                 },
                 () => {
-                    fetchLikes();
+                    throttledFetchLikes();
                 }
             )
             .subscribe();
@@ -96,7 +99,7 @@ export function useCommentLikes(commentId: string) {
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [commentId, userId]);
+    }, [commentId, userId, throttledFetchLikes]);
 
     return { likesCount, hasLiked, toggleLike, loading };
 }

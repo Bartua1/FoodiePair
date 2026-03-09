@@ -23,7 +23,7 @@ export function FilterBar({ filters, setFilters, cuisines }: FilterBarProps) {
                 onClick={() => setFilters({ ...filters, favoritesOnly: !filters.favoritesOnly })}
                 className={`flex-none flex items-center gap-1 px-4 py-2 rounded-full border text-sm font-medium transition-all ${filters.favoritesOnly
                     ? 'bg-pastel-pink border-pastel-pink text-slate-800'
-                    : 'bg-white border-slate-200 text-slate-500'
+                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'
                     }`}
             >
                 <Heart size={14} className={filters.favoritesOnly ? 'fill-red-500 text-red-500' : ''} />
@@ -34,7 +34,7 @@ export function FilterBar({ filters, setFilters, cuisines }: FilterBarProps) {
             <select
                 value={filters.distance}
                 onChange={(e) => setFilters({ ...filters, distance: e.target.value })}
-                className="flex-none px-4 py-2 rounded-full border border-slate-200 bg-white text-sm font-medium text-slate-500 outline-none focus:ring-2 focus:ring-pastel-mint"
+                className="flex-none px-4 py-2 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-medium text-slate-500 dark:text-slate-400 outline-none focus:ring-2 focus:ring-pastel-mint"
             >
                 <option value="any">{t('filters.anyDistance')}</option>
                 <option value="1">{t('filters.lessThan1km')}</option>
@@ -45,14 +45,14 @@ export function FilterBar({ filters, setFilters, cuisines }: FilterBarProps) {
             <select
                 value={filters.sort}
                 onChange={(e) => setFilters({ ...filters, sort: e.target.value })}
-                className="flex-none px-4 py-2 rounded-full border border-slate-200 bg-white text-sm font-medium text-slate-500 outline-none focus:ring-2 focus:ring-pastel-mint"
+                className="flex-none px-4 py-2 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-medium text-slate-500 dark:text-slate-400 outline-none focus:ring-2 focus:ring-pastel-mint"
             >
                 <option value="rating">{t('filters.sortBy')}: {t('filters.rating')}</option>
                 <option value="distance">{t('filters.sortBy')}: {t('filters.distance')}</option>
             </select>
 
             {/* Price Filter */}
-            <div className="flex-none flex bg-white border border-slate-200 rounded-full p-1">
+            <div className="flex-none flex bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full p-1">
                 {[1, 2, 3].map((p) => (
                     <button
                         key={p}
@@ -71,7 +71,7 @@ export function FilterBar({ filters, setFilters, cuisines }: FilterBarProps) {
             <select
                 value={filters.cuisine}
                 onChange={(e) => setFilters({ ...filters, cuisine: e.target.value })}
-                className="flex-none px-4 py-2 rounded-full border border-slate-200 bg-white text-sm font-medium text-slate-500 outline-none focus:ring-2 focus:ring-pastel-mint"
+                className="flex-none px-4 py-2 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-medium text-slate-500 dark:text-slate-400 outline-none focus:ring-2 focus:ring-pastel-mint"
             >
                 <option value="all">{t('filters.allCuisines')}</option>
                 {cuisines.map(c => (

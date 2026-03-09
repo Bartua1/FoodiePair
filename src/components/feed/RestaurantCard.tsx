@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { Star, Heart, MapPin, Utensils, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Restaurant, Photo, Profile } from '../../types';
 import { useTranslation } from 'react-i18next';
+import { getOptimizedImageUrl } from '../../utils/imageUtils';
 
 interface RestaurantCardProps {
     restaurant: Restaurant & { avg_score?: number; distance?: number; user_has_rated?: boolean; photos?: Photo[]; favorites?: Profile[] };
@@ -51,7 +52,7 @@ export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavo
     };
 
     return (
-        <div className="bg-white border border-pastel-mint shadow-sm rounded-2xl overflow-hidden flex flex-col transition-all hover:shadow-md">
+        <div className="bg-white dark:bg-slate-900 border border-pastel-mint dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden flex flex-col transition-all hover:shadow-md">
             {/* Photo Section */}
             <div
                 className="w-full aspect-video bg-pastel-lavender relative cursor-pointer group"
@@ -68,7 +69,7 @@ export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavo
                             {photos.map((photo, index) => (
                                 <img
                                     key={index}
-                                    src={photo.url}
+                                    src={getOptimizedImageUrl(photo.url, { width: 600, height: 338, resize: 'cover' })}
                                     alt={`${restaurant.name} ${index + 1}`}
                                     className="w-full h-full object-cover flex-shrink-0 snap-center"
                                     loading="lazy"
@@ -115,7 +116,12 @@ export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavo
                             {restaurant.favorites.map((profile) => (
                                 <div key={profile.id} className="w-8 h-8 rounded-full border-2 border-white overflow-hidden shadow-sm bg-white" title={profile.display_name || ''}>
                                     {profile.avatar_url ? (
-                                        <img src={profile.avatar_url} alt={profile.display_name || ''} className="w-full h-full object-cover" />
+                                        <img 
+                                            src={getOptimizedImageUrl(profile.avatar_url, { width: 64, height: 64, resize: 'cover' })} 
+                                            alt={profile.display_name || ''} 
+                                            className="w-full h-full object-cover" 
+                                            loading="lazy"
+                                        />
                                     ) : (
                                         <div className="w-full h-full bg-pastel-peach flex items-center justify-center text-[10px] font-bold text-slate-700">
                                             {profile.display_name?.[0]?.toUpperCase() || '?'}
@@ -144,7 +150,7 @@ export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavo
 
             <div className="p-4">
                 <div className="flex justify-between items-start mb-1">
-                    <h4 className="font-bold text-slate-800 text-lg leading-tight cursor-pointer" onClick={() => onViewDetails(restaurant)}>{restaurant.name}</h4>
+                    <h4 className="font-bold text-slate-800 dark:text-slate-100 text-lg leading-tight cursor-pointer" onClick={() => onViewDetails(restaurant)}>{restaurant.name}</h4>
                     {restaurant.visit_status !== 'wishlist' && (
                         !restaurant.user_has_rated ? (
                             <button
@@ -169,7 +175,7 @@ export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavo
                     {restaurant.cuisine_type} • {'€'.repeat(restaurant.price_range)}
                 </p>
 
-                <div className="flex items-center gap-1 text-slate-400 text-xs mb-3">
+                <div className="flex items-center gap-1 text-slate-400 dark:text-slate-500 text-xs mb-3">
                     <MapPin size={12} />
                     <span className="truncate">{restaurant.address}</span>
                     {restaurant.distance !== undefined && (

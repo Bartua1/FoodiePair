@@ -4,7 +4,7 @@
   - **Description:** The `MapView` and all underlying `react-leaflet`/Leaflet dependencies are significantly large in bundle size. Deferring their loading until the user explicitly navigates to the map tab drastically speeds up the initial application Time to Interactive.
   - **Implementation Details:** Use React 19's `lazy()` utility combined with `<Suspense>` boundaries to dynamically import the `MapView` aggregate component from `App.tsx`. Display a lightweight, branded loading spinner as the fallback while the chunk is fetched.
 
-- **[Image Optimization, Resizing, and Caching]** (Priority: High)
+- Doing **[Image Optimization, Resizing, and Caching]** (Priority: High)
   - **Description:** Large, unoptimized user-uploaded restaurant photos can consume immense bandwidth and completely stall rendering in the `FeedView`. Delivering precisely optimized images ensures smooth scrolling.
   - **Implementation Details:** Enforce Supabase Storage Image Transformations (`transform={width, format: 'webp'}`) directly in the component `src` attributes. Configure strict Cache-Control headers on the Storage bucket, and utilize the native browser `loading="lazy"` attribute on `<img>` tags for images rendered under the initially visible fold.
 

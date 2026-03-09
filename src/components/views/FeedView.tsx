@@ -73,20 +73,20 @@ export function FeedView({
     };
 
     return (
-        <div className="flex-1 overflow-y-auto p-4 pb-32 no-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 pb-32 no-scrollbar dark:bg-slate-950">
             <header className="mb-6 flex justify-between items-start">
                 <div>
-                    <h2 className="text-2xl font-bold text-slate-800 mb-1">
+                    <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-1">
                         {activeTab === 'visited' ? t('feed.title') : t('wishlist.toGo')}
                     </h2>
-                    <p className="text-slate-500 text-sm">
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">
                         {activeTab === 'visited' ? t('feed.subtitle') : t('wishlist.subtitle')}
                     </p>
                 </div>
 
                 <button
                     onClick={() => setIsRecommendOpen(true)}
-                    className="p-3 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all flex items-center gap-2 group shadow-lg"
+                    className="p-3 bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 rounded-2xl hover:bg-slate-800 dark:hover:bg-white transition-all flex items-center gap-2 group shadow-lg"
                 >
                     <Sparkles size={20} className="text-pastel-peach-darker group-hover:scale-110 transition-transform" />
                     <span className="hidden sm:inline text-sm font-bold">{t('recommendations.getSuggestions')}</span>

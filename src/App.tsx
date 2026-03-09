@@ -11,6 +11,7 @@ import { calculateDistance } from './lib/distance';
 import { useTranslation } from 'react-i18next';
 import { useGeolocation } from './hooks/useGeolocation';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { useThrottledCallback } from './hooks/useThrottledCallback';
 
 // New components
 import { NavigationFAB } from './components/layout/NavigationFAB';
@@ -55,10 +56,10 @@ function App() {
     return restaurants.filter(r => !r.user_has_rated && r.visit_status !== 'wishlist');
   }, [restaurants]);
 
-  if (loading) return <div className="h-[100dvh] bg-background flex items-center justify-center font-medium text-slate-400">{t('app.loading')}</div>;
+  if (loading) return <div className="h-[100dvh] bg-background dark:bg-slate-950 flex items-center justify-center font-medium text-slate-400 dark:text-slate-500">{t('app.loading')}</div>;
 
   return (
-    <div className="h-[100dvh] bg-background flex flex-col overflow-hidden">
+    <div className="h-[100dvh] bg-background dark:bg-slate-950 flex flex-col overflow-hidden">
       <div className="flex-1 overflow-hidden flex flex-col relative w-full">
         <Routes>
           <Route path="/shared/:id" element={<SharedRestaurantView currentUser={profile} />} />
@@ -114,12 +115,16 @@ function AppContent() {
     sort: 'rating'
   });
 
+  const throttledSetProfile = useThrottledCallback((newProfile: Profile) => {
+    setProfile(newProfile);
+  }, 300);
+
   useEffect(() => {
     const channel = supabase
       .channel('profile_changes')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${user?.id}` },
         (payload) => {
-          setProfile(payload.new as Profile);
+          throttledSetProfile(payload.new as Profile);
         })
       .subscribe();
 
@@ -190,7 +195,7 @@ function AppContent() {
   }, [restaurants]);
 
   if (loading) {
-    return <div className="h-full flex items-center justify-center font-medium text-slate-400">{t('app.loading')}</div>;
+    return <div className="h-full flex items-center justify-center font-medium text-slate-400 dark:text-slate-500 bg-background dark:bg-slate-950">{t('app.loading')}</div>;
   }
 
   if (!profile?.pair_id) {

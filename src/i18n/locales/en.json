@@ -89,7 +89,24 @@
     "ratedCount": "{{count}} restaurants rated",
     "pickiestTitle": "The Pickiest Eater",
     "pickiestSubtitle": "\"The one who finds a hair in the soup even when it's delicious.\"",
-    "reviewsCount": "Based on {{count}} reviews given by this user."
+    "reviewsCount": "Based on {{count}} reviews given by this user.",
+    "categoriesTitle": "Taste Breakdown",
+    "categoriesSubtitle": "How you both feel about different types of food.",
+    "consistencyTitle": "Partner Agreement",
+    "consistencySubtitle": "How much your culinary opinions align.",
+    "consistencyHigh": "Soulmates! You almost always agree.",
+    "consistencyMid": "Mostly in sync, with some healthy debates.",
+    "consistencyLow": "Opposites attract! Your tastes are quite different.",
+    "topCuisines": "Top Cuisines",
+    "noCategoryData": "Not enough data for category breakdown yet.",
+    "agreementScore": "Agreement Score",
+    "category": "Category",
+    "you": "You",
+    "partner": "Partner",
+    "insightSushi": "You both seem to love Sushi! Maybe a date night soon?",
+    "insightPizza": "Pizza is a safe bet for you two.",
+    "insightDifference": "You have the biggest disagreement on {{cuisine}}.",
+    "insightAgreement": "You're in perfect harmony when it comes to {{cuisine}}!"
   },
   "pairing": {
     "loading": "Loading profile...",
@@ -183,7 +200,8 @@
         "Burger": "Burger",
         "Asian": "Asian",
         "Coffee": "Coffee",
-        "Dessert": "Dessert"
+        "Dessert": "Dessert",
+        "Tapas": "Tapas"
     }
   }
 }

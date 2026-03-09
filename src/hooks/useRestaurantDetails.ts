@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { useThrottledCallback } from './useThrottledCallback';
 import type { Rating, Photo, Profile, Comment } from '../types';
 
 interface DetailData {
@@ -107,9 +108,25 @@ export function useRestaurantDetails(restaurantId: string | undefined, pairId: s
         }
     }
 
+    const throttledFetch = useThrottledCallback(fetchData, 300);
+
     useEffect(() => {
         fetchData();
-    }, [restaurantId, pairId]);
+
+        if (!restaurantId) return;
+
+        const channel = supabase
+            .channel(`restaurant_details:${restaurantId}`)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'ratings', filter: `restaurant_id=eq.${restaurantId}` }, () => throttledFetch())
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'photos', filter: `restaurant_id=eq.${restaurantId}` }, () => throttledFetch())
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'comments', filter: `restaurant_id=eq.${restaurantId}` }, () => throttledFetch())
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'restaurant_favorites', filter: `restaurant_id=eq.${restaurantId}` }, () => throttledFetch())
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [restaurantId, pairId, throttledFetch]);
 
     return { ...data, loading, refresh: fetchData, addComment };
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, MapPin, Camera, Trash2, Send, Pencil, Heart, X, ChevronLeft, ChevronRight, Loader2, Share2, Bookmark, Check } from 'lucide-react';
+import { ArrowLeft, MapPin, Camera, Trash2, Send, Pencil, Heart, X, ChevronLeft, ChevronRight, Share2, Bookmark, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -11,6 +11,7 @@ import { RestaurantMap } from '../map/RestaurantMap';
 import { ShareConfigurationModal } from '../restaurant/ShareConfigurationModal';
 import { useRestaurantDetails } from '../../hooks/useRestaurantDetails';
 import { supabase } from '../../lib/supabase';
+import { getOptimizedImageUrl } from '../../utils/imageUtils';
 import type { Restaurant, Profile, Rating, SharedRestaurantConfig } from '../../types';
 import { CommentItem } from '../restaurant/CommentItem';
 import { JoinUsPrompt } from '../common/JoinUsPrompt';
@@ -152,7 +153,10 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
 
         const { error: uploadError } = await supabase.storage
             .from('restaurant-photos')
-            .upload(filePath, file);
+            .upload(filePath, file, {
+                cacheControl: '31536000',
+                upsert: false
+            });
 
         if (!uploadError) {
             const { data: { publicUrl } } = supabase.storage
@@ -263,16 +267,16 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
     const favoriteProfiles = (favoriteUserIds || []).map(id => profiles[id]).filter(Boolean);
 
     return (
-        <div className="flex-1 flex flex-col bg-white h-full relative overflow-hidden">
+        <div className="flex-1 flex flex-col bg-white dark:bg-slate-950 h-full relative overflow-hidden">
             {/* Header */}
-            <div className="p-4 border-b border-slate-100 flex items-center gap-4 sticky top-0 bg-white z-10">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-4 sticky top-0 bg-white dark:bg-slate-950 z-10">
                 <button onClick={handleBack} className="p-2 bg-pastel-peach rounded-full hover:scale-105 active:scale-95 transition-all shadow-sm">
                     <ArrowLeft size={24} className="text-slate-800" />
                 </button>
                 <div className="flex-1 overflow-hidden">
-                    <h2 className="text-xl font-bold text-slate-800 leading-tight truncate">{restaurant.name}</h2>
-                    <div className="flex items-start gap-2 text-slate-500 text-sm">
-                        <p className="text-xs text-slate-500 font-medium">{restaurant.cuisine_type} • {'€'.repeat(restaurant.price_range)}</p>
+                    <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 leading-tight truncate">{restaurant.name}</h2>
+                    <div className="flex items-start gap-2 text-slate-500 dark:text-slate-400 text-sm">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{restaurant.cuisine_type} • {'€'.repeat(restaurant.price_range)}</p>
                     </div>
                 </div>
 
@@ -327,7 +331,11 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                     {favoriteProfiles.map(p => (
                                         <div key={p.id} className="w-8 h-8 rounded-full border-2 border-white overflow-hidden shadow-sm" title={p.display_name || ''}>
                                             {p.avatar_url ? (
-                                                <img src={p.avatar_url} className="w-full h-full object-cover" />
+                                                <img 
+                                                    src={getOptimizedImageUrl(p.avatar_url, { width: 64, height: 64 })} 
+                                                    className="w-full h-full object-cover" 
+                                                    loading="lazy"
+                                                />
                                             ) : (
                                                 <div className="w-full h-full bg-pastel-peach flex items-center justify-center text-[10px] font-bold text-slate-700">
                                                     {p.display_name?.[0]}
@@ -348,7 +356,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                 </div>
             </div>
 
-            <div className={`flex-1 overflow-y-auto p-4 space-y-8 pb-32 ${viewConfig?.theme === 'dark' ? 'bg-slate-900 text-white' : ''}`}>
+            <div className={`flex-1 overflow-y-auto p-4 space-y-8 pb-32`}>
                 {/* Hero Carousel */}
                 {(photos.length > 0 && (!viewConfig || viewConfig.show_photos)) && (
                     <div className="rounded-2xl overflow-hidden relative group aspect-video shadow-sm">
@@ -360,7 +368,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                             {photos.map((photo, index) => (
                                 <img
                                     key={index}
-                                    src={photo.url}
+                                    src={getOptimizedImageUrl(photo.url, { width: 1200, height: 675 })}
                                     alt={`Hero ${index + 1}`}
                                     className="w-full h-full object-cover flex-shrink-0 snap-center cursor-pointer"
                                     onClick={() => openLightbox(index)}
@@ -398,20 +406,20 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                 )}
                 {/* Map Section */}
                 <div className="space-y-2">
-                    <div className="flex items-start gap-2 text-slate-500 text-sm">
+                    <div className="flex items-start gap-2 text-slate-500 dark:text-slate-400 text-sm">
                         <MapPin size={16} className="mt-0.5" />
                         <span className="flex-1">{restaurant.address}</span>
                         {!viewConfig && (
                             <button
                                 onClick={() => setEditRestaurantDrawerOpen(true)}
-                                className="p-1.5 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-colors"
+                                className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
                                 title={t('restaurant.editDetails')}
                             >
                                 <Pencil size={14} />
                             </button>
                         )}
                     </div>
-                    <div className="h-48 rounded-2xl overflow-hidden border border-slate-100 shadow-sm relative z-0">
+                    <div className="h-48 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm relative z-0">
                         <RestaurantMap restaurants={[{ ...restaurant, avg_score: avgScore }]} />
                     </div>
                 </div>
@@ -419,7 +427,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                 {/* Comparative Ratings */}
                 {(!viewConfig || viewConfig.show_ratings) && restaurant.visit_status !== 'wishlist' && (
                     <div className="overflow-hidden">
-                        <h3 className="font-bold text-slate-800 mb-4 text-lg">{t('stats.averageScore')}</h3>
+                        <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 text-lg">{t('stats.averageScore')}</h3>
                         
                         <div className="grid grid-cols-3 gap-4 mb-6">
                             {/* Me */}
@@ -431,7 +439,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                 <div className="w-12 h-12 rounded-full bg-pastel-blue-darker flex items-center justify-center text-white font-bold text-xl mb-2 shadow-sm">
                                     {myRating ? ((myRating.food_score + myRating.service_score + myRating.vibe_score + myRating.price_quality_score) / 4).toFixed(1) : '-'}
                                 </div>
-                                <span className="text-xs font-bold text-slate-600 text-center line-clamp-1">{currentUser?.display_name || 'Me'}</span>
+                                <span className="text-xs font-bold text-slate-600 dark:text-slate-400 text-center line-clamp-1">{currentUser?.display_name || 'Me'}</span>
                             </motion.div>
 
                             {/* VS */}
@@ -462,11 +470,11 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                             exit={{ opacity: 0 }}
                                             className="absolute inset-0 flex items-center justify-center"
                                         >
-                                            <span className="text-[10px] text-slate-400 font-black">?</span>
+                                            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-black">?</span>
                                         </motion.div>
                                     )}
                                 </div>
-                                <span className="text-xs font-bold text-slate-600 text-center line-clamp-1">{partnerProfile?.display_name || t('restaurant.partner')}</span>
+                                <span className="text-xs font-bold text-slate-600 dark:text-slate-400 text-center line-clamp-1">{partnerProfile?.display_name || t('restaurant.partner')}</span>
                             </motion.div>
                         </div>
 
@@ -483,7 +491,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                             )}
                         </AnimatePresence>
 
-                        <div className="space-y-3 bg-slate-50 p-4 rounded-2xl">
+                        <div className="space-y-3 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl">
                             {[
                                 { label: t('restaurant.food'), key: 'food_score' },
                                 { label: t('restaurant.service'), key: 'service_score' },
@@ -491,8 +499,8 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                 { label: t('restaurant.priceQuality'), key: 'price_quality_score' }
                             ].map((cat) => (
                                 <div key={cat.key} className="flex items-center gap-3">
-                                    <span className="text-xs font-bold text-slate-500 w-24">{cat.label}</span>
-                                    <div className="flex-1 h-2 bg-white rounded-full overflow-hidden flex">
+                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 w-24">{cat.label}</span>
+                                    <div className="flex-1 h-2 bg-white dark:bg-slate-800 rounded-full overflow-hidden flex">
                                         <motion.div
                                             initial={{ width: 0 }}
                                             animate={{ width: `${myRating ? (myRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
@@ -517,8 +525,8 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
 
                 {/* Comments Section */}
                 {(!viewConfig || viewConfig.show_comments) && (
-                    <div className="bg-slate-50 p-4 rounded-2xl relative overflow-hidden">
-                        <h3 className="font-bold text-slate-800 mb-4 text-lg">{t('restaurant.chat')}</h3>
+                    <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl relative overflow-hidden">
+                        <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 text-lg">{t('restaurant.chat')}</h3>
 
                         <div className={`space-y-4 mb-4 max-h-60 overflow-y-auto pr-2 ${!currentUser ? 'blur-sm select-none' : ''}`}>
                             {(comments || []).map((comment) => {
@@ -558,7 +566,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                     value={newComment}
                                     onChange={(e) => setNewComment(e.target.value)}
                                     placeholder={t('restaurant.addCommentPlaceholder')}
-                                    className="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-pastel-blue"
+                                    className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-pastel-blue dark:text-slate-100"
                                 />
                                 <button
                                     type="submit"
@@ -576,7 +584,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                 {(!viewConfig || viewConfig.show_photos) && (
                     <div>
                         <div className="flex justify-between items-end mb-4">
-                            <h3 className="font-bold text-slate-800 text-lg">{t('restaurant.photos') || 'Photos'}</h3>
+                            <h3 className="font-bold text-slate-800 dark:text-slate-100 text-lg">{t('restaurant.photos') || 'Photos'}</h3>
                             {(!viewConfig || viewConfig.allow_photos) && (
                                 <label className="text-xs font-bold text-pastel-blue-darker cursor-pointer hover:underline flex items-center gap-1">
                                     <Camera size={14} />
@@ -589,7 +597,11 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                         <div className="grid grid-cols-2 gap-2">
                             {photos.map((p, index) => (
                                 <div key={p.id} className="aspect-square rounded-xl overflow-hidden relative group bg-slate-100 cursor-pointer" onClick={() => openLightbox(index)}>
-                                    <img src={p.url} className="w-full h-full object-cover" loading="lazy" />
+                                    <img 
+                                        src={getOptimizedImageUrl(p.url, { width: 400, height: 400 })} 
+                                        className="w-full h-full object-cover" 
+                                        loading="lazy" 
+                                    />
                                     {(!viewConfig || viewConfig.allow_photos) && (
                                         <button
                                             onClick={(e) => { e.stopPropagation(); handleDeletePhoto(p.id); }}
@@ -601,7 +613,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                 </div>
                             ))}
                             {photos.length === 0 && (
-                                <div className="col-span-2 aspect-video bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-slate-300 gap-2">
+                                <div className="col-span-2 aspect-video bg-slate-50 dark:bg-slate-900/30 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl flex flex-col items-center justify-center text-slate-300 dark:text-slate-700 gap-2">
                                     <Camera size={24} />
                                     <span className="text-xs font-medium">No photos yet</span>
                                 </div>
@@ -613,7 +625,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
 
             {/* Bottom Action */}
             {!viewConfig && currentUser && (
-                <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-slate-100 pb-8 z-20">
+                <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-t border-slate-100 dark:border-slate-800 pb-8 z-20">
                     <Button
                         className={`w-full rounded-2xl py-4 font-bold text-lg shadow-lg active:scale-[0.98] transition-transform ${restaurant.visit_status === 'wishlist'
                             ? 'bg-slate-800 text-white'
@@ -671,7 +683,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
 
                     <div className="relative w-full h-full flex items-center justify-center">
                         <img
-                            src={photos[currentLightboxIndex].url}
+                            src={getOptimizedImageUrl(photos[currentLightboxIndex].url, { width: 1920, quality: 90, format: 'origin' })}
                             alt="Full screen"
                             className="max-w-full max-h-full object-contain"
                         />

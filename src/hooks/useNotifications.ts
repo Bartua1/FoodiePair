@@ -1,12 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '@clerk/clerk-react';
 import type { Notification } from '../types';
+import { useThrottledCallback } from './useThrottledCallback';
 
 export function useNotifications() {
     const { userId } = useAuth();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [loading, setLoading] = useState(true);
+    const pendingNotifications = useRef<Notification[]>([]);
+
+    const flushNotifications = useThrottledCallback(() => {
+        if (pendingNotifications.current.length === 0) return;
+        setNotifications(prev => [...pendingNotifications.current, ...prev]);
+        pendingNotifications.current = [];
+    }, 300);
 
     const fetchNotifications = async () => {
         if (!userId) return;
@@ -69,7 +77,8 @@ export function useNotifications() {
                     filter: `user_id=eq.${userId}`
                 },
                 (payload) => {
-                    setNotifications(prev => [payload.new as Notification, ...prev]);
+                    pendingNotifications.current.unshift(payload.new as Notification);
+                    flushNotifications();
                 }
             )
             .subscribe();
@@ -77,7 +86,7 @@ export function useNotifications() {
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [userId]);
+    }, [userId, flushNotifications]);
 
     const unreadCount = notifications.filter(n => !n.read).length;
 

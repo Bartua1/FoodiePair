@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { publishableKey } from './lib/clerk'
 import './index.css'
 import './i18n/config'
+import { ThemeProvider } from './context/ThemeProvider'
 import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(
@@ -18,7 +19,9 @@ createRoot(document.getElementById('root')!).render(
         signInFallbackRedirectUrl={import.meta.env.VITE_CLERK_AFTER_SIGN_IN_URL}
         signUpFallbackRedirectUrl={import.meta.env.VITE_CLERK_AFTER_SIGN_IN_URL}
       >
-        <App />
+        <ThemeProvider>
+          <App />
+        </ThemeProvider>
       </ClerkProvider>
     </BrowserRouter>
   </StrictMode>,

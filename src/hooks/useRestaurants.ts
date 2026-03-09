@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/clerk-react';
 import { supabase } from '../lib/supabase';
+import { useThrottledCallback } from './useThrottledCallback';
 import type { Restaurant, Rating, Photo, Profile } from '../types';
 
 export function useRestaurants(pairId: string | null) {
@@ -131,6 +132,32 @@ export function useRestaurants(pairId: string | null) {
             setLoading(false);
         }
     }
+
+    const throttledFetch = useThrottledCallback(fetchRestaurants, 300);
+
+    useEffect(() => {
+        if (!pairId) return;
+
+        const channel = supabase
+            .channel('restaurants_realtime')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'restaurants',
+                    filter: `pair_id=eq.${pairId}`
+                },
+                () => {
+                    throttledFetch();
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [pairId, throttledFetch]);
 
     return { restaurants, loading, refresh: fetchRestaurants };
 }

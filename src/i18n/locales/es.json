@@ -89,7 +89,24 @@
     "ratedCount": "{{count}} restaurantes puntuados",
     "pickiestTitle": "El Más Tiquismiquis",
     "pickiestSubtitle": "\"Aquel que encuentra un pelo en la sopa incluso cuando está deliciosa.\"",
-    "reviewsCount": "Basado en {{count}} reseñas dadas por este usuario."
+    "reviewsCount": "Basado en {{count}} reseñas dadas por este usuario.",
+    "categoriesTitle": "Desglose por gustos",
+    "categoriesSubtitle": "Cómo os sentís ambos respecto a diferentes tipos de comida.",
+    "consistencyTitle": "Efecto Pareja",
+    "consistencySubtitle": "Qué tanto se alinean vuestras opiniones culinarias.",
+    "consistencyHigh": "¡Almas gemelas! Casi siempre estáis de acuerdo.",
+    "consistencyMid": "Mayormente en sintonía, con algunos debates sanos.",
+    "consistencyLow": "¡Los polos opuestos se atraen! Vuestros gustos son muy diferentes.",
+    "topCuisines": "Top Cocinas",
+    "noCategoryData": "Aún no hay suficientes datos para el desglose por categorías.",
+    "agreementScore": "Nivel de Acuerdo",
+    "category": "Categoría",
+    "you": "Tú",
+    "partner": "Pareja",
+    "insightSushi": "¡A ambos os encanta el Sushi! ¿Próxima cita?",
+    "insightPizza": "La Pizza es una apuesta segura para vosotros.",
+    "insightDifference": "Donde más discrepáis es en la comida {{cuisine}}.",
+    "insightAgreement": "¡Estáis en perfecta armonía con la comida {{cuisine}}!"
   },
   "pairing": {
     "loading": "Cargando perfil...",
@@ -183,7 +200,8 @@
         "Burger": "Hamburguesa",
         "Asian": "Asiática",
         "Coffee": "Café",
-        "Dessert": "Postre"
+        "Dessert": "Postre",
+        "Tapas": "Tapas"
     }
   }
 }

@@ -5,7 +5,7 @@ import { Button } from '../ui/Button';
 import { useTranslation } from 'react-i18next';
 import { useRecommendations } from '../../hooks/useRecommendations';
 
-const CUISINES = ['Sushi', 'Pizza', 'Italian', 'Mexican', 'Burger', 'Asian', 'Coffee', 'Dessert'];
+const CUISINES = ['Sushi', 'Pizza', 'Italian', 'Mexican', 'Burger', 'Asian', 'Coffee', 'Dessert', 'Tapas'];
 
 interface RecommendationDrawerProps {
     isOpen: boolean;
@@ -142,7 +142,7 @@ export function RecommendationDrawer({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[2000] flex items-end justify-center">
+        <div className="fixed inset-0 z-[3000] flex items-end justify-center">
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
