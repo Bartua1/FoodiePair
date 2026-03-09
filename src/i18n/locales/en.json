@@ -106,7 +106,11 @@
     "insightSushi": "You both seem to love Sushi! Maybe a date night soon?",
     "insightPizza": "Pizza is a safe bet for you two.",
     "insightDifference": "You have the biggest disagreement on {{cuisine}}.",
-    "insightAgreement": "You're in perfect harmony when it comes to {{cuisine}}!"
+    "insightAgreement": "You're in perfect harmony when it comes to {{cuisine}}!",
+    "insightSushiDesc": "Based on the cuisine category you both review the most.",
+    "insightPizzaDesc": "Based on the cuisine category you both review the most.",
+    "insightDifferenceDesc": "This is the category where your average ratings differ the most.",
+    "insightAgreementDesc": "This is the category where you both have the greatest combined average rating."
   },
   "pairing": {
     "loading": "Loading profile...",

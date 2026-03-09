@@ -106,7 +106,11 @@
     "insightSushi": "¡A ambos os encanta el Sushi! ¿Próxima cita?",
     "insightPizza": "La Pizza es una apuesta segura para vosotros.",
     "insightDifference": "Donde más discrepáis es en la comida {{cuisine}}.",
-    "insightAgreement": "¡Estáis en perfecta armonía con la comida {{cuisine}}!"
+    "insightAgreement": "¡Estáis en perfecta armonía con la comida {{cuisine}}!",
+    "insightSushiDesc": "Basado en la categoría de cocina que más reseñáis juntos.",
+    "insightPizzaDesc": "Basado en la categoría de cocina que más reseñáis juntos.",
+    "insightDifferenceDesc": "Esta es la categoría donde vuestras puntuaciones medias difieren más.",
+    "insightAgreementDesc": "Esta es la categoría donde ambos tenéis la mayor puntuación media combinada."
   },
   "pairing": {
     "loading": "Cargando perfil...",
