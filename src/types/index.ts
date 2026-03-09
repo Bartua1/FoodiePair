@@ -28,6 +28,7 @@ export interface Restaurant {
     is_favorite: boolean; // Derived from favorites list for current user
     favorites?: Profile[]; // List of users who favorited
     visit_date: string | null;
+    planned_date?: string | null;
     general_comment: string | null;
     created_by: string | null;
     avg_score?: number;

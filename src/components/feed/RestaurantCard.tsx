@@ -52,7 +52,7 @@ export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavo
     };
 
     return (
-        <div className="bg-white dark:bg-slate-900 border border-pastel-mint dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden flex flex-col transition-all hover:shadow-md">
+        <div className="bg-white dark:bg-zinc-900 border border-pastel-mint dark:border-zinc-800 shadow-sm rounded-2xl overflow-hidden flex flex-col transition-all hover:shadow-md">
             {/* Photo Section */}
             <div
                 className="w-full aspect-video bg-pastel-lavender relative cursor-pointer group"
@@ -150,7 +150,7 @@ export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavo
 
             <div className="p-4">
                 <div className="flex justify-between items-start mb-1">
-                    <h4 className="font-bold text-slate-800 dark:text-slate-100 text-lg leading-tight cursor-pointer" onClick={() => onViewDetails(restaurant)}>{restaurant.name}</h4>
+                    <h4 className="font-bold text-slate-800 dark:text-zinc-100 text-lg leading-tight cursor-pointer" onClick={() => onViewDetails(restaurant)}>{restaurant.name}</h4>
                     {restaurant.visit_status !== 'wishlist' && (
                         !restaurant.user_has_rated ? (
                             <button
@@ -175,7 +175,7 @@ export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavo
                     {restaurant.cuisine_type} • {'€'.repeat(restaurant.price_range)}
                 </p>
 
-                <div className="flex items-center gap-1 text-slate-400 dark:text-slate-500 text-xs mb-3">
+                <div className="flex items-center gap-1 text-slate-400 dark:text-zinc-500 text-xs mb-3">
                     <MapPin size={12} />
                     <span className="truncate">{restaurant.address}</span>
                     {restaurant.distance !== undefined && (

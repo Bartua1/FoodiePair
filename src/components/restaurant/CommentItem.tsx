@@ -28,7 +28,7 @@ export function CommentItem({ comment, isMe, profile }: CommentItemProps) {
     return (
         <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
             <div
-                className={`p-3 rounded-2xl max-w-[80%] text-sm relative group select-none transition-transform ${isMe ? 'bg-pastel-blue dark:bg-pastel-blue-darker text-slate-800 dark:text-slate-100 rounded-br-none' : 'bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-bl-none cursor-pointer active:scale-[0.98]'}`}
+                className={`p-3 rounded-2xl max-w-[80%] text-sm relative group select-none transition-transform ${isMe ? 'bg-pastel-blue dark:bg-pastel-blue-darker text-slate-800 dark:text-zinc-100 rounded-br-none' : 'bg-white dark:bg-zinc-800 border border-slate-100 dark:border-zinc-700 text-slate-700 dark:text-zinc-200 rounded-bl-none cursor-pointer active:scale-[0.98]'}`}
                 onDoubleClick={handleDoubleTap}
             >
                 {comment.content}
@@ -42,13 +42,13 @@ export function CommentItem({ comment, isMe, profile }: CommentItemProps) {
 
                 {/* Like Status Indicator */}
                 {(likesCount > 0 || hasLiked) && (
-                    <div className={`absolute -bottom-2 ${isMe ? '-left-2' : '-right-2'} bg-white dark:bg-slate-900 border border-slate-50 dark:border-slate-700 shadow-sm rounded-full px-1.5 py-0.5 flex items-center gap-1 z-10 animate-in fade-in zoom-in duration-300`}>
+                    <div className={`absolute -bottom-2 ${isMe ? '-left-2' : '-right-2'} bg-white dark:bg-zinc-900 border border-slate-50 dark:border-zinc-700 shadow-sm rounded-full px-1.5 py-0.5 flex items-center gap-1 z-10 animate-in fade-in zoom-in duration-300`}>
                         <Heart size={10} className={`transition-colors ${hasLiked ? 'text-red-500 fill-red-500' : 'text-slate-300'}`} />
                         {likesCount > 0 && <span className="text-[9px] font-bold text-slate-500">{likesCount}</span>}
                     </div>
                 )}
             </div>
-            <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-2 px-1">
+            <span className="text-[10px] text-slate-400 dark:text-zinc-500 mt-2 px-1">
                 {profile?.display_name || t('restaurant.user')} • {new Date(comment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </span>
         </div>

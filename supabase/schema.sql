@@ -30,6 +30,7 @@ CREATE TABLE restaurants (
     lng FLOAT8,
     is_favorite BOOLEAN DEFAULT false,
     visit_date DATE,
+    planned_date DATE,
     general_comment TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

@@ -56,10 +56,10 @@ function App() {
     return restaurants.filter(r => !r.user_has_rated && r.visit_status !== 'wishlist');
   }, [restaurants]);
 
-  if (loading) return <div className="h-[100dvh] bg-background dark:bg-slate-950 flex items-center justify-center font-medium text-slate-400 dark:text-slate-500">{t('app.loading')}</div>;
+  if (loading) return <div className="h-[100dvh] bg-background dark:bg-zinc-950 flex items-center justify-center font-medium text-slate-400 dark:text-zinc-500">{t('app.loading')}</div>;
 
   return (
-    <div className="h-[100dvh] bg-background dark:bg-slate-950 flex flex-col overflow-hidden">
+    <div className="h-[100dvh] bg-background dark:bg-zinc-950 flex flex-col overflow-hidden">
       <div className="flex-1 overflow-hidden flex flex-col relative w-full">
         <Routes>
           <Route path="/shared/:id" element={<SharedRestaurantView currentUser={profile} />} />
@@ -195,7 +195,7 @@ function AppContent() {
   }, [restaurants]);
 
   if (loading) {
-    return <div className="h-full flex items-center justify-center font-medium text-slate-400 dark:text-slate-500 bg-background dark:bg-slate-950">{t('app.loading')}</div>;
+    return <div className="h-full flex items-center justify-center font-medium text-slate-400 dark:text-zinc-500 bg-background dark:bg-zinc-950">{t('app.loading')}</div>;
   }
 
   if (!profile?.pair_id) {

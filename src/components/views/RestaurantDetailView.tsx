@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, MapPin, Camera, Trash2, Send, Pencil, Heart, X, ChevronLeft, ChevronRight, Share2, Bookmark, Check } from 'lucide-react';
+import { ArrowLeft, MapPin, Camera, Trash2, Send, Pencil, Heart, X, ChevronLeft, ChevronRight, Share2, Bookmark, Check, Calendar, CalendarPlus, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -16,6 +16,7 @@ import type { Restaurant, Profile, Rating, SharedRestaurantConfig } from '../../
 import { CommentItem } from '../restaurant/CommentItem';
 import { JoinUsPrompt } from '../common/JoinUsPrompt';
 import { RestaurantDetailSkeleton } from '../restaurant/RestaurantDetailSkeleton';
+import { generateICS, generateGoogleCalendarUrl, downloadICS } from '../../utils/calendarUtils';
 
 interface RestaurantDetailViewProps {
     restaurant?: Restaurant;
@@ -52,6 +53,16 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
     const [addingToWishlist, setAddingToWishlist] = useState(false);
     const [addedToWishlist, setAddedToWishlist] = useState(false);
     const [linkCopied, setLinkCopied] = useState(false);
+
+    // Plan Date State
+    const [plannedDate, setPlannedDate] = useState('');
+    const [savingDate, setSavingDate] = useState(false);
+
+    useEffect(() => {
+        if (restaurant?.planned_date) {
+            setPlannedDate(restaurant.planned_date);
+        }
+    }, [restaurant?.planned_date]);
 
     // Fetch restaurant if missing (deep link case)
     useEffect(() => {
@@ -232,6 +243,46 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
         }
     };
 
+    const handleSavePlannedDate = async () => {
+        if (!restaurant || !plannedDate) return;
+        setSavingDate(true);
+        const { error } = await supabase
+            .from('restaurants')
+            .update({ planned_date: plannedDate })
+            .eq('id', restaurant.id);
+            
+        if (!error) {
+            setRestaurant(prev => prev ? ({ ...prev, planned_date: plannedDate }) : null);
+        } else {
+            console.error('Error saving planned date:', error);
+        }
+        setSavingDate(false);
+    };
+
+    const handleAddToGoogleCalendar = () => {
+        if (!restaurant || !restaurant.planned_date) return;
+        const address = restaurant.address || `${restaurant.lat},${restaurant.lng}`;
+        const url = generateGoogleCalendarUrl(
+            `Dinner at ${restaurant.name}`,
+            restaurant.planned_date,
+            address,
+            `Planned visit to ${restaurant.name}!\n\nAdded via FoodiePair.`
+        );
+        window.open(url, '_blank');
+    };
+
+    const handleAddToAppleCalendar = () => {
+        if (!restaurant || !restaurant.planned_date) return;
+        const address = restaurant.address || `${restaurant.lat},${restaurant.lng}`;
+        const icsContent = generateICS(
+            `Dinner at ${restaurant.name}`,
+            restaurant.planned_date,
+            address,
+            `Planned visit to ${restaurant.name}!\n\nAdded via FoodiePair.`
+        );
+        downloadICS(icsContent, `foodiepair-${restaurant.name.replace(/\s+/g, '-').toLowerCase()}`);
+    };
+
     const handleBack = () => {
         if (onBack) {
             onBack();
@@ -267,16 +318,16 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
     const favoriteProfiles = (favoriteUserIds || []).map(id => profiles[id]).filter(Boolean);
 
     return (
-        <div className="flex-1 flex flex-col bg-white dark:bg-slate-950 h-full relative overflow-hidden">
+        <div className="flex-1 flex flex-col bg-white dark:bg-zinc-950 h-full relative overflow-hidden">
             {/* Header */}
-            <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-4 sticky top-0 bg-white dark:bg-slate-950 z-10">
+            <div className="p-4 border-b border-slate-100 dark:border-zinc-800 flex items-center gap-4 sticky top-0 bg-white dark:bg-zinc-950 z-10">
                 <button onClick={handleBack} className="p-2 bg-pastel-peach rounded-full hover:scale-105 active:scale-95 transition-all shadow-sm">
                     <ArrowLeft size={24} className="text-slate-800" />
                 </button>
                 <div className="flex-1 overflow-hidden">
-                    <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 leading-tight truncate">{restaurant.name}</h2>
-                    <div className="flex items-start gap-2 text-slate-500 dark:text-slate-400 text-sm">
-                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{restaurant.cuisine_type} • {'€'.repeat(restaurant.price_range)}</p>
+                    <h2 className="text-xl font-bold text-slate-800 dark:text-zinc-100 leading-tight truncate">{restaurant.name}</h2>
+                    <div className="flex items-start gap-2 text-slate-500 dark:text-zinc-400 text-sm">
+                        <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium">{restaurant.cuisine_type} • {'€'.repeat(restaurant.price_range)}</p>
                     </div>
                 </div>
 
@@ -406,28 +457,78 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                 )}
                 {/* Map Section */}
                 <div className="space-y-2">
-                    <div className="flex items-start gap-2 text-slate-500 dark:text-slate-400 text-sm">
+                    <div className="flex items-start gap-2 text-slate-500 dark:text-zinc-400 text-sm">
                         <MapPin size={16} className="mt-0.5" />
                         <span className="flex-1">{restaurant.address}</span>
                         {!viewConfig && (
                             <button
                                 onClick={() => setEditRestaurantDrawerOpen(true)}
-                                className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                                className="p-1.5 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 transition-colors"
                                 title={t('restaurant.editDetails')}
                             >
                                 <Pencil size={14} />
                             </button>
                         )}
                     </div>
-                    <div className="h-48 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm relative z-0">
+                    <div className="h-48 rounded-2xl overflow-hidden border border-slate-100 dark:border-zinc-800 shadow-sm relative z-0">
                         <RestaurantMap restaurants={[{ ...restaurant, avg_score: avgScore }]} />
                     </div>
                 </div>
 
+                {/* Plan Visit Section (Wishlist Only) */}
+                {!viewConfig && restaurant.visit_status === 'wishlist' && (
+                    <div className="bg-slate-50 dark:bg-zinc-900/50 p-4 rounded-2xl relative overflow-hidden">
+                        <h3 className="font-bold text-slate-800 dark:text-zinc-100 mb-4 text-lg flex items-center gap-2">
+                            <Calendar size={20} className="text-pastel-blue-darker" />
+                            {t('restaurant.planVisit', 'Plan Visit')}
+                        </h3>
+                        
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-2">
+                                <input 
+                                    type="date"
+                                    value={plannedDate}
+                                    onChange={(e) => setPlannedDate(e.target.value)}
+                                    className="flex-1 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pastel-blue dark:text-zinc-100 min-w-0"
+                                    min={new Date().toISOString().split('T')[0]}
+                                />
+                                {plannedDate !== (restaurant.planned_date || '') && (
+                                    <Button 
+                                        onClick={handleSavePlannedDate}
+                                        disabled={savingDate || !plannedDate}
+                                        className="bg-pastel-blue-darker text-white rounded-xl px-4 py-3 font-semibold whitespace-nowrap"
+                                    >
+                                        {savingDate ? '...' : (t('common.save') || 'Save')}
+                                    </Button>
+                                )}
+                            </div>
+
+                            {restaurant.planned_date && plannedDate === restaurant.planned_date && (
+                                <div className="flex gap-2 pt-2">
+                                    <button
+                                        onClick={handleAddToGoogleCalendar}
+                                        className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 py-2 rounded-xl text-sm font-medium transition-colors"
+                                    >
+                                        <CalendarPlus size={16} />
+                                        Google
+                                    </button>
+                                    <button
+                                        onClick={handleAddToAppleCalendar}
+                                        className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 py-2 rounded-xl text-sm font-medium transition-colors"
+                                    >
+                                        <Download size={16} />
+                                        Apple / ICS
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
                 {/* Comparative Ratings */}
                 {(!viewConfig || viewConfig.show_ratings) && restaurant.visit_status !== 'wishlist' && (
                     <div className="overflow-hidden">
-                        <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 text-lg">{t('stats.averageScore')}</h3>
+                        <h3 className="font-bold text-slate-800 dark:text-zinc-100 mb-4 text-lg">{t('stats.averageScore')}</h3>
                         
                         <div className="grid grid-cols-3 gap-4 mb-6">
                             {/* Me */}
@@ -439,7 +540,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                 <div className="w-12 h-12 rounded-full bg-pastel-blue-darker flex items-center justify-center text-white font-bold text-xl mb-2 shadow-sm">
                                     {myRating ? ((myRating.food_score + myRating.service_score + myRating.vibe_score + myRating.price_quality_score) / 4).toFixed(1) : '-'}
                                 </div>
-                                <span className="text-xs font-bold text-slate-600 dark:text-slate-400 text-center line-clamp-1">{currentUser?.display_name || 'Me'}</span>
+                                <span className="text-xs font-bold text-slate-600 dark:text-zinc-400 text-center line-clamp-1">{currentUser?.display_name || 'Me'}</span>
                             </motion.div>
 
                             {/* VS */}
@@ -470,11 +571,11 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                             exit={{ opacity: 0 }}
                                             className="absolute inset-0 flex items-center justify-center"
                                         >
-                                            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-black">?</span>
+                                            <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-black">?</span>
                                         </motion.div>
                                     )}
                                 </div>
-                                <span className="text-xs font-bold text-slate-600 dark:text-slate-400 text-center line-clamp-1">{partnerProfile?.display_name || t('restaurant.partner')}</span>
+                                <span className="text-xs font-bold text-slate-600 dark:text-zinc-400 text-center line-clamp-1">{partnerProfile?.display_name || t('restaurant.partner')}</span>
                             </motion.div>
                         </div>
 
@@ -491,7 +592,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                             )}
                         </AnimatePresence>
 
-                        <div className="space-y-3 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl">
+                        <div className="space-y-3 bg-slate-50 dark:bg-zinc-900/50 p-4 rounded-2xl">
                             {[
                                 { label: t('restaurant.food'), key: 'food_score' },
                                 { label: t('restaurant.service'), key: 'service_score' },
@@ -499,8 +600,8 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                 { label: t('restaurant.priceQuality'), key: 'price_quality_score' }
                             ].map((cat) => (
                                 <div key={cat.key} className="flex items-center gap-3">
-                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 w-24">{cat.label}</span>
-                                    <div className="flex-1 h-2 bg-white dark:bg-slate-800 rounded-full overflow-hidden flex">
+                                    <span className="text-xs font-bold text-slate-500 dark:text-zinc-400 w-24">{cat.label}</span>
+                                    <div className="flex-1 h-2 bg-white dark:bg-zinc-800 rounded-full overflow-hidden flex">
                                         <motion.div
                                             initial={{ width: 0 }}
                                             animate={{ width: `${myRating ? (myRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
@@ -525,8 +626,8 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
 
                 {/* Comments Section */}
                 {(!viewConfig || viewConfig.show_comments) && (
-                    <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl relative overflow-hidden">
-                        <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 text-lg">{t('restaurant.chat')}</h3>
+                    <div className="bg-slate-50 dark:bg-zinc-900/50 p-4 rounded-2xl relative overflow-hidden">
+                        <h3 className="font-bold text-slate-800 dark:text-zinc-100 mb-4 text-lg">{t('restaurant.chat')}</h3>
 
                         <div className={`space-y-4 mb-4 max-h-60 overflow-y-auto pr-2 ${!currentUser ? 'blur-sm select-none' : ''}`}>
                             {(comments || []).map((comment) => {
@@ -566,7 +667,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                     value={newComment}
                                     onChange={(e) => setNewComment(e.target.value)}
                                     placeholder={t('restaurant.addCommentPlaceholder')}
-                                    className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-pastel-blue dark:text-slate-100"
+                                    className="flex-1 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-pastel-blue dark:text-zinc-100"
                                 />
                                 <button
                                     type="submit"
@@ -584,7 +685,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                 {(!viewConfig || viewConfig.show_photos) && (
                     <div>
                         <div className="flex justify-between items-end mb-4">
-                            <h3 className="font-bold text-slate-800 dark:text-slate-100 text-lg">{t('restaurant.photos') || 'Photos'}</h3>
+                            <h3 className="font-bold text-slate-800 dark:text-zinc-100 text-lg">{t('restaurant.photos') || 'Photos'}</h3>
                             {(!viewConfig || viewConfig.allow_photos) && (
                                 <label className="text-xs font-bold text-pastel-blue-darker cursor-pointer hover:underline flex items-center gap-1">
                                     <Camera size={14} />
@@ -613,7 +714,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                 </div>
                             ))}
                             {photos.length === 0 && (
-                                <div className="col-span-2 aspect-video bg-slate-50 dark:bg-slate-900/30 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl flex flex-col items-center justify-center text-slate-300 dark:text-slate-700 gap-2">
+                                <div className="col-span-2 aspect-video bg-slate-50 dark:bg-zinc-900/30 border-2 border-dashed border-slate-200 dark:border-zinc-800 rounded-xl flex flex-col items-center justify-center text-slate-300 dark:text-zinc-700 gap-2">
                                     <Camera size={24} />
                                     <span className="text-xs font-medium">No photos yet</span>
                                 </div>
@@ -625,7 +726,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
 
             {/* Bottom Action */}
             {!viewConfig && currentUser && (
-                <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-t border-slate-100 dark:border-slate-800 pb-8 z-20">
+                <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-t border-slate-100 dark:border-zinc-800 pb-8 z-20">
                     <Button
                         className={`w-full rounded-2xl py-4 font-bold text-lg shadow-lg active:scale-[0.98] transition-transform ${restaurant.visit_status === 'wishlist'
                             ? 'bg-slate-800 text-white'
