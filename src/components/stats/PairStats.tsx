@@ -314,17 +314,17 @@ export function PairStats({ pairId }: { pairId: string }) {
                         <h3 className="font-serif font-bold text-slate-900 dark:text-zinc-100 text-lg">{t('stats.consistencyTitle')}</h3>
                     </div>
                     
-                    <div className="flex flex-col md:flex-row md:items-center gap-4 relative">
-                        <div className="w-full flex-1 bg-slate-100 dark:bg-zinc-800 h-3.5 rounded-full relative flex items-center">
+                    <div className="flex items-center gap-4 mt-8 mb-4 relative">
+                        <div className="w-full flex-1 bg-[#E4DEFF]/50 dark:bg-zinc-800 h-3.5 rounded-full relative">
                             <div
-                                className="h-full bg-gradient-to-r from-[#BEAAFF] via-[#A1C4FD] to-[#A8EDE4] rounded-full absolute left-0 top-0 bottom-0"
+                                className="absolute left-0 top-0 h-full bg-gradient-to-r from-[#BEAAFF] via-[#A1C4FD] to-[#A8EDE4] rounded-full"
                                 style={{ width: `${stats.agreementScore}%` }}
                             />
-                            <div className="absolute w-6 h-6 bg-white dark:bg-zinc-800 rounded-full shadow-md border border-slate-100 dark:border-zinc-700 flex items-center justify-center top-1/2 -translate-y-1/2" style={{ left: `calc(${stats.agreementScore}% - 12px)` }}>
-                                <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#BEAAFF] to-[#A1C4FD] opacity-70" />
+                            <div className="absolute w-7 h-7 bg-white dark:bg-zinc-800 rounded-full shadow-[0_4px_12px_rgba(190,170,255,0.4)] dark:shadow-none border border-slate-100 dark:border-zinc-700 flex items-center justify-center top-1/2 -translate-y-1/2" style={{ left: `calc(${stats.agreementScore}% - 14px)` }}>
+                                <div className="w-4 h-4 rounded-full bg-gradient-to-r from-[#BEAAFF] to-[#A1C4FD] opacity-80" />
                             </div>
                         </div>
-                        <span className="font-bold text-slate-900 dark:text-white text-xl ml-auto md:ml-4">{Math.round(stats.agreementScore)}%</span>
+                        <span className="font-bold text-slate-900 dark:text-white text-2xl shrink-0 w-12 text-right">{Math.round(stats.agreementScore)}%</span>
                     </div>
                     <p className="text-slate-700 dark:text-zinc-300 text-sm mt-4 font-medium">{getConsistencyLabel(stats.agreementScore)}</p>
                 </div>
