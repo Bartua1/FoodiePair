@@ -22,7 +22,7 @@ FoodiePair is a progressive web application built for couples or partners to joi
 
 ### 4. Shared & Public Experiences
 - **Public Restaurant Pages**: Individual restaurants can be shared publicly via a dedicated link (`/shared/:id`). Unauthenticated users can view limited details but are prompted to sign up to interact.
-- **Comments & Activity**: Detailed restaurant views include a comment/feed section, with personalized notifications for new partner comments.
+- **Comments & Activity**: Detailed restaurant views include a comment/feed section, with personalized notifications for new partner comments. Notifications are intelligently consolidated (e.g., "New restaurant" alerts are hidden if a "Pending rating" action is already present) to maintain a clean workspace.
 - **Blind Partner Ratings**: To prevent bias, a partner's detailed rating is blurred out until the current user inputs their own rating.
 
 ### 5. Statistics & Personalization
