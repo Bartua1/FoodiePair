@@ -366,7 +366,7 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess, initi
                                                             e.preventDefault();
                                                             handleSearchNearby();
                                                         }}
-                                                        className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition-colors shadow-sm"
+                                                        className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl transition-colors shadow-sm"
                                                         title="Search nearby"
                                                         disabled={isSearchingNearby}
                                                     >
