@@ -11,7 +11,7 @@ FoodiePair is a progressive web application built for couples or partners to joi
 - **Profile Synchronization**: The app maintains a synced profile utilizing Supabase real-time subscriptions, keeping language preferences and pairing status up to date.
 
 ### 2. Restaurant Discovery & Tracking
-- **Visited vs. To-Go (Wishlist)**: Restaurants can be tagged as "Visited" or added to a "To Go" list. Unrated visited restaurants surface as action items for users.
+- **Visited vs. To-Go (Wishlist)**: Restaurants can be tagged as "Visited" or added to a "To Go" list. Unrated visited restaurants surface as action items for users. The visit date can be manually adjusted to account for delayed entries.
 - **Add & Manage Restaurants**: Users can add new restaurants via an interactive Drawer component, capturing location, cuisine type, and price level.
 - **Filtering & Layout**: Robust filtering by name (text search), distance, price, cuisine, and "favorites only". The main feed implements a premium 2-column responsive grid layout with highly styled restaurant cards. Sorting is available by rating or distance.
 - **Date Night Planning**: Users can schedule upcoming visits to restaurants in their "To Go" list. This feature includes a date picker and integration with native calendars (Google, Apple/ICS) to move from wishlist to action.
@@ -28,6 +28,7 @@ FoodiePair is a progressive web application built for couples or partners to joi
 ### 5. Statistics & Personalization
 - **Stats View**: Aggregated insights and premium "Culinary Slideshow" highlighting joint habits (e.g., favorite cuisines, pickiest eater, vibe master).
 - **Memory Timeline**: A chronological journal of everywhere the couple has eaten together, surfacing photos, ratings, and comments in a scrollable memory feed.
+- **Couple Achievement Badges**: Gamified milestones that track joint progress, such as variety of cuisines tried and consistency in ratings.
 - **Internationalization (i18n)**: Multi-language support seamlessly integrated with the user's profile and `react-i18next`.
 
 ## Tech Stack

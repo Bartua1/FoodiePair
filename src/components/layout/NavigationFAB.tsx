@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Menu, X, List, Map as MapIcon, BarChart2, Settings, Bookmark } from 'lucide-react';
+import { Menu, X, List, Map as MapIcon, BarChart2, Settings, Bookmark, Trophy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -15,6 +15,7 @@ export function NavigationFAB() {
         { id: '/timeline', icon: List, label: t('nav.timeline') },
         { id: '/map', icon: MapIcon, label: 'Map' },
         { id: '/stats', icon: BarChart2, label: t('nav.stats') },
+        { id: '/achievements', icon: Trophy, label: t('nav.achievements') },
         { id: '/settings', icon: Settings, label: t('nav.settings') },
     ];
 

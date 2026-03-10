@@ -24,6 +24,7 @@
     "stats": "Estadísticas",
     "settings": "Ajustes",
     "timeline": "Cronología",
+    "achievements": "Logros",
     "loginToView": "Inicia sesión para ver comentarios"
   },
   "feed": {
@@ -87,7 +88,11 @@
     "plannedFor": "Planeado para el {{date}}",
     "saveDate": "Guardar Fecha",
     "notFound": "No pudimos encontrar este restaurante.",
-    "backToFeed": "Volver al Feed"
+    "backToFeed": "Volver al Feed",
+    "visitDate": "Fecha de visita",
+    "editVisitDate": "Editar fecha de visita",
+    "visitDateHint": "¿Añadiste este restaurante tarde? Puedes ajustar la fecha aquí.",
+    "updateRating": "Actualizar"
   },
   "stats": {
     "title": "Analíticas de Pareja",
@@ -262,5 +267,31 @@
     "score": "Nota",
     "noChat": "Sin Charlas Compartidas",
     "moreComments": "+{{count}} más"
+  },
+  "achievements": {
+    "title": "Hitos de Pareja",
+    "subtitle": "¡Gamificad vuestro viaje gastronómico! Desbloquead insignias mientras exploráis juntos.",
+    "badges": {
+      "cuisine_explorer": {
+        "title": "Explorador de Cocinas",
+        "description": "Habéis probado 5 tipos de cocina distintos"
+      },
+      "restaurant_regulars": {
+        "title": "Habituales",
+        "description": "Habéis visitado 10 restaurantes"
+      },
+      "perfect_match": {
+        "title": "Combinación Perfecta",
+        "description": "Habéis coincidido con una nota de 5 estrellas"
+      },
+      "date_night_pro": {
+        "title": "Expertos en Citas",
+        "description": "Habéis planeado 3 citas"
+      }
+    },
+    "locked": "Bloqueada",
+    "unlocked": "Desbloqueada",
+    "progress": "Progreso: {{current}}/{{total}}",
+    "noData": "¡Empezad vuestro viaje para desbloquear logros!"
   }
 }

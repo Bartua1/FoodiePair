@@ -24,6 +24,7 @@
     "stats": "Stats",
     "settings": "Settings",
     "timeline": "Timeline",
+    "achievements": "Achievements",
     "loginToView": "Log in to view comments"
   },
   "feed": {
@@ -87,7 +88,11 @@
     "plannedFor": "Planned for {{date}}",
     "saveDate": "Save Date",
     "notFound": "We couldn't find this restaurant.",
-    "backToFeed": "Back to Feed"
+    "backToFeed": "Back to Feed",
+    "visitDate": "Visit Date",
+    "editVisitDate": "Edit Visit Date",
+    "visitDateHint": "Did you add this restaurant late? You can adjust the date here.",
+    "updateRating": "Update"
   },
   "stats": {
     "title": "Pair Analytics",
@@ -262,5 +267,31 @@
     "score": "Score",
     "noChat": "No Shared Chatter",
     "moreComments": "+{{count}} more"
+  },
+  "achievements": {
+    "title": "Couple Milestones",
+    "subtitle": "Gamify your shared foodie journey! Unlock badges as you explore together.",
+    "badges": {
+      "cuisine_explorer": {
+        "title": "Cuisine Explorer",
+        "description": "Tried 5 different cuisines"
+      },
+      "restaurant_regulars": {
+        "title": "Restaurant Regulars",
+        "description": "Visited 10 restaurants"
+      },
+      "perfect_match": {
+        "title": "Perfect Match",
+        "description": "Gave matching 5-star ratings"
+      },
+      "date_night_pro": {
+        "title": "Date Night Pro",
+        "description": "Planned 3 date nights"
+      }
+    },
+    "locked": "Locked",
+    "unlocked": "Unlocked",
+    "progress": "Progress: {{current}}/{{total}}",
+    "noData": "Start your journey to unlock achievements!"
   }
 }

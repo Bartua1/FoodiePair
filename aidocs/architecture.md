@@ -39,7 +39,7 @@ Given that FoodiePair data must be strictly shared *only* between paired users, 
   - `FeedView`: The main list of restaurants with a premium 2-column grid layout, text search, and filtering/sorting tools.
   - `MapView`: Renders restaurants on a Leaflet map.
   - `MemoryTimelineView`: A scrollable chronological feed of all visited restaurants.
-  - `SettingsView` / `StatsView` / `RestaurantDetailView`.
+  - `SettingsView` / `StatsView` / `RestaurantDetailView` / `AchievementsView`.
 - **`stats/`**: Houses the premium `InsightSlideshow` and `PairStats` components for the Pair Analytics dashboard.
 - **`auth/`**: Contains `UserSync`, which bridges Clerk authentication with our Postgres `profiles` table.
 - **`pairing/`**: Encompasses the code handling matching two accounts together (pairing codes).
@@ -50,6 +50,7 @@ Given that FoodiePair data must be strictly shared *only* between paired users, 
 - **`useGeolocation.ts`**: Safely requests browser coordinate locations, handling permissions and errors.
 - **useCommentLikes.ts** / **useNotifications.ts**: Modularizes interactions regarding the social features of the app.
 - **useRecommendations.ts**: Orchestrates the Chef's Suggestions logic by combining historical user preferences with real-time geolocation.
+- **useAchievements.ts**: Calculates couple-based milestones and badge progress from restaurant and rating history.
 
 ### `src/utils/` - Auxiliary Logic & Engines
 - **`calendarUtils.ts`**: Handles the generation of Google Calendar URLs and Apple/ICS files for the "Plan a Date" feature.

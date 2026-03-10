@@ -23,6 +23,7 @@ import { RestaurantDetailView } from './components/views/RestaurantDetailView';
 import { SharedRestaurantView } from './components/views/SharedRestaurantView';
 import { Header } from './components/layout/Header';
 import { MemoryTimelineView } from './components/views/MemoryTimelineView';
+import { AchievementsView } from './components/views/AchievementsView';
 
 function App() {
   const { isLoaded, user } = useUser();
@@ -252,6 +253,7 @@ function AppContent() {
           } />
           <Route path="/timeline" element={<MemoryTimelineView pairId={profile.pair_id} />} />
           <Route path="/stats" element={<StatsView pairId={profile.pair_id} />} />
+          <Route path="/achievements" element={<AchievementsView pairId={profile.pair_id} />} />
           <Route path="/settings" element={<SettingsView />} />
           <Route path="/restaurant/:id" element={
             <RestaurantDetailView

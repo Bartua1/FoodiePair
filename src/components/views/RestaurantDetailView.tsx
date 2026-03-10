@@ -64,11 +64,18 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
     const [plannedDate, setPlannedDate] = useState('');
     const [savingDate, setSavingDate] = useState(false);
 
+    // Visit Date State
+    const [visitDate, setVisitDate] = useState('');
+    const [savingVisitDate, setSavingVisitDate] = useState(false);
+
     useEffect(() => {
         if (restaurant?.planned_date) {
             setPlannedDate(restaurant.planned_date);
         }
-    }, [restaurant?.planned_date]);
+        if (restaurant?.visit_date) {
+            setVisitDate(restaurant.visit_date.split('T')[0]);
+        }
+    }, [restaurant?.planned_date, restaurant?.visit_date]);
 
     // Fetch restaurant if missing (deep link case)
     useEffect(() => {
@@ -265,6 +272,22 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
         setSavingDate(false);
     };
 
+    const handleSaveVisitDate = async () => {
+        if (!restaurant || !visitDate) return;
+        setSavingVisitDate(true);
+        const { error } = await supabase
+            .from('restaurants')
+            .update({ visit_date: visitDate })
+            .eq('id', restaurant.id);
+
+        if (!error) {
+            setRestaurant(prev => prev ? ({ ...prev, visit_date: visitDate }) : null);
+        } else {
+            console.error('Error saving visit date:', error);
+        }
+        setSavingVisitDate(false);
+    };
+
     const handleAddToGoogleCalendar = () => {
         if (!restaurant || !restaurant.planned_date) return;
         const address = restaurant.address || `${restaurant.lat},${restaurant.lng}`;
@@ -326,30 +349,26 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
     return (
         <div className="flex-1 flex flex-col bg-white dark:bg-zinc-950 h-full relative overflow-hidden">
             {/* Header */}
-            <div className={`absolute top-0 left-0 right-0 p-4 pt-4 flex items-center gap-4 z-50 transition-all duration-300 ${
-                isScrolled || photos.length === 0 
-                ? 'bg-white/85 dark:bg-zinc-950/85 backdrop-blur-xl border-b border-slate-100 dark:border-zinc-800 shadow-sm' 
+            <div className={`absolute top-0 left-0 right-0 p-4 pt-4 flex items-center gap-4 z-50 transition-all duration-300 ${isScrolled || photos.length === 0
+                ? 'bg-white/85 dark:bg-zinc-950/85 backdrop-blur-xl border-b border-slate-100 dark:border-zinc-800 shadow-sm'
                 : 'bg-gradient-to-b from-black/70 via-black/30 to-transparent'
-            }`}>
-                <button onClick={handleBack} className={`p-2 rounded-full transition-all shadow-sm backdrop-blur-md ${
-                    isScrolled || photos.length === 0 
-                    ? 'bg-slate-100 dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 hover:scale-105 active:scale-95' 
-                    : 'bg-white/20 text-white hover:bg-white/30 hover:scale-105 active:scale-95'
                 }`}>
+                <button onClick={handleBack} className={`p-2 rounded-full transition-all shadow-sm backdrop-blur-md ${isScrolled || photos.length === 0
+                    ? 'bg-slate-100 dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 hover:scale-105 active:scale-95'
+                    : 'bg-white/20 text-white hover:bg-white/30 hover:scale-105 active:scale-95'
+                    }`}>
                     <ArrowLeft size={24} />
                 </button>
                 <div className="flex-1 overflow-hidden">
-                    <h2 className={`text-xl font-bold leading-tight truncate transition-colors ${
-                        isScrolled || photos.length === 0 
-                        ? 'text-slate-800 dark:text-zinc-100' 
+                    <h2 className={`text-xl font-bold leading-tight truncate transition-colors ${isScrolled || photos.length === 0
+                        ? 'text-slate-800 dark:text-zinc-100'
                         : 'text-white drop-shadow-md'
-                    }`}>{restaurant.name}</h2>
+                        }`}>{restaurant.name}</h2>
                     <div className="flex items-start gap-2 text-sm mt-0.5">
-                        <p className={`text-[11px] font-bold uppercase tracking-wider transition-colors ${
-                            isScrolled || photos.length === 0 
-                            ? 'text-slate-500 dark:text-zinc-400' 
+                        <p className={`text-[11px] font-bold uppercase tracking-wider transition-colors ${isScrolled || photos.length === 0
+                            ? 'text-slate-500 dark:text-zinc-400'
                             : 'text-white/90 drop-shadow-md'
-                        }`}>{restaurant.cuisine_type} • {'€'.repeat(restaurant.price_range)}</p>
+                            }`}>{restaurant.cuisine_type} • {'€'.repeat(restaurant.price_range)}</p>
                     </div>
                 </div>
 
@@ -359,9 +378,8 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                             <Button
                                 onClick={handleAddToWishlist}
                                 disabled={addingToWishlist || addedToWishlist}
-                                className={`rounded-full px-4 py-2 font-bold transition-all flex items-center gap-2 shadow-sm ${
-                                    addedToWishlist ? 'bg-green-500 text-white' : 'bg-pastel-blue text-slate-800'
-                                }`}
+                                className={`rounded-full px-4 py-2 font-bold transition-all flex items-center gap-2 shadow-sm ${addedToWishlist ? 'bg-green-500 text-white' : 'bg-pastel-blue text-slate-800'
+                                    }`}
                             >
                                 {addedToWishlist ? (
                                     <><Check size={18} />{t('wishlist.addedToWishlist')}</>
@@ -375,11 +393,10 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                     setLinkCopied(true);
                                     setTimeout(() => setLinkCopied(false), 2000);
                                 }}
-                                className={`p-2 rounded-full transition-colors backdrop-blur-md ${
-                                    isScrolled || photos.length === 0
+                                className={`p-2 rounded-full transition-colors backdrop-blur-md ${isScrolled || photos.length === 0
                                     ? 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200'
                                     : 'bg-white/20 text-white hover:bg-white/30'
-                                }`}
+                                    }`}
                                 title={t('share.createLink')}
                             >
                                 {linkCopied ? <Check size={20} className="text-green-500" /> : <Share2 size={20} />}
@@ -389,11 +406,10 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                         <>
                             <button
                                 onClick={() => setShareModalOpen(true)}
-                                className={`p-2 rounded-full transition-colors backdrop-blur-md ${
-                                    isScrolled || photos.length === 0
+                                className={`p-2 rounded-full transition-colors backdrop-blur-md ${isScrolled || photos.length === 0
                                     ? 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200'
                                     : 'bg-white/20 text-white hover:bg-white/30'
-                                }`}
+                                    }`}
                                 title="Share"
                             >
                                 <Share2 size={20} />
@@ -413,11 +429,10 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                             )}
                             <button
                                 onClick={handleToggleFavorite}
-                                className={`p-2 rounded-full transition-colors backdrop-blur-md ${
-                                    isScrolled || photos.length === 0
+                                className={`p-2 rounded-full transition-colors backdrop-blur-md ${isScrolled || photos.length === 0
                                     ? (isFavorite ? 'bg-red-50 text-red-500' : 'bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 hover:bg-slate-200 dark:hover:bg-zinc-700')
                                     : (isFavorite ? 'bg-red-500 text-white' : 'bg-white/20 text-white hover:bg-white/30')
-                                }`}
+                                    }`}
                             >
                                 <Heart size={20} fill={isFavorite ? "currentColor" : "none"} />
                             </button>
@@ -447,7 +462,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                 />
                             ))}
                         </div>
-                        
+
                         {/* Elegant bottom gradient for seamless transition to content */}
                         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white dark:from-zinc-950 to-transparent pointer-events-none" />
 
@@ -482,59 +497,99 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                 )}
 
                 <div className="px-4 space-y-8">
-                {/* Plan Visit Section (Wishlist Only) */}
-                {!viewConfig && restaurant.visit_status === 'wishlist' && (
-                    <div className="bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-slate-100/80 dark:border-zinc-800/60 p-5 rounded-3xl shadow-sm relative overflow-hidden">
-                        <h3 className="font-bold text-slate-800 dark:text-zinc-100 mb-4 text-lg flex items-center gap-2">
-                            <Calendar size={20} className="text-pastel-blue-darker" />
-                            {t('restaurant.planVisit')}
-                        </h3>
+                    {/* Plan Visit Section (Wishlist Only) */}
+                    {!viewConfig && restaurant.visit_status === 'wishlist' && (
+                        <div className="bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-slate-100/80 dark:border-zinc-800/60 p-5 rounded-3xl shadow-sm relative overflow-hidden">
+                            <h3 className="font-bold text-slate-800 dark:text-zinc-100 mb-4 text-lg flex items-center gap-2">
+                                <Calendar size={20} className="text-pastel-blue-darker" />
+                                {t('restaurant.planVisit')}
+                            </h3>
 
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="date"
-                                    value={plannedDate}
-                                    onChange={(e) => setPlannedDate(e.target.value)}
-                                    className="flex-1 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pastel-blue dark:text-zinc-100 min-w-0"
-                                    min={new Date().toISOString().split('T')[0]}
-                                />
-                                {plannedDate !== (restaurant.planned_date || '') && (
-                                    <Button
-                                        onClick={handleSavePlannedDate}
-                                        disabled={savingDate || !plannedDate}
-                                        className="bg-pastel-blue-darker text-white rounded-xl px-4 py-3 font-semibold whitespace-nowrap"
-                                    >
-                                        {savingDate ? '...' : (t('common.save') || 'Save')}
-                                    </Button>
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="date"
+                                        value={plannedDate}
+                                        onChange={(e) => setPlannedDate(e.target.value)}
+                                        className="flex-1 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pastel-blue dark:text-zinc-100 min-w-0"
+                                        min={new Date().toISOString().split('T')[0]}
+                                    />
+                                    {plannedDate !== (restaurant.planned_date || '') && (
+                                        <Button
+                                            onClick={handleSavePlannedDate}
+                                            disabled={savingDate || !plannedDate}
+                                            className="bg-pastel-blue-darker text-white rounded-xl px-4 py-3 font-semibold whitespace-nowrap"
+                                        >
+                                            {savingDate ? '...' : (t('common.save') || 'Save')}
+                                        </Button>
+                                    )}
+                                </div>
+
+                                {restaurant.planned_date && plannedDate === restaurant.planned_date && (
+                                    <div className="flex gap-2 pt-2">
+                                        <button
+                                            onClick={handleAddToGoogleCalendar}
+                                            className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 py-2 rounded-xl text-sm font-medium transition-colors"
+                                        >
+                                            <CalendarPlus size={16} />
+                                            {t('calendar.google')}
+                                        </button>
+                                        <button
+                                            onClick={handleAddToAppleCalendar}
+                                            className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 py-2 rounded-xl text-sm font-medium transition-colors"
+                                        >
+                                            <Download size={16} />
+                                            {t('calendar.apple')}
+                                        </button>
+                                    </div>
                                 )}
                             </div>
-
-                            {restaurant.planned_date && plannedDate === restaurant.planned_date && (
-                                <div className="flex gap-2 pt-2">
-                                    <button
-                                        onClick={handleAddToGoogleCalendar}
-                                        className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 py-2 rounded-xl text-sm font-medium transition-colors"
-                                    >
-                                        <CalendarPlus size={16} />
-                                        {t('calendar.google')}
-                                    </button>
-                                    <button
-                                        onClick={handleAddToAppleCalendar}
-                                        className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 py-2 rounded-xl text-sm font-medium transition-colors"
-                                    >
-                                        <Download size={16} />
-                                        {t('calendar.apple')}
-                                    </button>
-                                </div>
-                            )}
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {/* Comparative Ratings */}
+                    {/* Visit History Section (Visited Only) */}
+                    {!viewConfig && restaurant.visit_status === 'visited' && (
+                        <div className="bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-slate-100/80 dark:border-zinc-800/60 p-5 rounded-3xl shadow-sm relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-pastel-mint/10 dark:bg-emerald-500/5 rounded-full -translate-y-16 translate-x-16 blur-3xl pointer-events-none" />
+                            <h3 className="font-bold text-slate-800 dark:text-zinc-100 mb-1 text-lg flex items-center gap-2">
+                                <Check size={20} className="text-emerald-500" />
+                                {t('restaurant.visitDate')}
+                            </h3>
+                            <p className="text-xs text-slate-500 dark:text-zinc-400 mb-4 font-medium italic opacity-80">
+                                {t('restaurant.visitDateHint')}
+                            </p>
+
+                            <div className="flex items-center gap-2">
+                                <div className="relative flex-1">
+                                    <input
+                                        type="date"
+                                        value={visitDate}
+                                        onChange={(e) => setVisitDate(e.target.value)}
+                                        className="w-full bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 dark:text-zinc-100 transition-all"
+                                        max={new Date().toISOString().split('T')[0]}
+                                    />
+                                </div>
+                                {visitDate !== (restaurant.visit_date?.split('T')[0] || '') && (
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                    >
+                                        <Button
+                                            onClick={handleSaveVisitDate}
+                                            disabled={savingVisitDate || !visitDate}
+                                            className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl px-4 py-3 font-bold shadow-sm flex items-center gap-2 min-w-[80px] justify-center"
+                                        >
+                                            {savingVisitDate ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : t('common.save')}
+                                        </Button>
+                                    </motion.div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Comparative Ratings */}
                     {(!viewConfig || viewConfig.show_ratings) && restaurant.visit_status !== 'wishlist' && (
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2 }}
@@ -544,7 +599,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                 {t('stats.averageScore')}
                             </h3>
 
-                            <div 
+                            <div
                                 className="flex justify-center items-start gap-4 mb-8 cursor-pointer group"
                                 onClick={() => setShowScores(!showScores)}
                             >
@@ -613,9 +668,9 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                                 </span>
                                             )}
                                             {!showScores && <span className="w-6" />}
-                                            
+
                                             <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 tracking-wider uppercase text-center flex-1">{cat.label}</span>
-                                            
+
                                             {showScores && partnerRating && myRating && (
                                                 <span className="text-[10px] font-bold text-orange-400 w-6 text-right leading-none">
                                                     {(partnerRating[cat.key as keyof Rating] as number).toFixed(1)}
@@ -626,7 +681,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                         <div className="w-full h-3 bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden flex shadow-inner relative">
                                             {/* Center divider */}
                                             <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/50 dark:bg-zinc-700/50 z-10" />
-                                            
+
                                             <div className="flex-1 flex justify-end">
                                                 <motion.div
                                                     initial={{ width: 0 }}
@@ -654,64 +709,64 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                     )}
 
                     {/* Comments Section */}
-                {(!viewConfig || viewConfig.show_comments) && (
-                    <div className="bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-slate-100/80 dark:border-zinc-800/60 p-5 rounded-3xl shadow-sm relative overflow-hidden">
-                        <h3 className="font-extrabold text-slate-800 dark:text-zinc-100 mb-4 text-xl tracking-tight">{t('restaurant.chat')}</h3>
+                    {(!viewConfig || viewConfig.show_comments) && (
+                        <div className="bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-slate-100/80 dark:border-zinc-800/60 p-5 rounded-3xl shadow-sm relative overflow-hidden">
+                            <h3 className="font-extrabold text-slate-800 dark:text-zinc-100 mb-4 text-xl tracking-tight">{t('restaurant.chat')}</h3>
 
-                        <div className={`space-y-4 mb-4 max-h-60 overflow-y-auto pr-2 ${!currentUser ? 'blur-sm select-none' : ''}`}>
-                            {(comments || []).map((comment) => {
-                                const isMe = comment.user_id === currentUser?.id;
-                                const profile = profiles[comment.user_id];
-                                return (
-                                    <CommentItem
-                                        key={comment.id}
-                                        comment={comment}
-                                        isMe={isMe}
-                                        profile={profile}
-                                    />
-                                );
-                            })}
-                            {(!comments || comments.length === 0) && (
-                                <div className="text-center text-slate-400 text-xs py-4">
-                                    {t('restaurant.noComments')}
+                            <div className={`space-y-4 mb-4 max-h-60 overflow-y-auto pr-2 ${!currentUser ? 'blur-sm select-none' : ''}`}>
+                                {(comments || []).map((comment) => {
+                                    const isMe = comment.user_id === currentUser?.id;
+                                    const profile = profiles[comment.user_id];
+                                    return (
+                                        <CommentItem
+                                            key={comment.id}
+                                            comment={comment}
+                                            isMe={isMe}
+                                            profile={profile}
+                                        />
+                                    );
+                                })}
+                                {(!comments || comments.length === 0) && (
+                                    <div className="text-center text-slate-400 text-xs py-4">
+                                        {t('restaurant.noComments')}
+                                    </div>
+                                )}
+                            </div>
+
+                            {!currentUser && (
+                                <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/30 backdrop-blur-[1px]">
+                                    <Button
+                                        onClick={() => openSignIn()}
+                                        className="bg-slate-800 text-white rounded-full px-6 py-2 font-bold shadow-lg hover:bg-slate-700 transition-colors"
+                                    >
+                                        {t('nav.loginToView')}
+                                    </Button>
                                 </div>
                             )}
+
+                            {currentUser && (!viewConfig || viewConfig.allow_comments) && (
+                                <form onSubmit={handleSendComment} className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={newComment}
+                                        onChange={(e) => setNewComment(e.target.value)}
+                                        placeholder={t('restaurant.addCommentPlaceholder')}
+                                        className="flex-1 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-pastel-blue dark:text-zinc-100"
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={!newComment.trim()}
+                                        className="bg-pastel-blue-darker text-white p-2 rounded-xl disabled:opacity-50"
+                                    >
+                                        <Send size={18} />
+                                    </button>
+                                </form>
+                            )}
                         </div>
+                    )}
 
-                        {!currentUser && (
-                            <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/30 backdrop-blur-[1px]">
-                                <Button
-                                    onClick={() => openSignIn()}
-                                    className="bg-slate-800 text-white rounded-full px-6 py-2 font-bold shadow-lg hover:bg-slate-700 transition-colors"
-                                >
-                                    {t('nav.loginToView')}
-                                </Button>
-                            </div>
-                        )}
-
-                        {currentUser && (!viewConfig || viewConfig.allow_comments) && (
-                            <form onSubmit={handleSendComment} className="flex gap-2">
-                                <input
-                                    type="text"
-                                    value={newComment}
-                                    onChange={(e) => setNewComment(e.target.value)}
-                                    placeholder={t('restaurant.addCommentPlaceholder')}
-                                    className="flex-1 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-pastel-blue dark:text-zinc-100"
-                                />
-                                <button
-                                    type="submit"
-                                    disabled={!newComment.trim()}
-                                    className="bg-pastel-blue-darker text-white p-2 rounded-xl disabled:opacity-50"
-                                >
-                                    <Send size={18} />
-                                </button>
-                            </form>
-                        )}
-                    </div>
-                )}
-
-                {/* Map Section */}
-                    <motion.div 
+                    {/* Map Section */}
+                    <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
@@ -738,47 +793,47 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                     </motion.div>
 
                     {/* Photos */}
-                {(!viewConfig || viewConfig.show_photos) && (
-                    <div>
-                        <div className="flex justify-between items-end mb-4">
-                            <h3 className="font-extrabold text-slate-800 dark:text-zinc-100 text-xl tracking-tight">{t('restaurant.photos') || 'Photos'}</h3>
-                            {(!viewConfig || viewConfig.allow_photos) && (
-                                <label className="text-xs font-bold text-pastel-blue-darker cursor-pointer hover:underline flex items-center gap-1">
-                                    <Camera size={14} />
-                                    {t('restaurant.addPhoto')}
-                                    <input type="file" className="hidden" accept="image/*" onChange={handlePhotoUpload} disabled={uploading} />
-                                </label>
-                            )}
-                        </div>
+                    {(!viewConfig || viewConfig.show_photos) && (
+                        <div>
+                            <div className="flex justify-between items-end mb-4">
+                                <h3 className="font-extrabold text-slate-800 dark:text-zinc-100 text-xl tracking-tight">{t('restaurant.photos') || 'Photos'}</h3>
+                                {(!viewConfig || viewConfig.allow_photos) && (
+                                    <label className="text-xs font-bold text-pastel-blue-darker cursor-pointer hover:underline flex items-center gap-1">
+                                        <Camera size={14} />
+                                        {t('restaurant.addPhoto')}
+                                        <input type="file" className="hidden" accept="image/*" onChange={handlePhotoUpload} disabled={uploading} />
+                                    </label>
+                                )}
+                            </div>
 
-                        <div className="grid grid-cols-2 gap-3">
-                            {photos.map((p, index) => (
-                                <div key={p.id} className="aspect-square rounded-2xl overflow-hidden shadow-sm relative group bg-slate-100 cursor-pointer" onClick={() => openLightbox(index)}>
-                                    <img
-                                        src={getOptimizedImageUrl(p.url, { width: 400, height: 400 })}
-                                        className="w-full h-full object-cover"
-                                        loading="lazy"
-                                    />
-                                    {(!viewConfig || viewConfig.allow_photos) && (
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); handleDeletePhoto(p.id); }}
-                                            className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                        >
-                                            <Trash2 size={14} />
-                                        </button>
-                                    )}
-                                </div>
-                            ))}
-                            {photos.length === 0 && (
-                                <div className="col-span-2 aspect-video bg-slate-50 dark:bg-zinc-900/30 border-2 border-dashed border-slate-200 dark:border-zinc-800 rounded-xl flex flex-col items-center justify-center text-slate-300 dark:text-zinc-700 gap-2">
-                                    <Camera size={24} />
-                                    <span className="text-xs font-medium">No photos yet</span>
-                                </div>
-                            )}
+                            <div className="grid grid-cols-2 gap-3">
+                                {photos.map((p, index) => (
+                                    <div key={p.id} className="aspect-square rounded-2xl overflow-hidden shadow-sm relative group bg-slate-100 cursor-pointer" onClick={() => openLightbox(index)}>
+                                        <img
+                                            src={getOptimizedImageUrl(p.url, { width: 400, height: 400 })}
+                                            className="w-full h-full object-cover"
+                                            loading="lazy"
+                                        />
+                                        {(!viewConfig || viewConfig.allow_photos) && (
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); handleDeletePhoto(p.id); }}
+                                                className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                                {photos.length === 0 && (
+                                    <div className="col-span-2 aspect-video bg-slate-50 dark:bg-zinc-900/30 border-2 border-dashed border-slate-200 dark:border-zinc-800 rounded-xl flex flex-col items-center justify-center text-slate-300 dark:text-zinc-700 gap-2">
+                                        <Camera size={24} />
+                                        <span className="text-xs font-medium">No photos yet</span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                )}
-            </div>
+                    )}
+                </div>
 
             </div>
 
@@ -787,11 +842,10 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                 <div className="absolute bottom-6 left-6 right-6 z-20">
                     <div className="backdrop-blur-2xl bg-white/70 dark:bg-zinc-900/80 p-2.5 rounded-[2rem] border border-white/50 dark:border-zinc-700/50 shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.3)]">
                         <Button
-                            className={`w-full rounded-[1.5rem] py-4 font-extrabold text-lg shadow-sm hover:shadow-md active:scale-[0.98] transition-all duration-300 ${
-                                restaurant.visit_status === 'wishlist'
+                            className={`w-full rounded-[1.5rem] py-4 font-extrabold text-lg shadow-sm hover:shadow-md active:scale-[0.98] transition-all duration-300 ${restaurant.visit_status === 'wishlist'
                                 ? 'bg-slate-800 text-white hover:bg-slate-700'
                                 : 'bg-gradient-to-r from-pastel-mint to-emerald-300 dark:from-teal-500 dark:to-emerald-400 text-slate-900 border border-white/20'
-                            }`}
+                                }`}
                             onClick={() => {
                                 if (restaurant.visit_status === 'wishlist') {
                                     handleMarkAsVisited();
@@ -802,7 +856,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                         >
                             {restaurant.visit_status === 'wishlist'
                                 ? t('wishlist.markAsVisited')
-                                : (myRating ? t('restaurant.saveRating') : t('restaurant.rateNow'))
+                                : (myRating ? t('restaurant.updateRating') : t('restaurant.rateNow'))
                             }
                         </Button>
                     </div>

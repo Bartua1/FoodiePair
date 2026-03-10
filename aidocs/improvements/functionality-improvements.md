@@ -19,5 +19,5 @@
 - DELAYED **[Couple Achievement Badges]** (Priority: Low)
   - **Description:** Gamify the shared dining journey with milestone badges: "Tried 5 different cuisines", "Visited 10 restaurants", "Gave matching 5-star ratings", "Planned 3 date nights". These would be computed from existing Supabase data in a new achievements table or even purely client-side in StatsView. This extends the existing Stats/Insights system, increases retention, and gives couples something to show off.
 
-- DELAYED **[Visit Memory Timeline]** (Priority: Low)
+- DONE **[Visit Memory Timeline]** (Priority: Low)
   - **Description:** Transform the shared restaurant history into a scrollable memory feed — a chronological journal of everywhere the couple has eaten together, surfacing photos, ratings, and comments in a timeline format. You could add a "On This Day" notification (e.g., "1 year ago you visited Osteria Francescana!"). This leans into the emotional/sentimental angle that makes the app sticky long-term. Most of the data already exists; it's largely a new view composing existing restaurants, ratings, photos, and comments data.
