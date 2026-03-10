@@ -38,7 +38,7 @@ Given that FoodiePair data must be strictly shared *only* between paired users, 
 - **`views/`**: Contains the top-level route components acting as pages.
   - `FeedView`: The main list of restaurants with a premium 2-column grid layout, text search, and filtering/sorting tools.
   - `MapView`: Renders restaurants on a Leaflet map.
-  - `MemoryTimelineView`: A scrollable chronological feed of all visited restaurants.
+  - `MemoryTimelineView`: A scrollable chronological feed of all visited restaurants, optimized for a full-screen, immersive visual experience.
   - `SettingsView` / `StatsView` / `RestaurantDetailView` / `AchievementsView`.
 - **`stats/`**: Houses the premium `InsightSlideshow` and `PairStats` components for the Pair Analytics dashboard.
 - **`auth/`**: Contains `UserSync`, which bridges Clerk authentication with our Postgres `profiles` table.

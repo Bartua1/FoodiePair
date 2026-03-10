@@ -27,7 +27,7 @@ FoodiePair is a progressive web application built for couples or partners to joi
 
 ### 5. Statistics & Personalization
 - **Stats View**: Aggregated insights and premium "Culinary Slideshow" highlighting joint habits (e.g., favorite cuisines, pickiest eater, vibe master).
-- **Memory Timeline**: A chronological journal of everywhere the couple has eaten together, surfacing photos, ratings, and comments in a scrollable memory feed.
+- **Memory Timeline**: A chronological journal of everywhere the couple has eaten together, featuring a high-contrast, edge-to-edge scrollable feed with photo stacks, joint ratings, and shared comments.
 - **Couple Achievement Badges**: Gamified milestones that track joint progress, such as variety of cuisines tried and consistency in ratings.
 - **Internationalization (i18n)**: Multi-language support seamlessly integrated with the user's profile and `react-i18next`.
 

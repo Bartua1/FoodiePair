@@ -16,7 +16,7 @@
   - **Description:** Proactively suggest *new* venues nearby based on the couple's historically highly-rated cuisines and mutual price preferences.
   - **Implementation Details:** Implement a Supabase Edge Function that computes the most frequent, highly-rated cuisines and tags associated with a specific `pair_id`. Use this aggregated profile to query the Google Places API or Yelp API for similar nearby spots to present as a prioritized "Discover" feed outside their known lists.
 
-- DELAYED **[Couple Achievement Badges]** (Priority: Low)
+- DONE **[Couple Achievement Badges]** (Priority: Low)
   - **Description:** Gamify the shared dining journey with milestone badges: "Tried 5 different cuisines", "Visited 10 restaurants", "Gave matching 5-star ratings", "Planned 3 date nights". These would be computed from existing Supabase data in a new achievements table or even purely client-side in StatsView. This extends the existing Stats/Insights system, increases retention, and gives couples something to show off.
 
 - DONE **[Visit Memory Timeline]** (Priority: Low)
