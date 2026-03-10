@@ -7,8 +7,8 @@ import { supabase } from '../../lib/supabase';
 import type { Profile, Restaurant } from '../../types';
 import { useTranslation } from 'react-i18next';
 import { compressImage } from '../../utils/imageUtils';
-
-interface AddRestaurantDrawerProps {
+import { useGeolocation } from '../../hooks/useGeolocation';
+import { discoverNearbyRestaurants, type ExternalDiscovery } from '../../services/discoveryService';interface AddRestaurantDrawerProps {
     isOpen: boolean;
     onClose: () => void;
     profile: Profile | null;
@@ -21,6 +21,7 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess, initi
     const [loading, setLoading] = useState(false);
     const { t } = useTranslation();
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const { location } = useGeolocation();
 
     // Image state
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -48,6 +49,12 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess, initi
     const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
     const categoryDropdownRef = useRef<HTMLDivElement>(null);
 
+    // Location Autocomplete State
+    const [nearbyRestaurants, setNearbyRestaurants] = useState<ExternalDiscovery[]>([]);
+    const [showNearbyDropdown, setShowNearbyDropdown] = useState(false);
+    const [isSearchingNearby, setIsSearchingNearby] = useState(false);
+    const nearbyDropdownRef = useRef<HTMLDivElement>(null);
+
     // Reset form when opening
     useEffect(() => {
         if (isOpen) {
@@ -65,10 +72,39 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess, initi
             if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target as Node)) {
                 setShowCategoryDropdown(false);
             }
+            if (nearbyDropdownRef.current && !nearbyDropdownRef.current.contains(event.target as Node)) {
+                setShowNearbyDropdown(false);
+            }
         }
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
+
+    const handleSearchNearby = async () => {
+        if (!location) return;
+        setIsSearchingNearby(true);
+        setShowNearbyDropdown(true);
+        try {
+            const results = await discoverNearbyRestaurants(location.lat, location.lng, 2000, formData.name || null);
+            setNearbyRestaurants(results);
+        } catch (error) {
+            console.error('Failed to search nearby:', error);
+            setNearbyRestaurants([]);
+        } finally {
+            setIsSearchingNearby(false);
+        }
+    };
+
+    const handleSelectNearby = (restaurant: ExternalDiscovery) => {
+        setFormData(prev => ({
+            ...prev,
+            name: restaurant.name,
+            address: restaurant.address,
+            cuisine: restaurant.cuisine_type || prev.cuisine,
+            priceRange: restaurant.price_range || prev.priceRange
+        }));
+        setShowNearbyDropdown(false);
+    };
 
     const fetchExistingCategories = async () => {
         if (!profile?.pair_id) return;
@@ -310,18 +346,77 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess, initi
                                             </button>
                                         </div>
 
-                                        <div className="space-y-1">
+                                        <div className="space-y-1 relative" ref={nearbyDropdownRef}>
                                             <label className="text-sm font-bold text-slate-700 ml-1">{t('restaurant.name')}</label>
                                             <div className="relative">
                                                 <Utensils className="absolute left-4 top-1/2 -translate-y-1/2 text-pastel-mint" size={18} />
                                                 <input
                                                     type="text"
-                                                    className="w-full bg-slate-50 border-none rounded-2xl p-4 pl-12 focus:ring-2 focus:ring-pastel-mint outline-none transition-all"
+                                                    className="w-full bg-slate-50 border-none rounded-2xl p-4 pl-12 pr-12 focus:ring-2 focus:ring-pastel-mint outline-none transition-all"
                                                     placeholder={t('restaurant.namePlaceholder')}
                                                     value={formData.name}
-                                                    onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                                    onChange={e => {
+                                                        setFormData({ ...formData, name: e.target.value });
+                                                        if (showNearbyDropdown) setShowNearbyDropdown(false);
+                                                    }}
                                                 />
+                                                {location && (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            handleSearchNearby();
+                                                        }}
+                                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-slate-200 rounded-xl transition-colors text-pastel-blue"
+                                                        title="Search nearby"
+                                                        disabled={isSearchingNearby}
+                                                    >
+                                                        {isSearchingNearby ? <Loader2 size={18} className="animate-spin" /> : <MapPin size={18} />}
+                                                    </button>
+                                                )}
                                             </div>
+                                            <AnimatePresence>
+                                                {showNearbyDropdown && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: -10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0, y: -10 }}
+                                                        className="absolute z-[2100] left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden max-h-60 overflow-y-auto"
+                                                    >
+                                                        {isSearchingNearby ? (
+                                                            <div className="p-4 flex items-center justify-center text-slate-400">
+                                                                <Loader2 className="animate-spin" size={24} />
+                                                            </div>
+                                                        ) : nearbyRestaurants.length > 0 ? (
+                                                            nearbyRestaurants.map((restaurant) => (
+                                                                <button
+                                                                    key={restaurant.id}
+                                                                    className="w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-none group flex flex-col gap-1"
+                                                                    onClick={(e) => {
+                                                                        e.preventDefault();
+                                                                        handleSelectNearby(restaurant);
+                                                                    }}
+                                                                >
+                                                                    <div className="flex justify-between items-center">
+                                                                        <span className="text-sm font-bold text-slate-800 group-hover:text-pastel-blue transition-colors">{restaurant.name}</span>
+                                                                        <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">{'€'.repeat(restaurant.price_range)}</span>
+                                                                    </div>
+                                                                    <div className="text-xs text-slate-500 truncate flex items-center gap-1">
+                                                                        <MapPin size={10} className="text-slate-400 shrink-0" />
+                                                                        <span className="truncate">{restaurant.address}</span>
+                                                                    </div>
+                                                                    {restaurant.cuisine_type && (
+                                                                        <span className="text-[10px] uppercase tracking-widest text-pastel-mint font-bold mt-0.5">{restaurant.cuisine_type}</span>
+                                                                    )}
+                                                                </button>
+                                                            ))
+                                                        ) : (
+                                                            <div className="p-4 text-center text-sm text-slate-500 font-medium">
+                                                                No nearby places found
+                                                            </div>
+                                                        )}
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
                                         </div>
                                         <div className="space-y-1">
                                             <label className="text-sm font-bold text-slate-700 ml-1">{t('restaurant.location')}</label>
