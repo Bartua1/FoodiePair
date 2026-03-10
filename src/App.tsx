@@ -22,6 +22,7 @@ import { SettingsView } from './components/views/SettingsView';
 import { RestaurantDetailView } from './components/views/RestaurantDetailView';
 import { SharedRestaurantView } from './components/views/SharedRestaurantView';
 import { Header } from './components/layout/Header';
+import { MemoryTimelineView } from './components/views/MemoryTimelineView';
 
 function App() {
   const { isLoaded, user } = useUser();
@@ -249,6 +250,7 @@ function AppContent() {
               onViewDetails={(r) => navigate(`/restaurant/${r.id}`)}
             />
           } />
+          <Route path="/timeline" element={<MemoryTimelineView pairId={profile.pair_id} />} />
           <Route path="/stats" element={<StatsView pairId={profile.pair_id} />} />
           <Route path="/settings" element={<SettingsView />} />
           <Route path="/restaurant/:id" element={

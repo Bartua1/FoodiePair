@@ -12,6 +12,7 @@ export function NavigationFAB() {
     const tabs = [
         { id: '/', icon: List, label: 'Feed' },
         { id: '/togo', icon: Bookmark, label: t('wishlist.toGo') },
+        { id: '/timeline', icon: List, label: t('nav.timeline') },
         { id: '/map', icon: MapIcon, label: 'Map' },
         { id: '/stats', icon: BarChart2, label: t('nav.stats') },
         { id: '/settings', icon: Settings, label: t('nav.settings') },

@@ -23,6 +23,7 @@
     "map": "Mapa",
     "stats": "Estadísticas",
     "settings": "Ajustes",
+    "timeline": "Cronología",
     "loginToView": "Inicia sesión para ver comentarios"
   },
   "feed": {
@@ -245,5 +246,14 @@
     "tryAgain": "Girar de nuevo",
     "noRestaurants": "¡No hay sitios con estos filtros!",
     "noRestaurantsSubtitle": "Prueba a ampliar la búsqueda o añadir más sitios."
+  },
+  "timeline": {
+    "title": "Línea del Tiempo",
+    "subtitle": "Un viaje cronológico por vuestras aventuras gastronómicas.",
+    "noVisits": "¡Aún no hay recuerdos!",
+    "noVisitsSubtitle": "Empezad a visitar y puntuar sitios para crear vuestra línea del tiempo.",
+    "visitDate": "Visitado el {{date}}",
+    "memoriesCount": "{{count}} recuerdos compartidos",
+    "at": "en"
   }
 }

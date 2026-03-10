@@ -23,6 +23,7 @@
     "map": "Map",
     "stats": "Stats",
     "settings": "Settings",
+    "timeline": "Timeline",
     "loginToView": "Log in to view comments"
   },
   "feed": {
@@ -245,5 +246,14 @@
     "tryAgain": "Spin Again",
     "noRestaurants": "No restaurants found with these filters!",
     "noRestaurantsSubtitle": "Try expanding your search or adding more spots."
+  },
+  "timeline": {
+    "title": "Memory Timeline",
+    "subtitle": "A chronological journey of your foodie adventures.",
+    "noVisits": "No memories yet!",
+    "noVisitsSubtitle": "Start visiting and rating restaurants to build your timeline.",
+    "visitDate": "Visited on {{date}}",
+    "memoriesCount": "{{count}} memories shared",
+    "at": "at"
   }
 }
