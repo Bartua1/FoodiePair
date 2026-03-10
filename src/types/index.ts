@@ -124,7 +124,7 @@ export interface Notification {
     updated_at: string;
 }
 
-export type InsightType = 'pickiest' | 'favorite' | 'legend' | 'value' | 'vibe' | 'match';
+export type InsightType = 'pickiest' | 'favorite' | 'legend' | 'value' | 'vibe' | 'match' | 'disagree';
 
 export interface Insight {
     type: InsightType;

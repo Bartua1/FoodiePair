@@ -136,7 +136,7 @@ export function PairStats({ pairId }: { pairId: string }) {
                 }
             });
 
-            const agreementScore = sharedCount > 0 ? 100 - (totalDiff / sharedCount) * 20 : null; // Scale: 5 is max diff, so * 20 = 100
+            const agreementScore = sharedCount > 0 ? Math.max(0, 100 - (totalDiff / sharedCount) * 25) : null; // Scale: 4 is max diff, so * 25 = 100
 
             // 7. Dynamic Insight
             let insight = null;
@@ -211,7 +211,7 @@ export function PairStats({ pairId }: { pairId: string }) {
             const legend = (user2 && user2.cuisineCount > user1.cuisineCount) ? user2 : user1;
             slideshowInsights.push({ type: 'legend', data: { name: legend.name, count: legend.cuisineCount } });
 
-            // Perfect Match
+            // Perfect Match and Disagreement
             if (categoryStats.length > 0) {
                 const diffs = categoryStats
                     .filter(c => c.user1Avg > 0 && c.user2Avg > 0)
@@ -219,11 +219,18 @@ export function PairStats({ pairId }: { pairId: string }) {
                         name: c.name,
                         diff: Math.abs(c.user1Avg - c.user2Avg),
                         combinedAvg: (c.user1Avg + c.user2Avg) / 2
-                    }))
-                    .sort((a, b) => b.combinedAvg - a.combinedAvg);
+                    }));
 
-                if (diffs.length > 0 && diffs[0].diff < 1) {
-                    slideshowInsights.push({ type: 'match', data: { cuisine: diffs[0].name } });
+                // Match
+                const agreements = [...diffs].sort((a, b) => b.combinedAvg - a.combinedAvg);
+                if (agreements.length > 0 && agreements[0].diff < 1) {
+                    slideshowInsights.push({ type: 'match', data: { cuisine: agreements[0].name } });
+                }
+
+                // Disagreement
+                const disagreements = [...diffs].sort((a, b) => b.diff - a.diff);
+                if (disagreements.length > 0 && disagreements[0].diff > 0.5) {
+                    slideshowInsights.push({ type: 'disagree', data: { cuisine: disagreements[0].name } });
                 }
             }
 

@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Award, Zap, Heart, Star, Compass, Sparkles, Gem } from 'lucide-react';
+import { Award, Zap, Heart, Star, Compass, Sparkles, Gem, Flame } from 'lucide-react';
 import type { Insight, InsightType } from '../../types';
 
 export function InsightSlideshow({ insights }: { insights: Insight[] }) {
     const { t } = useTranslation();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [shuffledInsights, setShuffledInsights] = useState<Insight[]>([]);
+    const [progress, setProgress] = useState(0);
+
+    const DURATION = 10000; // 10 seconds
 
     useEffect(() => {
         if (insights.length > 0) {
@@ -17,10 +20,26 @@ export function InsightSlideshow({ insights }: { insights: Insight[] }) {
 
     useEffect(() => {
         if (shuffledInsights.length > 1) {
-            const timer = setInterval(() => {
-                setCurrentIndex((prev) => (prev + 1) % shuffledInsights.length);
-            }, 6000); // 6 seconds per slide
-            return () => clearInterval(timer);
+            let start = Date.now();
+            let animationFrameId: number;
+
+            const updateProgress = () => {
+                const now = Date.now();
+                const elapsed = now - start;
+
+                if (elapsed >= DURATION) {
+                    setCurrentIndex((prev) => (prev + 1) % shuffledInsights.length);
+                    start = Date.now();
+                    setProgress(0);
+                } else {
+                    setProgress((elapsed / DURATION) * 100);
+                }
+                animationFrameId = requestAnimationFrame(updateProgress);
+            };
+
+            animationFrameId = requestAnimationFrame(updateProgress);
+
+            return () => cancelAnimationFrame(animationFrameId);
         }
     }, [shuffledInsights]);
 
@@ -28,54 +47,52 @@ export function InsightSlideshow({ insights }: { insights: Insight[] }) {
 
     const current = shuffledInsights[currentIndex];
 
+    // Map each slide directly to our defined pastel palettes
     const renderSlide = () => {
         switch (current.type) {
             case 'pickiest':
                 return (
-                    <div className="relative overflow-hidden bg-white/10 dark:bg-zinc-900/10 backdrop-blur-xl border border-white/20 dark:border-zinc-700/30 p-8 rounded-3xl h-72 flex flex-col items-center justify-center text-center shadow-2xl transition-all duration-500">
-                        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-slate-400/10 to-transparent pointer-events-none" />
-                        <div className="w-16 h-16 bg-white dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4 shadow-lg ring-4 ring-slate-50 dark:ring-zinc-900 transition-transform hover:scale-110">
-                            <Award className="w-8 h-8 text-slate-700 dark:text-zinc-200" />
+                    <div className="bg-pastel-yellow dark:bg-pastel-yellow-dark/20 border-b-8 border-pastel-yellow-dark dark:border-pastel-yellow-darker/50 p-8 rounded-3xl h-72 flex flex-col items-center justify-center text-center shadow-xl">
+                        <div className="w-16 h-16 bg-white/80 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4 shadow-sm border border-pastel-yellow-dark/50">
+                            <Award className="w-8 h-8 text-pastel-yellow-darker" />
                         </div>
                         <h3 className="text-xl font-black text-slate-800 dark:text-zinc-100 mb-2 uppercase tracking-tight">{t('stats.pickiestTitle')}</h3>
-                        <p className="text-slate-600 dark:text-zinc-300 font-bold text-3xl mb-2">{current.data.name}</p>
-                        <p className="text-slate-400 dark:text-zinc-500 text-xs italic max-w-[240px] leading-relaxed">
+                        <p className="text-pastel-yellow-darker font-black text-3xl mb-2">{current.data.name}</p>
+                        <p className="text-slate-600 dark:text-zinc-400 text-xs italic max-w-[240px] leading-relaxed">
                             {t('stats.pickiestSubtitle')}
                         </p>
                     </div>
                 );
             case 'favorite':
                 return (
-                    <div className="bg-gradient-to-br from-orange-400 via-rose-500 to-purple-600 p-8 rounded-3xl h-72 flex flex-col items-center justify-center text-center shadow-2xl text-white relative group overflow-hidden">
-                        <div className="absolute top-0 left-0 w-full h-full bg-black/10 group-hover:bg-transparent transition-colors duration-500" />
-                        <Star className="w-14 h-14 mb-4 animate-pulse fill-white/20" />
-                        <p className="text-xl font-black leading-tight drop-shadow-md">
+                    <div className="bg-pastel-peach dark:bg-pastel-peach-dark/20 border-b-8 border-pastel-peach-dark dark:border-pastel-peach-darker/50 p-8 rounded-3xl h-72 flex flex-col items-center justify-center text-center shadow-xl text-slate-800 dark:text-zinc-100">
+                        <Star className="w-14 h-14 mb-4 text-pastel-peach-darker animate-pulse fill-pastel-peach" />
+                        <p className="text-xl font-black leading-tight">
                             {t('stats.insightFavorite', { name: current.data.name, cuisine: current.data.cuisine })}
                         </p>
                     </div>
                 );
             case 'legend':
                 return (
-                    <div className="bg-zinc-950 p-8 rounded-3xl h-72 flex flex-col items-center justify-center text-center shadow-2xl relative border border-zinc-800/50 overflow-hidden">
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(168,85,247,0.2),transparent)] pointer-events-none animate-pulse" />
-                        <Compass className="w-14 h-14 text-purple-500 mb-4 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]" />
-                        <p className="text-xl font-black text-zinc-100 leading-tight uppercase tracking-tighter">
+                    <div className="bg-pastel-lavender dark:bg-pastel-lavender-dark/20 border-b-8 border-pastel-lavender-dark dark:border-pastel-lavender-darker/50 p-8 rounded-3xl h-72 flex flex-col items-center justify-center text-center shadow-xl">
+                        <Compass className="w-14 h-14 text-pastel-lavender-darker mb-4" />
+                        <p className="text-xl font-black text-slate-800 dark:text-zinc-100 leading-tight uppercase tracking-tighter">
                             {t('stats.insightFoodieLegend', { name: current.data.name, count: current.data.count })}
                         </p>
                         <div className="mt-6 flex gap-2">
-                            {[1, 2, 3, 4, 5].map(i => <Sparkles key={i} className={`w-4 h-4 text-purple-400/40 animate-bounce delay-${i * 100}`} />)}
+                            {[1, 2, 3, 4, 5].map(i => <Sparkles key={i} className={`w-4 h-4 text-pastel-lavender-darker animate-bounce delay-${i * 100}`} />)}
                         </div>
                     </div>
                 );
             case 'value':
                 return (
-                    <div className="bg-emerald-50 dark:bg-emerald-950/20 border-b-8 border-emerald-200 dark:border-emerald-900/50 p-8 rounded-3xl h-72 flex flex-col items-center justify-center text-center shadow-xl">
-                        <Gem className="w-14 h-14 text-emerald-500 mb-4 drop-shadow-md" />
-                        <p className="text-emerald-900 dark:text-emerald-50 font-black text-xl leading-tight">
+                    <div className="bg-pastel-mint dark:bg-pastel-mint-dark/20 border-b-8 border-pastel-mint-dark dark:border-pastel-mint-darker/50 p-8 rounded-3xl h-72 flex flex-col items-center justify-center text-center shadow-xl">
+                        <Gem className="w-14 h-14 text-pastel-mint-darker mb-4" />
+                        <p className="text-slate-800 dark:text-zinc-100 font-black text-xl leading-tight">
                             {t('stats.insightValueSeeker', { name: current.data.name })}
                         </p>
-                        <div className="mt-4 px-4 py-1.5 bg-emerald-500/10 rounded-full">
-                            <span className="text-emerald-600 dark:text-emerald-400 text-xs font-mono font-black uppercase tracking-widest">
+                        <div className="mt-4 px-4 py-1.5 bg-white/60 dark:bg-zinc-800/50 rounded-full border border-pastel-mint-dark/20">
+                            <span className="text-pastel-mint-darker text-xs font-mono font-black uppercase tracking-widest">
                                 Premium Efficiency
                             </span>
                         </div>
@@ -83,29 +100,35 @@ export function InsightSlideshow({ insights }: { insights: Insight[] }) {
                 );
             case 'vibe':
                 return (
-                    <div className="bg-slate-900 p-8 rounded-3xl h-72 flex flex-col items-center justify-center text-center shadow-2xl relative group overflow-hidden">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-purple-600 to-pink-500 rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-1000 group-hover:duration-200 animate-gradient-x"></div>
-                        <div className="relative flex flex-col items-center bg-slate-900 w-full h-full rounded-2xl flex items-center justify-center">
-                            <Zap className="w-14 h-14 text-indigo-400 mb-4 fill-indigo-400/20" />
-                            <p className="text-white font-black text-2xl tracking-tighter uppercase italic">
-                                {t('stats.insightVibeMaster', { name: current.data.name })}
-                            </p>
-                            <div className="mt-2 h-1 w-24 bg-gradient-to-r from-transparent via-indigo-500 to-transparent" />
-                        </div>
+                    <div className="bg-pastel-blue dark:bg-pastel-blue-dark/20 border-b-8 border-pastel-blue-dark dark:border-pastel-blue-darker/50 p-8 rounded-3xl h-72 flex flex-col items-center justify-center text-center shadow-xl">
+                        <Zap className="w-14 h-14 text-pastel-blue-darker mb-4 fill-pastel-blue-dark/30" />
+                        <p className="text-slate-800 dark:text-zinc-100 font-black text-2xl tracking-tighter uppercase italic">
+                            {t('stats.insightVibeMaster', { name: current.data.name })}
+                        </p>
                     </div>
                 );
             case 'match':
                 return (
-                    <div className="bg-rose-50 dark:bg-rose-950/10 p-8 rounded-3xl h-72 flex flex-col items-center justify-center text-center border-2 border-rose-200 dark:border-rose-900/30 relative overflow-hidden">
-                        <div className="absolute -top-10 -right-10 w-32 h-32 bg-rose-200/20 dark:bg-rose-800/10 rounded-full blur-3xl text-rose-500" />
+                    <div className="bg-pastel-pink dark:bg-pastel-pink-dark/20 border-b-8 border-pastel-pink-dark dark:border-pastel-pink-darker/50 p-8 rounded-3xl h-72 flex flex-col items-center justify-center text-center shadow-xl">
                         <div className="flex gap-3 mb-4">
-                            <Heart className="w-12 h-12 text-rose-500 fill-rose-500 animate-pulse" />
-                            <Heart className="w-12 h-12 text-rose-400 fill-rose-400 animate-ping absolute opacity-20" />
+                            <Heart className="w-12 h-12 text-pastel-pink-darker fill-pastel-pink-darker animate-pulse" />
                         </div>
-                        <p className="text-rose-900 dark:text-rose-100 font-black text-2xl tracking-tight leading-tight">
+                        <p className="text-slate-800 dark:text-zinc-100 font-black text-2xl tracking-tight leading-tight">
                             {t('stats.insightPerfectMatch', { cuisine: current.data.cuisine })}
                         </p>
-                        <p className="mt-2 text-rose-400 text-[10px] font-bold uppercase tracking-[0.2em]">{t('stats.consistencyHigh')}</p>
+                        <p className="mt-2 text-pastel-pink-darker text-[10px] font-bold uppercase tracking-[0.2em]">{t('stats.consistencyHigh')}</p>
+                    </div>
+                );
+            case 'disagree':
+                return (
+                    <div className="bg-red-50 dark:bg-red-950/20 border-b-8 border-red-200 dark:border-red-900/50 p-8 rounded-3xl h-72 flex flex-col items-center justify-center text-center shadow-xl">
+                        <div className="flex gap-3 mb-4">
+                            <Flame className="w-12 h-12 text-red-400 fill-red-400 animate-pulse" />
+                        </div>
+                        <p className="text-slate-800 dark:text-zinc-100 font-black text-2xl tracking-tight leading-tight">
+                            {t('stats.insightDisagree', { cuisine: current.data.cuisine })}
+                        </p>
+                        <p className="mt-2 text-red-500 text-[10px] font-bold uppercase tracking-[0.2em]">{t('stats.consistencyLow')}</p>
                     </div>
                 );
             default:
@@ -119,20 +142,15 @@ export function InsightSlideshow({ insights }: { insights: Insight[] }) {
                 {renderSlide()}
             </div>
 
-            {/* Dots */}
-            <div className="flex justify-center gap-2 mt-6">
-                {shuffledInsights.map((_, i) => (
-                    <button
-                        key={i}
-                        onClick={() => setCurrentIndex(i)}
-                        className={`h-2 rounded-full transition-all duration-300 ${i === currentIndex
-                            ? 'w-8 bg-slate-800 dark:bg-white'
-                            : 'w-2 bg-slate-200 dark:bg-zinc-800 hover:bg-slate-300 dark:hover:bg-zinc-700'
-                            }`}
-                        aria-label={`Go to slide ${i + 1}`}
+            {/* Progress Bar instead of clickable dots */}
+            {shuffledInsights.length > 1 && (
+                <div className="mt-6 h-1.5 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden shadow-inner">
+                    <div
+                        className="h-full bg-slate-400 dark:bg-zinc-500 rounded-full"
+                        style={{ width: `${progress}%` }}
                     />
-                ))}
-            </div>
+                </div>
+            )}
         </div>
     );
 }

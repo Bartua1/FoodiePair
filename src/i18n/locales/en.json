@@ -120,7 +120,8 @@
     "insightFoodieLegend": "{{name}} is a Foodie Legend! {{count}} types of food explored.",
     "insightValueSeeker": "{{name}} is the Value Seeker! Highest average for price/quality.",
     "insightVibeMaster": "{{name}} is the Vibe Master! Highest average for atmosphere.",
-    "insightPerfectMatch": "You both absolutely love {{cuisine}}!"
+    "insightPerfectMatch": "You both absolutely love {{cuisine}}!",
+    "insightDisagree": "You have the biggest disagreement on {{cuisine}}!"
   },
   "pairing": {
     "loading": "Loading profile...",
