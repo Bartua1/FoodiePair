@@ -56,7 +56,7 @@ export async function discoverNearbyRestaurants(
 
         const data = await response.json();
 
-        return data.elements.map((el: any) => {
+        const results = data.elements.map((el: any) => {
             const elLat = el.lat || el.center?.lat;
             const elLng = el.lon || el.center?.lon;
 
@@ -79,6 +79,14 @@ export async function discoverNearbyRestaurants(
                 rating: rating > 0 ? rating : undefined,
             };
         }).filter((r: any) => r.name !== 'Unnamed Spot');
+
+        // Sort by distance to the search center
+        return results.sort((a: any, b: any) => {
+            if (!a.lat || !a.lng || !b.lat || !b.lng) return 0;
+            const distA = calculateDistance(lat, lng, a.lat, a.lng);
+            const distB = calculateDistance(lat, lng, b.lat, b.lng);
+            return distA - distB;
+        });
     } catch (error) {
         console.error('Discovery error:', error);
         return [];
@@ -91,4 +99,20 @@ function mapOsmPriceRange(tags: any): number {
     if (price === 'high' || tags['expensive'] === 'yes') return 3;
     if (price === 'moderate') return 2;
     return 2; // Default
+}
+
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371; // Radius of the earth in km
+    const dLat = deg2rad(lat2 - lat1);
+    const dLon = deg2rad(lon2 - lon1);
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
+
+function deg2rad(deg: number): number {
+    return deg * (Math.PI / 180);
 }

@@ -366,11 +366,11 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess, initi
                                                             e.preventDefault();
                                                             handleSearchNearby();
                                                         }}
-                                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-slate-200 rounded-xl transition-colors text-pastel-blue"
+                                                        className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition-colors shadow-sm"
                                                         title="Search nearby"
                                                         disabled={isSearchingNearby}
                                                     >
-                                                        {isSearchingNearby ? <Loader2 size={18} className="animate-spin" /> : <MapPin size={18} />}
+                                                        {isSearchingNearby ? <Loader2 size={16} className="animate-spin" /> : <MapPin size={16} />}
                                                     </button>
                                                 )}
                                             </div>
