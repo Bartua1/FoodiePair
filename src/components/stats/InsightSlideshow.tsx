@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Award, Zap, Heart, Star, Compass, Sparkles, Gem, Flame } from 'lucide-react';
-import type { Insight, InsightType } from '../../types';
+import type { Insight } from '../../types';
 
 export function InsightSlideshow({ insights }: { insights: Insight[] }) {
     const { t } = useTranslation();

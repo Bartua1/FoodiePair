@@ -215,7 +215,7 @@ export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavo
 
                 <div className="flex items-center gap-1.5 text-slate-500 dark:text-zinc-400 text-xs mt-auto">
                     <MapPin size={12} className="shrink-0" />
-                    <span className="truncate flex-1">{restaurant.address.split(',')[0]}</span>
+                    <span className="truncate flex-1">{restaurant.address?.split(',')[0]}</span>
                     {restaurant.distance !== undefined && (
                         <span className="shrink-0 text-slate-700 dark:text-zinc-300">
                             {restaurant.distance < 1 ? `${(restaurant.distance * 1000).toFixed(0)}m` : `${restaurant.distance.toFixed(1)} km`}

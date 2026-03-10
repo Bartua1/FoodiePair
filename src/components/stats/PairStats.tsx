@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Utensils, Award, TrendingDown, Users, Pizza, Zap, Info } from 'lucide-react';
+import { Utensils, Users, Pizza } from 'lucide-react';
 import { InsightSlideshow } from './InsightSlideshow';
 import type { Rating, Profile, Restaurant, Insight } from '../../types';
 import { useTranslation } from 'react-i18next';
@@ -67,7 +67,7 @@ export function PairStats({ pairId }: { pairId: string }) {
             // 4. Calculate User Stats
             const calculateUserStats = (userId: string) => {
                 const userRatings = ratings?.filter(r => r.user_id === userId) || [];
-                if (userRatings.length === 0) return { id: userId, name: getName(userId), avgScore: 0, count: 0, topCuisines: [] };
+                if (userRatings.length === 0) return { id: userId, name: getName(userId), avgScore: 0, count: 0, topCuisines: [], priceQualityScore: 0, vibeScore: 0, cuisineCount: 0 };
 
                 const total = userRatings.reduce((acc, curr) => acc + getAvg(curr), 0);
                 const totalPQ = userRatings.reduce((acc, curr) => acc + curr.price_quality_score, 0);

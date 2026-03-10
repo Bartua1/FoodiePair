@@ -12,8 +12,8 @@ import { ShareConfigurationModal } from '../restaurant/ShareConfigurationModal';
 import { useRestaurantDetails } from '../../hooks/useRestaurantDetails';
 import { supabase } from '../../lib/supabase';
 import { getOptimizedImageUrl } from '../../utils/imageUtils';
-import type { Restaurant, Profile, Rating, SharedRestaurantConfig } from '../../types';
 import { CommentItem } from '../restaurant/CommentItem';
+import type { Restaurant, Profile, SharedRestaurantConfig, Rating } from '../../types';
 import { JoinUsPrompt } from '../common/JoinUsPrompt';
 import { RestaurantDetailSkeleton } from '../restaurant/RestaurantDetailSkeleton';
 import { generateICS, generateGoogleCalendarUrl, downloadICS } from '../../utils/calendarUtils';
@@ -48,6 +48,11 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
     const [currentLightboxIndex, setCurrentLightboxIndex] = useState(0);
     const heroScrollRef = useRef<HTMLDivElement>(null);
     const [heroIndex, setHeroIndex] = useState(0);
+    const [isScrolled, setIsScrolled] = useState(false);
+
+    const handleMainScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        setIsScrolled(e.currentTarget.scrollTop > 50);
+    };
 
     // Wishlist State
     const [addingToWishlist, setAddingToWishlist] = useState(false);
@@ -320,49 +325,60 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
     return (
         <div className="flex-1 flex flex-col bg-white dark:bg-zinc-950 h-full relative overflow-hidden">
             {/* Header */}
-            <div className="p-4 border-b border-slate-100 dark:border-zinc-800 flex items-center gap-4 sticky top-0 bg-white dark:bg-zinc-950 z-10">
-                <button onClick={handleBack} className="p-2 bg-pastel-peach rounded-full hover:scale-105 active:scale-95 transition-all shadow-sm">
-                    <ArrowLeft size={24} className="text-slate-800" />
+            <div className={`absolute top-0 left-0 right-0 p-4 pt-4 flex items-center gap-4 z-50 transition-all duration-300 ${
+                isScrolled || photos.length === 0 
+                ? 'bg-white/85 dark:bg-zinc-950/85 backdrop-blur-xl border-b border-slate-100 dark:border-zinc-800 shadow-sm' 
+                : 'bg-gradient-to-b from-black/70 via-black/30 to-transparent'
+            }`}>
+                <button onClick={handleBack} className={`p-2 rounded-full transition-all shadow-sm backdrop-blur-md ${
+                    isScrolled || photos.length === 0 
+                    ? 'bg-slate-100 dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 hover:scale-105 active:scale-95' 
+                    : 'bg-white/20 text-white hover:bg-white/30 hover:scale-105 active:scale-95'
+                }`}>
+                    <ArrowLeft size={24} />
                 </button>
                 <div className="flex-1 overflow-hidden">
-                    <h2 className="text-xl font-bold text-slate-800 dark:text-zinc-100 leading-tight truncate">{restaurant.name}</h2>
-                    <div className="flex items-start gap-2 text-slate-500 dark:text-zinc-400 text-sm">
-                        <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium">{restaurant.cuisine_type} • {'€'.repeat(restaurant.price_range)}</p>
+                    <h2 className={`text-xl font-bold leading-tight truncate transition-colors ${
+                        isScrolled || photos.length === 0 
+                        ? 'text-slate-800 dark:text-zinc-100' 
+                        : 'text-white drop-shadow-md'
+                    }`}>{restaurant.name}</h2>
+                    <div className="flex items-start gap-2 text-sm mt-0.5">
+                        <p className={`text-[11px] font-bold uppercase tracking-wider transition-colors ${
+                            isScrolled || photos.length === 0 
+                            ? 'text-slate-500 dark:text-zinc-400' 
+                            : 'text-white/90 drop-shadow-md'
+                        }`}>{restaurant.cuisine_type} • {'€'.repeat(restaurant.price_range)}</p>
                     </div>
                 </div>
 
-                {/* Favorites/Wishlist Section in Header */}
                 <div className="flex items-center gap-2">
                     {viewConfig && currentUser ? (
                         <div className="flex items-center gap-2">
                             <Button
                                 onClick={handleAddToWishlist}
                                 disabled={addingToWishlist || addedToWishlist}
-                                className={`rounded-full px-4 py-2 font-bold transition-all flex items-center gap-2 ${addedToWishlist ? 'bg-green-500 text-white' : 'bg-pastel-blue text-slate-800'}`}
+                                className={`rounded-full px-4 py-2 font-bold transition-all flex items-center gap-2 shadow-sm ${
+                                    addedToWishlist ? 'bg-green-500 text-white' : 'bg-pastel-blue text-slate-800'
+                                }`}
                             >
                                 {addedToWishlist ? (
-                                    <>
-                                        <Check size={18} />
-                                        {t('wishlist.addedToWishlist')}
-                                    </>
+                                    <><Check size={18} />{t('wishlist.addedToWishlist')}</>
                                 ) : (
-                                    <>
-                                        <Bookmark size={18} />
-                                        {t('wishlist.addToWishlist')}
-                                    </>
+                                    <><Bookmark size={18} />{t('wishlist.addToWishlist')}</>
                                 )}
                             </Button>
                             <button
                                 onClick={() => {
                                     navigator.clipboard.writeText(window.location.href);
-                                    // Use a temporary state or reuse addedToWishlist mechanism if appropriate, 
-                                    // but better to have own state. 
-                                    // Limited state here, let's use a simple alert or better: reuse the check icon pattern locally?
-                                    // Let's add a local state for this button.
                                     setLinkCopied(true);
                                     setTimeout(() => setLinkCopied(false), 2000);
                                 }}
-                                className="p-2 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 transition-colors"
+                                className={`p-2 rounded-full transition-colors backdrop-blur-md ${
+                                    isScrolled || photos.length === 0
+                                    ? 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200'
+                                    : 'bg-white/20 text-white hover:bg-white/30'
+                                }`}
                                 title={t('share.createLink')}
                             >
                                 {linkCopied ? <Check size={20} className="text-green-500" /> : <Share2 size={20} />}
@@ -372,7 +388,11 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                         <>
                             <button
                                 onClick={() => setShareModalOpen(true)}
-                                className="p-2 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 transition-colors"
+                                className={`p-2 rounded-full transition-colors backdrop-blur-md ${
+                                    isScrolled || photos.length === 0
+                                    ? 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200'
+                                    : 'bg-white/20 text-white hover:bg-white/30'
+                                }`}
                                 title="Share"
                             >
                                 <Share2 size={20} />
@@ -380,17 +400,11 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                             {favoriteProfiles.length > 0 && (
                                 <div className="flex -space-x-2">
                                     {favoriteProfiles.map(p => (
-                                        <div key={p.id} className="w-8 h-8 rounded-full border-2 border-white overflow-hidden shadow-sm" title={p.display_name || ''}>
+                                        <div key={p.id} className="w-8 h-8 rounded-full border-2 border-white/50 dark:border-zinc-800 overflow-hidden shadow-sm" title={p.display_name || ''}>
                                             {p.avatar_url ? (
-                                                <img
-                                                    src={getOptimizedImageUrl(p.avatar_url, { width: 64, height: 64 })}
-                                                    className="w-full h-full object-cover"
-                                                    loading="lazy"
-                                                />
+                                                <img src={getOptimizedImageUrl(p.avatar_url, { width: 64, height: 64 })} className="w-full h-full object-cover" loading="lazy" />
                                             ) : (
-                                                <div className="w-full h-full bg-pastel-peach flex items-center justify-center text-[10px] font-bold text-slate-700">
-                                                    {p.display_name?.[0]}
-                                                </div>
+                                                <div className="w-full h-full bg-pastel-peach flex items-center justify-center text-[10px] font-bold text-slate-700">{p.display_name?.[0]}</div>
                                             )}
                                         </div>
                                     ))}
@@ -398,7 +412,11 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                             )}
                             <button
                                 onClick={handleToggleFavorite}
-                                className={`p-2 rounded-full transition-colors ${isFavorite ? 'bg-red-50 text-red-500' : 'bg-slate-50 text-slate-300 hover:bg-slate-100'}`}
+                                className={`p-2 rounded-full transition-colors backdrop-blur-md ${
+                                    isScrolled || photos.length === 0
+                                    ? (isFavorite ? 'bg-red-50 text-red-500' : 'bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 hover:bg-slate-200 dark:hover:bg-zinc-700')
+                                    : (isFavorite ? 'bg-red-500 text-white' : 'bg-white/20 text-white hover:bg-white/30')
+                                }`}
                             >
                                 <Heart size={20} fill={isFavorite ? "currentColor" : "none"} />
                             </button>
@@ -407,19 +425,20 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                 </div>
             </div>
 
-            <div className={`flex-1 overflow-y-auto p-4 space-y-8 pb-32`}>
+            <div className={`flex-1 overflow-y-auto pb-32 relative`} onScroll={handleMainScroll}>
+
                 {/* Hero Carousel */}
-                {(photos.length > 0 && (!viewConfig || viewConfig.show_photos)) && (
-                    <div className="rounded-2xl overflow-hidden relative group aspect-video shadow-sm">
+                {(photos.length > 0 && (!viewConfig || viewConfig.show_photos)) ? (
+                    <div className="relative w-full h-[45vh] min-h-[350px] mb-8 group bg-slate-100 dark:bg-zinc-900">
                         <div
                             ref={heroScrollRef}
                             onScroll={handleHeroScroll}
-                            className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+                            className="absolute inset-0 flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
                         >
                             {photos.map((photo, index) => (
                                 <img
                                     key={index}
-                                    src={getOptimizedImageUrl(photo.url, { width: 1200, height: 675 })}
+                                    src={getOptimizedImageUrl(photo.url, { width: 1200, height: 800 })}
                                     alt={`Hero ${index + 1}`}
                                     className="w-full h-full object-cover flex-shrink-0 snap-center cursor-pointer"
                                     onClick={() => openLightbox(index)}
@@ -427,57 +446,71 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                 />
                             ))}
                         </div>
+                        
+                        {/* Elegant bottom gradient for seamless transition to content */}
+                        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white dark:from-zinc-950 to-transparent pointer-events-none" />
 
                         {/* Hero Controls */}
                         {photos.length > 1 && (
                             <>
                                 <button
                                     onClick={(e) => { e.stopPropagation(); scrollToHero((heroIndex - 1 + photos.length) % photos.length); }}
-                                    className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-colors"
+                                    className="absolute left-4 top-1/2 -translate-y-1/2 p-2.5 bg-black/20 hover:bg-black/40 backdrop-blur-md text-white rounded-full transition-colors opacity-0 group-hover:opacity-100"
                                 >
-                                    <ChevronLeft size={20} />
+                                    <ChevronLeft size={24} />
                                 </button>
                                 <button
                                     onClick={(e) => { e.stopPropagation(); scrollToHero((heroIndex + 1) % photos.length); }}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-colors"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 p-2.5 bg-black/20 hover:bg-black/40 backdrop-blur-md text-white rounded-full transition-colors opacity-0 group-hover:opacity-100"
                                 >
-                                    <ChevronRight size={20} />
+                                    <ChevronRight size={24} />
                                 </button>
-                                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 p-1 rounded-full bg-black/20 backdrop-blur-sm">
+                                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-1.5 p-1.5 rounded-full bg-black/30 backdrop-blur-md">
                                     {photos.map((_, idx) => (
                                         <div
                                             key={idx}
-                                            className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${idx === heroIndex ? 'bg-white scale-125' : 'bg-white/50'}`}
+                                            className={`h-1.5 rounded-full transition-all duration-300 ${idx === heroIndex ? 'w-4 bg-white' : 'w-1.5 bg-white/50'}`}
                                         />
                                     ))}
                                 </div>
                             </>
                         )}
                     </div>
+                ) : (
+                    <div className="pt-24" />
                 )}
-                {/* Map Section */}
-                <div className="space-y-2">
-                    <div className="flex items-start gap-2 text-slate-500 dark:text-zinc-400 text-sm">
-                        <MapPin size={16} className="mt-0.5" />
-                        <span className="flex-1">{restaurant.address}</span>
-                        {!viewConfig && (
-                            <button
-                                onClick={() => setEditRestaurantDrawerOpen(true)}
-                                className="p-1.5 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 transition-colors"
-                                title={t('restaurant.editDetails')}
-                            >
-                                <Pencil size={14} />
-                            </button>
-                        )}
-                    </div>
-                    <div className="h-48 rounded-2xl overflow-hidden border border-slate-100 dark:border-zinc-800 shadow-sm relative z-0">
-                        <RestaurantMap restaurants={[{ ...restaurant, avg_score: avgScore }]} />
-                    </div>
-                </div>
 
-                {/* Plan Visit Section (Wishlist Only) */}
+                <div className="px-4 space-y-8">
+                {/* Map Section */}
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="space-y-4 bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-slate-100/80 dark:border-zinc-800/60 p-5 rounded-3xl shadow-sm"
+                    >
+                        <div className="flex items-start gap-3 text-slate-600 dark:text-zinc-300 text-sm">
+                            <div className="p-2.5 bg-pastel-blue/20 dark:bg-pastel-blue/10 rounded-full text-pastel-blue-darker dark:text-pastel-blue shadow-sm">
+                                <MapPin size={18} />
+                            </div>
+                            <span className="flex-1 font-medium leading-relaxed mt-1">{restaurant.address}</span>
+                            {!viewConfig && (
+                                <button
+                                    onClick={() => setEditRestaurantDrawerOpen(true)}
+                                    className="p-2 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 rounded-full text-slate-500 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors shadow-sm"
+                                    title={t('restaurant.editDetails')}
+                                >
+                                    <Pencil size={14} />
+                                </button>
+                            )}
+                        </div>
+                        <div className="h-56 rounded-2xl overflow-hidden shadow-inner border border-slate-200 dark:border-zinc-700 relative z-0">
+                            <RestaurantMap restaurants={[{ ...restaurant, avg_score: avgScore }]} />
+                        </div>
+                    </motion.div>
+
+                    {/* Plan Visit Section (Wishlist Only) */}
                 {!viewConfig && restaurant.visit_status === 'wishlist' && (
-                    <div className="bg-slate-50 dark:bg-zinc-900/50 p-4 rounded-2xl relative overflow-hidden">
+                    <div className="bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-slate-100/80 dark:border-zinc-800/60 p-5 rounded-3xl shadow-sm relative overflow-hidden">
                         <h3 className="font-bold text-slate-800 dark:text-zinc-100 mb-4 text-lg flex items-center gap-2">
                             <Calendar size={20} className="text-pastel-blue-darker" />
                             {t('restaurant.planVisit')}
@@ -526,108 +559,106 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                 )}
 
                 {/* Comparative Ratings */}
-                {(!viewConfig || viewConfig.show_ratings) && restaurant.visit_status !== 'wishlist' && (
-                    <div className="overflow-hidden">
-                        <h3 className="font-bold text-slate-800 dark:text-zinc-100 mb-4 text-lg">{t('stats.averageScore')}</h3>
+                    {(!viewConfig || viewConfig.show_ratings) && restaurant.visit_status !== 'wishlist' && (
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-slate-100/80 dark:border-zinc-800/60 p-6 rounded-3xl shadow-sm overflow-hidden"
+                        >
+                            <h3 className="font-extrabold text-slate-800 dark:text-zinc-100 mb-6 text-xl tracking-tight flex items-center gap-2">
+                                <span className="bg-gradient-to-r from-pastel-blue-darker to-teal-400 bg-clip-text text-transparent">
+                                    {t('stats.averageScore')}
+                                </span>
+                            </h3>
 
-                        <div className="grid grid-cols-3 gap-4 mb-6">
-                            {/* Me */}
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="flex flex-col items-center"
-                            >
-                                <div className="w-12 h-12 rounded-full bg-pastel-blue-darker flex items-center justify-center text-white font-bold text-xl mb-2 shadow-sm">
-                                    {myRating ? ((myRating.food_score + myRating.service_score + myRating.vibe_score + myRating.price_quality_score) / 4).toFixed(1) : '-'}
+                            <div className="flex justify-center items-center gap-8 mb-8 relative">
+                                {/* Me */}
+                                <motion.div whileHover={{ scale: 1.05 }} className="flex flex-col items-center relative z-10">
+                                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-pastel-blue to-pastel-blue-darker flex items-center justify-center text-white font-bold text-xl mb-3 shadow-[0_4px_14px_rgba(0,0,0,0.15)] ring-4 ring-white/50 dark:ring-zinc-900/50">
+                                        {myRating ? ((myRating.food_score + myRating.service_score + myRating.vibe_score + myRating.price_quality_score) / 4).toFixed(1) : '-'}
+                                    </div>
+                                    <span className="text-xs font-bold text-slate-600 dark:text-zinc-300 tracking-wide uppercase">{currentUser?.display_name || 'Me'}</span>
+                                </motion.div>
+
+                                {/* VS logo */}
+                                <div className="absolute left-1/2 top-7 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white dark:bg-zinc-800 shadow-lg flex items-center justify-center z-20 text-[10px] font-black italic text-slate-500 dark:text-zinc-400 ring-2 ring-slate-100 dark:ring-zinc-700">
+                                    VS
                                 </div>
-                                <span className="text-xs font-bold text-slate-600 dark:text-zinc-400 text-center line-clamp-1">{currentUser?.display_name || 'Me'}</span>
-                            </motion.div>
 
-                            {/* VS */}
-                            <div className="flex flex-col items-center justify-center pt-2">
-                                <span className="text-xs font-black text-slate-300 uppercase tracking-widest">VS</span>
+                                {/* Partner */}
+                                <motion.div whileHover={{ scale: 1.05 }} className="flex flex-col items-center relative z-10">
+                                    <div className={`relative w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-xl mb-3 shadow-[0_4px_14px_rgba(0,0,0,0.15)] ring-4 ring-white/50 dark:ring-zinc-900/50 transition-all duration-700 ${partnerRating ? 'bg-gradient-to-br from-pastel-peach to-orange-400' : 'bg-slate-200 dark:bg-zinc-700 text-slate-400'}`}>
+                                        <motion.div
+                                            animate={{
+                                                filter: !myRating && partnerRating ? 'blur(4px)' : 'blur(0px)',
+                                                scale: !myRating && partnerRating ? 0.9 : 1
+                                            }}
+                                            className="select-none pointer-events-none"
+                                        >
+                                            {partnerRating ? ((partnerRating.food_score + partnerRating.service_score + partnerRating.vibe_score + partnerRating.price_quality_score) / 4).toFixed(1) : '?'}
+                                        </motion.div>
+                                        {!myRating && partnerRating && (
+                                            <div className="absolute inset-0 flex items-center justify-center">
+                                                <span className="text-xl text-white font-black drop-shadow-md">?</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <span className="text-xs font-bold text-slate-600 dark:text-zinc-300 tracking-wide uppercase">{partnerProfile?.display_name || t('restaurant.partner')}</span>
+                                </motion.div>
                             </div>
 
-                            {/* Partner */}
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="flex flex-col items-center"
-                            >
-                                <div className={`relative w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-xl mb-2 shadow-sm transition-all duration-700 ${partnerRating ? 'bg-pastel-peach text-slate-800' : 'bg-slate-100 text-slate-300'}`}>
-                                    <motion.div
-                                        animate={{
-                                            filter: !myRating && partnerRating ? 'blur(4px)' : 'blur(0px)',
-                                            scale: !myRating && partnerRating ? 0.9 : 1
-                                        }}
-                                        className="select-none pointer-events-none"
+                            <AnimatePresence>
+                                {!myRating && partnerRating && (
+                                    <motion.p
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="text-xs text-center text-amber-500 font-bold uppercase tracking-widest mb-6 animate-pulse"
                                     >
-                                        {partnerRating ? ((partnerRating.food_score + partnerRating.service_score + partnerRating.vibe_score + partnerRating.price_quality_score) / 4).toFixed(1) : '?'}
-                                    </motion.div>
-                                    {!myRating && partnerRating && (
-                                        <motion.div
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            exit={{ opacity: 0 }}
-                                            className="absolute inset-0 flex items-center justify-center"
-                                        >
-                                            <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-black">?</span>
-                                        </motion.div>
-                                    )}
-                                </div>
-                                <span className="text-xs font-bold text-slate-600 dark:text-zinc-400 text-center line-clamp-1">{partnerProfile?.display_name || t('restaurant.partner')}</span>
-                            </motion.div>
-                        </div>
+                                        {t('restaurant.rateToSeePartnerScore') || 'Rate to reveal partner\'s score!'}
+                                    </motion.p>
+                                )}
+                            </AnimatePresence>
 
-                        <AnimatePresence>
-                            {!myRating && partnerRating && (
-                                <motion.p
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, scale: 0.95 }}
-                                    className="text-[10px] text-center text-slate-400 font-bold uppercase tracking-wider mb-4 animate-pulse"
-                                >
-                                    {t('restaurant.rateToSeePartnerScore') || 'Rate to reveal partner\'s score!'}
-                                </motion.p>
-                            )}
-                        </AnimatePresence>
-
-                        <div className="space-y-3 bg-slate-50 dark:bg-zinc-900/50 p-4 rounded-2xl">
-                            {[
-                                { label: t('restaurant.food'), key: 'food_score' },
-                                { label: t('restaurant.service'), key: 'service_score' },
-                                { label: t('restaurant.vibe'), key: 'vibe_score' },
-                                { label: t('restaurant.priceQuality'), key: 'price_quality_score' }
-                            ].map((cat) => (
-                                <div key={cat.key} className="flex items-center gap-3">
-                                    <span className="text-xs font-bold text-slate-500 dark:text-zinc-400 w-24">{cat.label}</span>
-                                    <div className="flex-1 h-2 bg-white dark:bg-zinc-800 rounded-full overflow-hidden flex">
-                                        <motion.div
-                                            initial={{ width: 0 }}
-                                            animate={{ width: `${myRating ? (myRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%` }}
-                                            transition={{ type: "spring", damping: 20, stiffness: 100 }}
-                                            className="h-full bg-pastel-blue-darker opacity-80"
-                                        />
-                                        <motion.div
-                                            initial={{ width: 0 }}
-                                            animate={{
-                                                width: `${partnerRating ? (partnerRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%`,
-                                                filter: !myRating ? 'blur(2px)' : 'blur(0px)'
-                                            }}
-                                            transition={{ type: "spring", damping: 20, stiffness: 100, delay: 0.1 }}
-                                            className="h-full bg-pastel-peach opacity-80"
-                                        />
+                            <div className="space-y-4">
+                                {[
+                                    { label: t('restaurant.food'), key: 'food_score' },
+                                    { label: t('restaurant.service'), key: 'service_score' },
+                                    { label: t('restaurant.vibe'), key: 'vibe_score' },
+                                    { label: t('restaurant.priceQuality'), key: 'price_quality_score' }
+                                ].map((cat) => (
+                                    <div key={cat.key} className="flex flex-col gap-1.5">
+                                        <div className="flex justify-between items-end">
+                                            <span className="text-xs font-bold text-slate-500 dark:text-zinc-400 tracking-wide uppercase">{cat.label}</span>
+                                        </div>
+                                        <div className="w-full h-3 bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden flex shadow-inner">
+                                            <motion.div
+                                                initial={{ width: 0 }}
+                                                animate={{ width: `${myRating ? ((myRating[cat.key as keyof Rating] as number) / 5) * 50 : 0}%` }}
+                                                transition={{ type: "spring", damping: 20, stiffness: 100 }}
+                                                className="h-full bg-gradient-to-r from-pastel-blue to-pastel-blue-darker opacity-90"
+                                            />
+                                            <motion.div
+                                                initial={{ width: 0 }}
+                                                animate={{
+                                                    width: `${partnerRating ? ((partnerRating[cat.key as keyof Rating] as number) / 5) * 50 : 0}%`,
+                                                    filter: !myRating ? 'blur(1px)' : 'blur(0px)'
+                                                }}
+                                                transition={{ type: "spring", damping: 20, stiffness: 100, delay: 0.1 }}
+                                                className="h-full bg-gradient-to-r from-pastel-peach to-orange-400 opacity-90"
+                                            />
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
+                                ))}
+                            </div>
+                        </motion.div>
+                    )}
 
-                {/* Comments Section */}
+                    {/* Comments Section */}
                 {(!viewConfig || viewConfig.show_comments) && (
-                    <div className="bg-slate-50 dark:bg-zinc-900/50 p-4 rounded-2xl relative overflow-hidden">
-                        <h3 className="font-bold text-slate-800 dark:text-zinc-100 mb-4 text-lg">{t('restaurant.chat')}</h3>
+                    <div className="bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-slate-100/80 dark:border-zinc-800/60 p-5 rounded-3xl shadow-sm relative overflow-hidden">
+                        <h3 className="font-extrabold text-slate-800 dark:text-zinc-100 mb-4 text-xl tracking-tight">{t('restaurant.chat')}</h3>
 
                         <div className={`space-y-4 mb-4 max-h-60 overflow-y-auto pr-2 ${!currentUser ? 'blur-sm select-none' : ''}`}>
                             {(comments || []).map((comment) => {
@@ -685,7 +716,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                 {(!viewConfig || viewConfig.show_photos) && (
                     <div>
                         <div className="flex justify-between items-end mb-4">
-                            <h3 className="font-bold text-slate-800 dark:text-zinc-100 text-lg">{t('restaurant.photos') || 'Photos'}</h3>
+                            <h3 className="font-extrabold text-slate-800 dark:text-zinc-100 text-xl tracking-tight">{t('restaurant.photos') || 'Photos'}</h3>
                             {(!viewConfig || viewConfig.allow_photos) && (
                                 <label className="text-xs font-bold text-pastel-blue-darker cursor-pointer hover:underline flex items-center gap-1">
                                     <Camera size={14} />
@@ -695,9 +726,9 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                             )}
                         </div>
 
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-2 gap-3">
                             {photos.map((p, index) => (
-                                <div key={p.id} className="aspect-square rounded-xl overflow-hidden relative group bg-slate-100 cursor-pointer" onClick={() => openLightbox(index)}>
+                                <div key={p.id} className="aspect-square rounded-2xl overflow-hidden shadow-sm relative group bg-slate-100 cursor-pointer" onClick={() => openLightbox(index)}>
                                     <img
                                         src={getOptimizedImageUrl(p.url, { width: 400, height: 400 })}
                                         className="w-full h-full object-cover"
@@ -724,27 +755,32 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                 )}
             </div>
 
+            </div>
+
             {/* Bottom Action */}
             {!viewConfig && currentUser && (
-                <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-t border-slate-100 dark:border-zinc-800 pb-8 z-20">
-                    <Button
-                        className={`w-full rounded-2xl py-4 font-bold text-lg shadow-lg active:scale-[0.98] transition-transform ${restaurant.visit_status === 'wishlist'
-                            ? 'bg-slate-800 text-white'
-                            : 'bg-pastel-mint text-slate-800'
+                <div className="absolute bottom-6 left-6 right-6 z-20">
+                    <div className="backdrop-blur-2xl bg-white/70 dark:bg-zinc-900/80 p-2.5 rounded-[2rem] border border-white/50 dark:border-zinc-700/50 shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.3)]">
+                        <Button
+                            className={`w-full rounded-[1.5rem] py-4 font-extrabold text-lg shadow-sm hover:shadow-md active:scale-[0.98] transition-all duration-300 ${
+                                restaurant.visit_status === 'wishlist'
+                                ? 'bg-slate-800 text-white hover:bg-slate-700'
+                                : 'bg-gradient-to-r from-pastel-mint to-emerald-300 dark:from-teal-500 dark:to-emerald-400 text-slate-900 border border-white/20'
                             }`}
-                        onClick={() => {
-                            if (restaurant.visit_status === 'wishlist') {
-                                handleMarkAsVisited();
-                            } else {
-                                setRatingDrawerOpen(true);
+                            onClick={() => {
+                                if (restaurant.visit_status === 'wishlist') {
+                                    handleMarkAsVisited();
+                                } else {
+                                    setRatingDrawerOpen(true);
+                                }
+                            }}
+                        >
+                            {restaurant.visit_status === 'wishlist'
+                                ? t('wishlist.markAsVisited')
+                                : (myRating ? t('restaurant.saveRating') : t('restaurant.rateNow'))
                             }
-                        }}
-                    >
-                        {restaurant.visit_status === 'wishlist'
-                            ? t('wishlist.markAsVisited')
-                            : (myRating ? t('restaurant.saveRating') : t('restaurant.rateNow'))
-                        }
-                    </Button>
+                        </Button>
+                    </div>
                 </div>
             )}
 
