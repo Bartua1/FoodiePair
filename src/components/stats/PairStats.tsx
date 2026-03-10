@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Utensils, Award, TrendingDown, Users, Pizza, Zap, Info } from 'lucide-react';
-import { InsightSlideshow, Insight } from './InsightSlideshow';
-import type { Rating, Profile, Restaurant } from '../../types';
+import { InsightSlideshow } from './InsightSlideshow';
+import type { Rating, Profile, Restaurant, Insight } from '../../types';
 import { useTranslation } from 'react-i18next';
 
 interface CategoryStats {

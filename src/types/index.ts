@@ -123,3 +123,10 @@ export interface Notification {
     created_at: string;
     updated_at: string;
 }
+
+export type InsightType = 'pickiest' | 'favorite' | 'legend' | 'value' | 'vibe' | 'match';
+
+export interface Insight {
+    type: InsightType;
+    data: any;
+}

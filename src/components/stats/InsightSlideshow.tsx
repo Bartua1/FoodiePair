@@ -1,13 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Award, Zap, Heart, Star, Compass, Sparkles, Gem } from 'lucide-react';
-
-export type InsightType = 'pickiest' | 'favorite' | 'legend' | 'value' | 'vibe' | 'match';
-
-export interface Insight {
-    type: InsightType;
-    data: any;
-}
+import type { Insight, InsightType } from '../../types';
 
 export function InsightSlideshow({ insights }: { insights: Insight[] }) {
     const { t } = useTranslation();
@@ -132,8 +126,8 @@ export function InsightSlideshow({ insights }: { insights: Insight[] }) {
                         key={i}
                         onClick={() => setCurrentIndex(i)}
                         className={`h-2 rounded-full transition-all duration-300 ${i === currentIndex
-                                ? 'w-8 bg-slate-800 dark:bg-white'
-                                : 'w-2 bg-slate-200 dark:bg-zinc-800 hover:bg-slate-300 dark:hover:bg-zinc-700'
+                            ? 'w-8 bg-slate-800 dark:bg-white'
+                            : 'w-2 bg-slate-200 dark:bg-zinc-800 hover:bg-slate-300 dark:hover:bg-zinc-700'
                             }`}
                         aria-label={`Go to slide ${i + 1}`}
                     />
