@@ -228,5 +228,21 @@
   },
   "common": {
     "save": "Save"
+  },
+  "randomizer": {
+    "title": "Decide For Us",
+    "subtitle": "Can't decide? Let us pick the perfect spot.",
+    "filterStatus": "Who should we pick from?",
+    "filterDistance": "How far are we going?",
+    "statusBoth": "Both Lists",
+    "statusVisited": "Visited Only",
+    "statusToGo": "To-Go Only",
+    "spin": "Spin the Wheel",
+    "spinning": "Picking a spot...",
+    "winner": "It's a Match!",
+    "viewWinner": "View Details",
+    "tryAgain": "Spin Again",
+    "noRestaurants": "No restaurants found with these filters!",
+    "noRestaurantsSubtitle": "Try expanding your search or adding more spots."
   }
 }

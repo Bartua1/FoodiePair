@@ -228,5 +228,21 @@
   },
   "common": {
     "save": "Guardar"
+  },
+  "randomizer": {
+    "title": "Decide por nosotros",
+    "subtitle": "¿No os decidís? Dejad que elijamos el sitio perfecto.",
+    "filterStatus": "¿De dónde elegimos?",
+    "filterDistance": "¿A qué distancia?",
+    "statusBoth": "Ambas listas",
+    "statusVisited": "Solo visitados",
+    "statusToGo": "Solo por ir",
+    "spin": "Girar la ruleta",
+    "spinning": "Eligiendo sitio...",
+    "winner": "¡Tenemos un ganador!",
+    "viewWinner": "Ver detalles",
+    "tryAgain": "Girar de nuevo",
+    "noRestaurants": "¡No hay sitios con estos filtros!",
+    "noRestaurantsSubtitle": "Prueba a ampliar la búsqueda o añadir más sitios."
   }
 }

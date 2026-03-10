@@ -4,10 +4,11 @@ import { FilterBar } from '../feed/FilterBar';
 import { GeolocationBanner } from '../ui/GeolocationBanner';
 import { RestaurantCard } from '../feed/RestaurantCard';
 import { RateRestaurantDrawer } from '../restaurant/RateRestaurantDrawer';
-import { Utensils, Sparkles } from 'lucide-react';
+import { Utensils, Sparkles, Shuffle } from 'lucide-react';
 import type { Restaurant, Profile } from '../../types';
 import { supabase } from '../../lib/supabase';
 import { RecommendationDrawer } from '../recommendations/RecommendationDrawer';
+import { RandomizerDrawer } from '../restaurant/RandomizerDrawer';
 import { RestaurantCardSkeleton } from '../feed/RestaurantCardSkeleton';
 
 interface FeedViewProps {
@@ -40,6 +41,7 @@ export function FeedView({
     const { t } = useTranslation();
     const [ratingRestaurant, setRatingRestaurant] = useState<Restaurant | null>(null);
     const [isRecommendOpen, setIsRecommendOpen] = useState(false);
+    const [isRandomizerOpen, setIsRandomizerOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
 
     // Filter restaurants based on tab
@@ -88,13 +90,24 @@ export function FeedView({
                     </p>
                 </div>
 
-                <button
-                    onClick={() => setIsRecommendOpen(true)}
-                    className="p-3 bg-slate-900 text-white dark:bg-zinc-100 dark:text-zinc-900 rounded-2xl hover:bg-slate-800 dark:hover:bg-white transition-all flex items-center gap-2 group shadow-lg"
-                >
-                    <Sparkles size={20} className="text-pastel-peach-darker group-hover:scale-110 transition-transform" />
-                    <span className="hidden sm:inline text-sm font-bold">{t('recommendations.getSuggestions')}</span>
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => setIsRandomizerOpen(true)}
+                        className="p-3 bg-white border border-slate-200 text-slate-700 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-200 rounded-2xl hover:bg-slate-50 dark:hover:bg-zinc-700 transition-all flex items-center gap-2 group shadow-sm active:scale-95"
+                        title={t('randomizer.title')}
+                    >
+                        <Shuffle size={20} className="text-pastel-blue-dark group-hover:rotate-180 transition-transform duration-500" />
+                        <span className="hidden md:inline text-sm font-bold">{t('randomizer.title')}</span>
+                    </button>
+
+                    <button
+                        onClick={() => setIsRecommendOpen(true)}
+                        className="p-3 bg-slate-900 text-white dark:bg-zinc-100 dark:text-zinc-900 rounded-2xl hover:bg-slate-800 dark:hover:bg-white transition-all flex items-center gap-2 group shadow-lg active:scale-95 border border-transparent"
+                    >
+                        <Sparkles size={20} className="text-pastel-peach-darker group-hover:scale-110 transition-transform" />
+                        <span className="hidden sm:inline text-sm font-bold">{t('recommendations.getSuggestions')}</span>
+                    </button>
+                </div>
             </header>
 
             <div className="relative mb-4">
@@ -164,6 +177,16 @@ export function FeedView({
                 pairId={profile?.pair_id || null}
                 profileId={profile?.id || null}
                 onRefreshList={onRefresh}
+                onSelectRestaurant={(id) => {
+                    const r = restaurants.find(res => res.id === id);
+                    if (r) onViewDetails(r);
+                }}
+            />
+
+            <RandomizerDrawer
+                isOpen={isRandomizerOpen}
+                onClose={() => setIsRandomizerOpen(false)}
+                restaurants={restaurants}
                 onSelectRestaurant={(id) => {
                     const r = restaurants.find(res => res.id === id);
                     if (r) onViewDetails(r);
