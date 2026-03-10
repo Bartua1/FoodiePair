@@ -236,6 +236,7 @@
     "filterDistance": "How far are we going?",
     "statusBoth": "Both Lists",
     "statusVisited": "Visited Only",
+    "statusWishlist": "To-Go Only",
     "statusToGo": "To-Go Only",
     "spin": "Spin the Wheel",
     "spinning": "Picking a spot...",
