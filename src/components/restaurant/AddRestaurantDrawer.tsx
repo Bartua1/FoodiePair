@@ -6,6 +6,7 @@ import { geocodeAddress } from '../../lib/geocoding';
 import { supabase } from '../../lib/supabase';
 import type { Profile, Restaurant } from '../../types';
 import { useTranslation } from 'react-i18next';
+import { compressImage } from '../../utils/imageUtils';
 
 interface AddRestaurantDrawerProps {
     isOpen: boolean;
@@ -208,9 +209,13 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess, initi
                 const fileName = `${restaurant.id}-${Math.random()}.${fileExt}`;
                 const filePath = `photos/${fileName}`;
 
+                // Compress image before upload
+                const compressedBlob = await compressImage(selectedFile, 1200, 0.7);
+                const fileToUpload = new File([compressedBlob], fileName, { type: 'image/jpeg' });
+
                 const { error: uploadError } = await supabase.storage
                     .from('restaurant-photos')
-                    .upload(filePath, selectedFile);
+                    .upload(filePath, fileToUpload);
 
                 if (!uploadError) {
                     const { data: { publicUrl } } = supabase.storage

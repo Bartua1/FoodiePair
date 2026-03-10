@@ -1,14 +1,10 @@
 /**
  * Utility to get optimized image URLs from Supabase Storage.
- * Uses Supabase Image Transformation service.
- * 
- * @param url The original public URL of the image
- * @param options Transformation options (width, height, quality, format)
- * @returns Optimized URL
+ * Note: Free Tier does not support server-side transformations.
  */
 export function getOptimizedImageUrl(
     url: string | null | undefined,
-    options: {
+    _options: {
         width?: number;
         height?: number;
         quality?: number;
@@ -18,44 +14,71 @@ export function getOptimizedImageUrl(
 ): string {
     if (!url) return '';
     
-    // If it's not a Supabase storage URL, return as is
-    if (!url.includes('storage.googleapis.com') && !url.includes('supabase.co')) {
-        return url;
-    }
+    // Server-side transformations are disabled on Free Tier.
+    // We rely on client-side compression during upload.
+    return url;
+}
 
-    // Toggle optimization via env var (defaults to true for now, 
-    // but the user can set it to false if images are failing)
-    const enableOptimization = import.meta.env.VITE_ENABLE_IMAGE_OPTIMIZATION !== 'false';
-    if (!enableOptimization) {
-        return url;
-    }
+/**
+ * Compresses an image client-side using Canvas API.
+ * @param file The original image File
+ * @param maxWidth Max width/height of the output
+ * @param quality Compression quality (0 to 1)
+ * @returns Compressed Blob
+ */
+export async function compressImage(
+    file: File, 
+    maxWidth: number = 1200, 
+    quality: number = 0.7
+): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target?.result as string;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
 
-    try {
-        const urlObj = new URL(url);
-        const { width, height, quality = 80, format = 'webp', resize = 'cover' } = options;
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height *= maxWidth / width;
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxWidth) {
+                        width *= maxWidth / height;
+                        height = maxWidth;
+                    }
+                }
 
-        // Supabase Image Transformation format:
-        // [project-url]/storage/v1/render/image/authenticated/[path]?width=[w]&height=[h]&quality=[q]&format=[f]&resize=[r]
-        // Note: For public buckets, it's /render/image/public/
-        
-        const isPublic = url.includes('/public/');
-        const bucketPath = url.split('/storage/v1/object/public/')[1] || url.split('/storage/v1/object/authenticated/')[1];
-        
-        if (!bucketPath) return url;
+                canvas.width = width;
+                canvas.height = height;
 
-        const baseUrl = urlObj.origin;
-        const renderPath = isPublic ? '/storage/v1/render/image/public/' : '/storage/v1/render/image/authenticated/';
-        
-        const params = new URLSearchParams();
-        if (width) params.append('width', width.toString());
-        if (height) params.append('height', height.toString());
-        params.append('quality', quality.toString());
-        params.append('format', format);
-        params.append('resize', resize);
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    reject(new Error('Canvas context not available'));
+                    return;
+                }
 
-        return `${baseUrl}${renderPath}${bucketPath}?${params.toString()}`;
-    } catch (e) {
-        console.error('Error generating optimized image URL:', e);
-        return url;
-    }
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob(
+                    (blob) => {
+                        if (blob) {
+                            resolve(blob);
+                        } else {
+                            reject(new Error('Canvas toBlob failed'));
+                        }
+                    },
+                    'image/jpeg',
+                    quality
+                );
+            };
+            img.onerror = (err) => reject(err);
+        };
+        reader.onerror = (err) => reject(err);
+    });
 }

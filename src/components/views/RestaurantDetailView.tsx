@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, MapPin, Camera, Trash2, Send, Pencil, Heart, X, ChevronLeft, ChevronRight, Share2, Bookmark, Check, Calendar, CalendarPlus, Download } from 'lucide-react';
+import { ArrowLeft, MapPin, Camera, Trash2, Send, Pencil, Heart, X, ChevronLeft, ChevronRight, Share2, Bookmark, Check, Calendar, CalendarPlus, Download, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -11,7 +11,7 @@ import { RestaurantMap } from '../map/RestaurantMap';
 import { ShareConfigurationModal } from '../restaurant/ShareConfigurationModal';
 import { useRestaurantDetails } from '../../hooks/useRestaurantDetails';
 import { supabase } from '../../lib/supabase';
-import { getOptimizedImageUrl } from '../../utils/imageUtils';
+import { getOptimizedImageUrl, compressImage } from '../../utils/imageUtils';
 import { CommentItem } from '../restaurant/CommentItem';
 import type { Restaurant, Profile, SharedRestaurantConfig, Rating } from '../../types';
 import { JoinUsPrompt } from '../common/JoinUsPrompt';
@@ -175,9 +175,13 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
         const fileName = `${restaurant.id}-${Math.random()}.${fileExt}`;
         const filePath = `photos/${fileName}`;
 
+        // Compress image before upload
+        const compressedBlob = await compressImage(file, 1200, 0.7);
+        const fileToUpload = new File([compressedBlob], fileName, { type: 'image/jpeg' });
+
         const { error: uploadError } = await supabase.storage
             .from('restaurant-photos')
-            .upload(filePath, file, {
+            .upload(filePath, fileToUpload, {
                 cacheControl: '31536000',
                 upsert: false
             });
@@ -799,11 +803,19 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                             <div className="flex justify-between items-end mb-4">
                                 <h3 className="font-extrabold text-slate-800 dark:text-zinc-100 text-xl tracking-tight">{t('restaurant.photos') || 'Photos'}</h3>
                                 {(!viewConfig || viewConfig.allow_photos) && (
-                                    <label className="text-xs font-bold text-pastel-blue-darker cursor-pointer hover:underline flex items-center gap-1">
-                                        <Camera size={14} />
-                                        {t('restaurant.addPhoto')}
-                                        <input type="file" className="hidden" accept="image/*" onChange={handlePhotoUpload} disabled={uploading} />
-                                    </label>
+                                    <div className="flex items-center gap-3">
+                                        {uploading && (
+                                            <div className="flex items-center gap-1.5 text-xs font-bold text-pastel-peach-dark animate-pulse">
+                                                <Loader2 size={12} className="animate-spin" />
+                                                <span>{t('common.uploading') || 'UPLOADING...'}</span>
+                                            </div>
+                                        )}
+                                        <label className={`text-xs font-bold text-pastel-blue-darker cursor-pointer hover:underline flex items-center gap-1 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                                            <Camera size={14} />
+                                            {t('restaurant.addPhoto')}
+                                            <input type="file" className="hidden" accept="image/*" onChange={handlePhotoUpload} disabled={uploading} />
+                                        </label>
+                                    </div>
                                 )}
                             </div>
 

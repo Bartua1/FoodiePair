@@ -156,6 +156,7 @@ export function FeedView({
                             onRate={(restaurant) => setRatingRestaurant(restaurant)}
                             onViewDetails={onViewDetails}
                             onToggleFavorite={() => handleToggleFavorite(r)}
+                            currentProfile={profile}
                         />
                     ))}
                 </div>

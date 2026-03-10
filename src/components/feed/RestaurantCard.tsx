@@ -9,12 +9,14 @@ interface RestaurantCardProps {
     onRate: (restaurant: Restaurant) => void;
     onViewDetails: (restaurant: Restaurant) => void;
     onToggleFavorite: () => void;
+    currentProfile: Profile | null;
 }
 
-export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavorite }: RestaurantCardProps) {
+export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavorite, currentProfile }: RestaurantCardProps) {
     const { t, i18n } = useTranslation();
     const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
     const [isFavorite, setIsFavorite] = useState(restaurant.is_favorite);
+    const [localFavorites, setLocalFavorites] = useState<Profile[]>(restaurant.favorites || []);
     const [isAnimating, setIsAnimating] = useState(false);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const photos = restaurant.photos || [];
@@ -22,7 +24,8 @@ export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavo
     // Sync local state if the prop changes externally
     useEffect(() => {
         setIsFavorite(restaurant.is_favorite);
-    }, [restaurant.is_favorite]);
+        setLocalFavorites(restaurant.favorites || []);
+    }, [restaurant.is_favorite, restaurant.favorites]);
 
     const handleScroll = () => {
         if (scrollContainerRef.current) {
@@ -120,7 +123,23 @@ export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavo
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
-                            setIsFavorite(!isFavorite);
+                            const newIsFavorite = !isFavorite;
+                            setIsFavorite(newIsFavorite);
+
+                            // Optimistic update of profile pictures
+                            if (currentProfile) {
+                                if (newIsFavorite) {
+                                    // Add current user to favorites if not already there
+                                    setLocalFavorites(prev => {
+                                        if (prev.some(p => p.id === currentProfile.id)) return prev;
+                                        return [...prev, currentProfile];
+                                    });
+                                } else {
+                                    // Remove current user from favorites
+                                    setLocalFavorites(prev => prev.filter(p => p.id !== currentProfile.id));
+                                }
+                            }
+
                             setIsAnimating(true);
                             setTimeout(() => setIsAnimating(false), 500); // Reset animation state
                             onToggleFavorite();
@@ -163,9 +182,9 @@ export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavo
                 </div>
 
                 {/* Avatars overlapping bottom lip of image */}
-                {restaurant.favorites && restaurant.favorites.length > 0 && (
+                {localFavorites.length > 0 && (
                     <div className="absolute -bottom-4 left-3 flex -space-x-2 z-10">
-                        {restaurant.favorites.map((profile) => (
+                        {localFavorites.map((profile) => (
                             <div key={profile.id} className="w-8 h-8 rounded-full border-[2.5px] border-white dark:border-zinc-900 overflow-hidden shadow-sm bg-white" title={profile.display_name || ''}>
                                 {profile.avatar_url ? (
                                     <img
