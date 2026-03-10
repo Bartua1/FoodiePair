@@ -1,4 +1,4 @@
-import { useAchievements, AchievementBadge } from '../../hooks/useAchievements';
+import { useAchievements, type AchievementBadge } from '../../hooks/useAchievements';
 import { useTranslation } from 'react-i18next';
 import { Trophy, Map, Utensils, Heart, Calendar, Lock } from 'lucide-react';
 
