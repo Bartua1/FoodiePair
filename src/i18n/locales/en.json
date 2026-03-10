@@ -80,7 +80,12 @@
     "partner": "Partner",
     "user": "User",
     "rateToSeePartnerScore": "Rate to reveal partner's score!",
-    "notVisited": "Not visited"
+    "notVisited": "Not visited",
+    "planVisit": "Plan Visit",
+    "plannedFor": "Planned for {{date}}",
+    "saveDate": "Save Date",
+    "notFound": "We couldn't find this restaurant.",
+    "backToFeed": "Back to Feed"
   },
   "stats": {
     "title": "Pair Analytics",
@@ -110,7 +115,12 @@
     "insightSushiDesc": "Based on the cuisine category you both review the most.",
     "insightPizzaDesc": "Based on the cuisine category you both review the most.",
     "insightDifferenceDesc": "This is the category where your average ratings differ the most.",
-    "insightAgreementDesc": "This is the category where you both have the greatest combined average rating."
+    "insightAgreementDesc": "This is the category where you both have the greatest combined average rating.",
+    "insightFavorite": "The favorite type of cuisine for {{name}} is {{cuisine}}!",
+    "insightFoodieLegend": "{{name}} is a Foodie Legend! {{count}} types of food explored.",
+    "insightValueSeeker": "{{name}} is the Value Seeker! Highest average for price/quality.",
+    "insightVibeMaster": "{{name}} is the Vibe Master! Highest average for atmosphere.",
+    "insightPerfectMatch": "You both absolutely love {{cuisine}}!"
   },
   "pairing": {
     "loading": "Loading profile...",
@@ -207,5 +217,14 @@
         "Dessert": "Dessert",
         "Tapas": "Tapas"
     }
+  },
+  "calendar": {
+    "google": "Google",
+    "apple": "Apple / ICS",
+    "eventTitle": "Dinner at {{name}}",
+    "eventDescription": "Planned visit to {{name}}!\n\nAdded via FoodiePair."
+  },
+  "common": {
+    "save": "Save"
   }
 }

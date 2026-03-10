@@ -80,7 +80,12 @@
     "partner": "Pareja",
     "user": "Usuario",
     "rateToSeePartnerScore": "¡Puntuad para ver la nota de vuestra pareja!",
-    "notVisited": "No visitado"
+    "notVisited": "No visitado",
+    "planVisit": "Planear Visita",
+    "plannedFor": "Planeado para el {{date}}",
+    "saveDate": "Guardar Fecha",
+    "notFound": "No pudimos encontrar este restaurante.",
+    "backToFeed": "Volver al Feed"
   },
   "stats": {
     "title": "Analíticas de Pareja",
@@ -110,7 +115,12 @@
     "insightSushiDesc": "Basado en la categoría de cocina que más reseñáis juntos.",
     "insightPizzaDesc": "Basado en la categoría de cocina que más reseñáis juntos.",
     "insightDifferenceDesc": "Esta es la categoría donde vuestras puntuaciones medias difieren más.",
-    "insightAgreementDesc": "Esta es la categoría donde ambos tenéis la mayor puntuación media combinada."
+    "insightAgreementDesc": "Esta es la categoría donde ambos tenéis la mayor puntuación media combinada.",
+    "insightFavorite": "¡La cocina favorita de {{name}} es {{cuisine}}!",
+    "insightFoodieLegend": "¡{{name}} es una leyenda gastronómica! {{count}} tipos de comida explorados.",
+    "insightValueSeeker": "¡{{name}} busca la mejor calidad-precio! Mayor nota media en esta categoría.",
+    "insightVibeMaster": "¡{{name}} es el maestro del ambiente! Mayor nota media en atmósfera.",
+    "insightPerfectMatch": "¡A los dos os encanta el {{cuisine}}!"
   },
   "pairing": {
     "loading": "Cargando perfil...",
@@ -207,5 +217,14 @@
         "Dessert": "Postre",
         "Tapas": "Tapas"
     }
+  },
+  "calendar": {
+    "google": "Google",
+    "apple": "Apple / ICS",
+    "eventTitle": "Cena en {{name}}",
+    "eventDescription": "¡Visita planeada a {{name}}!\n\nAñadido vía FoodiePair."
+  },
+  "common": {
+    "save": "Guardar"
   }
 }

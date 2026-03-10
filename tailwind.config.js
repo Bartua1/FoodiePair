@@ -50,6 +50,21 @@ export default {
       borderRadius: {
         '2xl': '1rem',
       },
+      keyframes: {
+        'gradient-x': {
+          '0%, 100%': {
+            'background-size': '200% 200%',
+            'background-position': 'left center',
+          },
+          '50%': {
+            'background-size': '200% 200%',
+            'background-position': 'right center',
+          },
+        },
+      },
+      animation: {
+        'gradient-x': 'gradient-x 15s ease infinite',
+      },
     },
   },
   plugins: [],

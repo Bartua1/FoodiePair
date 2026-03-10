@@ -14,6 +14,7 @@ FoodiePair is a progressive web application built for couples or partners to joi
 - **Visited vs. To-Go (Wishlist)**: Restaurants can be tagged as "Visited" or added to a "To Go" list. Unrated visited restaurants surface as action items for users.
 - **Add & Manage Restaurants**: Users can add new restaurants via an interactive Drawer component, capturing location, cuisine type, and price level.
 - **Filtering & Sorting**: Robust filtering by distance, price, cuisine, and "favorites only". Sorting is available by rating or distance from the user.
+- **Date Night Planning**: Users can schedule upcoming visits to restaurants in their "To Go" list. This feature includes a date picker and integration with native calendars (Google, Apple/ICS) to move from wishlist to action.
 
 ### 3. Maps & Geolocation
 - **Location Awareness**: The app requests device geolocation to calculate distances to saved restaurants dynamically.
@@ -25,7 +26,7 @@ FoodiePair is a progressive web application built for couples or partners to joi
 - **Blind Partner Ratings**: To prevent bias, a partner's detailed rating is blurred out until the current user inputs their own rating.
 
 ### 5. Statistics & Personalization
-- **Stats View**: Aggregated insights about joint dining habits (e.g., favorite cuisines, total places visited).
+- **Stats View**: Aggregated insights and premium "Culinary Slideshow" highlighting joint habits (e.g., favorite cuisines, pickiest eater, vibe master).
 - **Internationalization (i18n)**: Multi-language support seamlessly integrated with the user's profile and `react-i18next`.
 
 ## Tech Stack

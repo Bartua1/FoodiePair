@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Utensils, Award, TrendingDown, Users, Pizza, Zap, Info } from 'lucide-react';
+import { InsightSlideshow, Insight } from './InsightSlideshow';
 import type { Rating, Profile, Restaurant } from '../../types';
 import { useTranslation } from 'react-i18next';
 
@@ -12,12 +13,13 @@ interface CategoryStats {
 }
 
 interface StatsData {
-    user1: { id: string; name: string; avgScore: number; count: number; topCuisines: string[] };
-    user2: { id: string; name: string; avgScore: number; count: number; topCuisines: string[] } | null;
+    user1: { id: string; name: string; avgScore: number; count: number; topCuisines: string[]; priceQualityScore: number; vibeScore: number; cuisineCount: number };
+    user2: { id: string; name: string; avgScore: number; count: number; topCuisines: string[]; priceQualityScore: number; vibeScore: number; cuisineCount: number } | null;
     categoryStats: CategoryStats[];
     agreementScore: number | null;
     insight: string | null;
     insightDesc: string | null;
+    slideshowInsights: Insight[];
 }
 
 export function PairStats({ pairId }: { pairId: string }) {
@@ -68,7 +70,9 @@ export function PairStats({ pairId }: { pairId: string }) {
                 if (userRatings.length === 0) return { id: userId, name: getName(userId), avgScore: 0, count: 0, topCuisines: [] };
 
                 const total = userRatings.reduce((acc, curr) => acc + getAvg(curr), 0);
-                
+                const totalPQ = userRatings.reduce((acc, curr) => acc + curr.price_quality_score, 0);
+                const totalVibe = userRatings.reduce((acc, curr) => acc + curr.vibe_score, 0);
+
                 // Top Cuisines
                 const cuisineCounts: Record<string, number> = {};
                 userRatings.forEach(r => {
@@ -86,6 +90,9 @@ export function PairStats({ pairId }: { pairId: string }) {
                     id: userId,
                     name: getName(userId),
                     avgScore: total / userRatings.length,
+                    priceQualityScore: totalPQ / userRatings.length,
+                    vibeScore: totalVibe / userRatings.length,
+                    cuisineCount: Object.keys(cuisineCounts).length,
                     count: userRatings.length,
                     topCuisines
                 };
@@ -115,7 +122,7 @@ export function PairStats({ pairId }: { pairId: string }) {
             let totalDiff = 0;
             let sharedCount = 0;
             const restaurantRatings: Record<string, { u1?: number, u2?: number }> = {};
-            
+
             ratings?.forEach(r => {
                 if (!restaurantRatings[r.restaurant_id]) restaurantRatings[r.restaurant_id] = {};
                 if (r.user_id === pair.user1_id) restaurantRatings[r.restaurant_id].u1 = getAvg(r);
@@ -134,7 +141,7 @@ export function PairStats({ pairId }: { pairId: string }) {
             // 7. Dynamic Insight
             let insight = null;
             let insightDesc = null;
-            
+
             if (categoryStats.length > 0) {
                 const topCat = categoryStats[0];
                 if (topCat.name.toLowerCase().includes('sushi')) {
@@ -145,17 +152,17 @@ export function PairStats({ pairId }: { pairId: string }) {
                     insight = t('stats.insightPizza');
                     insightDesc = t('stats.insightPizzaDesc');
                 }
-                
+
                 if (!insight && sharedCount > 0) {
                     const diffs = categoryStats
                         .filter(c => c.user1Avg > 0 && c.user2Avg > 0)
-                        .map(c => ({ 
-                            name: c.name, 
+                        .map(c => ({
+                            name: c.name,
                             diff: Math.abs(c.user1Avg - c.user2Avg),
                             combinedAvg: (c.user1Avg + c.user2Avg) / 2
                         }))
                         .sort((a, b) => b.diff - a.diff);
-                    
+
                     if (diffs.length > 0) {
                         if (diffs[0].diff > 1) {
                             insight = t('stats.insightDifference', { cuisine: diffs[0].name });
@@ -169,13 +176,65 @@ export function PairStats({ pairId }: { pairId: string }) {
                 }
             }
 
+            const user1 = calculateUserStats(pair.user1_id);
+            const user2 = pair.user2_id ? calculateUserStats(pair.user2_id) : null;
+
+            // 8. Prepare Insights for Slideshow
+            const slideshowInsights: Insight[] = [];
+
+            if (user2) {
+                // Pickiest
+                const pickiest = user1.avgScore < user2.avgScore ? user1 : user2;
+                slideshowInsights.push({ type: 'pickiest', data: { name: pickiest.name } });
+
+                // Value Seeker
+                const valueSeeker = user1.priceQualityScore > user2.priceQualityScore ? user1 : user2;
+                slideshowInsights.push({ type: 'value', data: { name: valueSeeker.name, score: valueSeeker.priceQualityScore } });
+
+                // Vibe Master
+                const vibeMaster = user1.vibeScore > user2.vibeScore ? user1 : user2;
+                slideshowInsights.push({ type: 'vibe', data: { name: vibeMaster.name, score: vibeMaster.vibeScore } });
+            } else {
+                slideshowInsights.push({ type: 'pickiest', data: { name: user1.name } });
+            }
+
+            // Favorite (User 1)
+            if (user1.topCuisines.length > 0) {
+                slideshowInsights.push({ type: 'favorite', data: { name: user1.name, cuisine: user1.topCuisines[0] } });
+            }
+            // Favorite (User 2)
+            if (user2 && user2.topCuisines.length > 0) {
+                slideshowInsights.push({ type: 'favorite', data: { name: user2.name, cuisine: user2.topCuisines[0] } });
+            }
+
+            // Legend
+            const legend = (user2 && user2.cuisineCount > user1.cuisineCount) ? user2 : user1;
+            slideshowInsights.push({ type: 'legend', data: { name: legend.name, count: legend.cuisineCount } });
+
+            // Perfect Match
+            if (categoryStats.length > 0) {
+                const diffs = categoryStats
+                    .filter(c => c.user1Avg > 0 && c.user2Avg > 0)
+                    .map(c => ({
+                        name: c.name,
+                        diff: Math.abs(c.user1Avg - c.user2Avg),
+                        combinedAvg: (c.user1Avg + c.user2Avg) / 2
+                    }))
+                    .sort((a, b) => b.combinedAvg - a.combinedAvg);
+
+                if (diffs.length > 0 && diffs[0].diff < 1) {
+                    slideshowInsights.push({ type: 'match', data: { cuisine: diffs[0].name } });
+                }
+            }
+
             setStats({
-                user1: calculateUserStats(pair.user1_id),
-                user2: pair.user2_id ? calculateUserStats(pair.user2_id) : null,
+                user1,
+                user2,
                 categoryStats,
                 agreementScore,
                 insight,
-                insightDesc
+                insightDesc,
+                slideshowInsights
             });
             setLoading(false);
         }
@@ -192,9 +251,6 @@ export function PairStats({ pairId }: { pairId: string }) {
 
     if (!stats) return null;
 
-    const pickiest = stats.user2
-        ? (stats.user1.avgScore < stats.user2.avgScore ? stats.user1 : stats.user2)
-        : stats.user1;
 
     const getConsistencyLabel = (score: number) => {
         if (score > 85) return t('stats.consistencyHigh');
@@ -242,8 +298,8 @@ export function PairStats({ pairId }: { pairId: string }) {
                     </div>
                     <div className="flex items-center gap-4 mb-2">
                         <div className="flex-1 bg-slate-100 dark:bg-zinc-800 h-3 rounded-full overflow-hidden">
-                            <div 
-                                className="h-full bg-gradient-to-r from-indigo-400 to-purple-500" 
+                            <div
+                                className="h-full bg-gradient-to-r from-indigo-400 to-purple-500"
                                 style={{ width: `${stats.agreementScore}%` }}
                             />
                         </div>
@@ -259,7 +315,7 @@ export function PairStats({ pairId }: { pairId: string }) {
                     <Pizza className="w-5 h-5 text-orange-500" />
                     <h3 className="font-bold text-slate-800 dark:text-zinc-100">{t('stats.categoriesTitle')}</h3>
                 </div>
-                
+
                 <div className="space-y-4">
                     {stats.categoryStats.slice(0, 5).map((cat) => (
                         <div key={cat.name} className="space-y-1">
@@ -289,38 +345,9 @@ export function PairStats({ pairId }: { pairId: string }) {
                 </div>
             </div>
 
-            {/* Pickiest Eater Section */}
-            <div className="bg-white dark:bg-zinc-900 border border-pastel-mint/30 dark:border-zinc-800 p-6 rounded-2xl shadow-sm text-center relative overflow-hidden">
-                <div className="absolute -top-4 -right-4 w-24 h-24 bg-pastel-yellow/20 rounded-full blur-2xl" />
-                <div className="w-16 h-16 bg-gradient-to-br from-pastel-yellow to-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white dark:border-zinc-800 shadow-sm">
-                    <Award className="w-8 h-8 text-orange-600" />
-                </div>
-                <h3 className="text-lg font-bold text-slate-800 dark:text-zinc-100 mb-2">{t('stats.pickiestTitle')}</h3>
-                <p className="text-slate-500 dark:text-zinc-400 text-sm mb-6 px-4 font-medium italic">{t('stats.pickiestSubtitle')}</p>
-
-                <div className="flex items-center justify-center gap-3 py-4 bg-slate-50 dark:bg-zinc-800/50 rounded-xl mb-4 border border-slate-100 dark:border-zinc-700/50">
-                    <TrendingDown className="text-red-400 w-5 h-5" />
-                    <span className="text-2xl font-black text-slate-800 dark:text-zinc-100">{pickiest.name}</span>
-                </div>
-
-                {stats.insight && (
-                    <div className="flex items-start gap-3 p-4 bg-pastel-mint/20 dark:bg-pastel-mint-darker/10 rounded-xl text-left border border-pastel-mint/20 dark:border-pastel-mint-darker/20">
-                        <Zap className="w-5 h-5 mt-0.5 text-pastel-mint dark:text-pastel-mint-darker flex-shrink-0" />
-                        <div className="flex-1">
-                            <p className="text-xs font-bold text-slate-600 dark:text-zinc-300 leading-snug flex items-center gap-1.5 flex-wrap">
-                                {stats.insight}
-                                {stats.insightDesc && (
-                                    <span className="group relative inline-flex items-center">
-                                        <Info className="w-3.5 h-3.5 text-slate-400 dark:text-zinc-500 cursor-help" />
-                                        <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 p-2 bg-slate-800 dark:bg-zinc-800 text-white dark:text-zinc-100 text-[10px] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-lg text-center font-medium border border-transparent dark:border-zinc-700">
-                                            {stats.insightDesc}
-                                        </span>
-                                    </span>
-                                )}
-                            </p>
-                        </div>
-                    </div>
-                )}
+            {/* Insights Slideshow */}
+            <div className="pt-4">
+                <InsightSlideshow insights={stats.slideshowInsights} />
             </div>
         </div>
     );

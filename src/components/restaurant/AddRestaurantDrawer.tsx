@@ -41,6 +41,12 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess, initi
         visitStatus: initialStatus // Initialize with prop
     });
 
+    // Category Autocomplete State
+    const [existingCategories, setExistingCategories] = useState<string[]>([]);
+    const [filteredCategories, setFilteredCategories] = useState<string[]>([]);
+    const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+    const categoryDropdownRef = useRef<HTMLDivElement>(null);
+
     // Reset form when opening
     useEffect(() => {
         if (isOpen) {
@@ -48,8 +54,47 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess, initi
                 ...prev,
                 visitStatus: initialStatus // Use prop as default, but allow changes
             }));
+            fetchExistingCategories();
         }
     }, [isOpen, initialStatus]);
+
+    // Close dropdown on click outside
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target as Node)) {
+                setShowCategoryDropdown(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const fetchExistingCategories = async () => {
+        if (!profile?.pair_id) return;
+
+        const { data, error } = await supabase
+            .from('restaurants')
+            .select('cuisine_type')
+            .eq('pair_id', profile.pair_id)
+            .not('cuisine_type', 'is', null);
+
+        if (!error && data) {
+            const uniqueCategories = Array.from(new Set(data.map(r => r.cuisine_type).filter(Boolean))) as string[];
+            setExistingCategories(uniqueCategories.sort());
+        }
+    };
+
+    useEffect(() => {
+        if (formData.cuisine.trim() === '') {
+            setFilteredCategories(existingCategories);
+        } else {
+            const filtered = existingCategories.filter(cat =>
+                cat.toLowerCase().includes(formData.cuisine.toLowerCase()) &&
+                cat.toLowerCase() !== formData.cuisine.toLowerCase()
+            );
+            setFilteredCategories(filtered);
+        }
+    }, [formData.cuisine, existingCategories]);
 
     const handleNext = () => {
         if (step === 1 && formData.visitStatus === 'wishlist') {
@@ -287,15 +332,43 @@ export function AddRestaurantDrawer({ isOpen, onClose, profile, onSuccess, initi
                                             </div>
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-1">
+                                            <div className="space-y-1 relative" ref={categoryDropdownRef}>
                                                 <label className="text-sm font-bold text-slate-700 ml-1">{t('restaurant.cuisine')}</label>
                                                 <input
                                                     type="text"
                                                     className="w-full bg-slate-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-pastel-peach outline-none transition-all"
                                                     placeholder={t('restaurant.cuisinePlaceholder')}
                                                     value={formData.cuisine}
-                                                    onChange={e => setFormData({ ...formData, cuisine: e.target.value })}
+                                                    onChange={e => {
+                                                        setFormData({ ...formData, cuisine: e.target.value });
+                                                        setShowCategoryDropdown(true);
+                                                    }}
+                                                    onFocus={() => setShowCategoryDropdown(true)}
                                                 />
+
+                                                <AnimatePresence>
+                                                    {showCategoryDropdown && filteredCategories.length > 0 && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            exit={{ opacity: 0, y: -10 }}
+                                                            className="absolute z-[2100] left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden max-h-48 overflow-y-auto"
+                                                        >
+                                                            {filteredCategories.map((cat, idx) => (
+                                                                <button
+                                                                    key={idx}
+                                                                    className="w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors text-sm font-medium text-slate-700 border-b border-slate-50 last:border-none"
+                                                                    onClick={() => {
+                                                                        setFormData({ ...formData, cuisine: cat });
+                                                                        setShowCategoryDropdown(false);
+                                                                    }}
+                                                                >
+                                                                    {cat}
+                                                                </button>
+                                                            ))}
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
                                             </div>
                                             <div className="space-y-1">
                                                 <label className="text-sm font-bold text-slate-700 ml-1">{t('restaurant.price')}</label>

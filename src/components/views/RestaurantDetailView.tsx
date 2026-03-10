@@ -250,7 +250,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
             .from('restaurants')
             .update({ planned_date: plannedDate })
             .eq('id', restaurant.id);
-            
+
         if (!error) {
             setRestaurant(prev => prev ? ({ ...prev, planned_date: plannedDate }) : null);
         } else {
@@ -263,10 +263,10 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
         if (!restaurant || !restaurant.planned_date) return;
         const address = restaurant.address || `${restaurant.lat},${restaurant.lng}`;
         const url = generateGoogleCalendarUrl(
-            `Dinner at ${restaurant.name}`,
+            t('calendar.eventTitle', { name: restaurant.name }),
             restaurant.planned_date,
             address,
-            `Planned visit to ${restaurant.name}!\n\nAdded via FoodiePair.`
+            t('calendar.eventDescription', { name: restaurant.name })
         );
         window.open(url, '_blank');
     };
@@ -275,10 +275,10 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
         if (!restaurant || !restaurant.planned_date) return;
         const address = restaurant.address || `${restaurant.lat},${restaurant.lng}`;
         const icsContent = generateICS(
-            `Dinner at ${restaurant.name}`,
+            t('calendar.eventTitle', { name: restaurant.name }),
             restaurant.planned_date,
             address,
-            `Planned visit to ${restaurant.name}!\n\nAdded via FoodiePair.`
+            t('calendar.eventDescription', { name: restaurant.name })
         );
         downloadICS(icsContent, `foodiepair-${restaurant.name.replace(/\s+/g, '-').toLowerCase()}`);
     };
@@ -298,9 +298,9 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
     if (!restaurant) {
         return (
             <div className="flex-1 flex flex-col items-center justify-center bg-white p-6 text-center">
-                <p className="text-slate-500 mb-4">No pudimos encontrar este restaurante.</p>
+                <p className="text-slate-500 mb-4">{t('restaurant.notFound')}</p>
                 <Button onClick={() => navigate('/')} className="bg-pastel-peach text-slate-800 rounded-full px-6">
-                    Volver al Feed
+                    {t('restaurant.backToFeed')}
                 </Button>
             </div>
         );
@@ -382,9 +382,9 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                     {favoriteProfiles.map(p => (
                                         <div key={p.id} className="w-8 h-8 rounded-full border-2 border-white overflow-hidden shadow-sm" title={p.display_name || ''}>
                                             {p.avatar_url ? (
-                                                <img 
-                                                    src={getOptimizedImageUrl(p.avatar_url, { width: 64, height: 64 })} 
-                                                    className="w-full h-full object-cover" 
+                                                <img
+                                                    src={getOptimizedImageUrl(p.avatar_url, { width: 64, height: 64 })}
+                                                    className="w-full h-full object-cover"
                                                     loading="lazy"
                                                 />
                                             ) : (
@@ -480,12 +480,12 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                     <div className="bg-slate-50 dark:bg-zinc-900/50 p-4 rounded-2xl relative overflow-hidden">
                         <h3 className="font-bold text-slate-800 dark:text-zinc-100 mb-4 text-lg flex items-center gap-2">
                             <Calendar size={20} className="text-pastel-blue-darker" />
-                            {t('restaurant.planVisit', 'Plan Visit')}
+                            {t('restaurant.planVisit')}
                         </h3>
-                        
+
                         <div className="space-y-4">
                             <div className="flex items-center gap-2">
-                                <input 
+                                <input
                                     type="date"
                                     value={plannedDate}
                                     onChange={(e) => setPlannedDate(e.target.value)}
@@ -493,7 +493,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                     min={new Date().toISOString().split('T')[0]}
                                 />
                                 {plannedDate !== (restaurant.planned_date || '') && (
-                                    <Button 
+                                    <Button
                                         onClick={handleSavePlannedDate}
                                         disabled={savingDate || !plannedDate}
                                         className="bg-pastel-blue-darker text-white rounded-xl px-4 py-3 font-semibold whitespace-nowrap"
@@ -510,14 +510,14 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                         className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 py-2 rounded-xl text-sm font-medium transition-colors"
                                     >
                                         <CalendarPlus size={16} />
-                                        Google
+                                        {t('calendar.google')}
                                     </button>
                                     <button
                                         onClick={handleAddToAppleCalendar}
                                         className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 py-2 rounded-xl text-sm font-medium transition-colors"
                                     >
                                         <Download size={16} />
-                                        Apple / ICS
+                                        {t('calendar.apple')}
                                     </button>
                                 </div>
                             )}
@@ -529,10 +529,10 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                 {(!viewConfig || viewConfig.show_ratings) && restaurant.visit_status !== 'wishlist' && (
                     <div className="overflow-hidden">
                         <h3 className="font-bold text-slate-800 dark:text-zinc-100 mb-4 text-lg">{t('stats.averageScore')}</h3>
-                        
+
                         <div className="grid grid-cols-3 gap-4 mb-6">
                             {/* Me */}
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="flex flex-col items-center"
@@ -549,14 +549,14 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                             </div>
 
                             {/* Partner */}
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="flex flex-col items-center"
                             >
                                 <div className={`relative w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-xl mb-2 shadow-sm transition-all duration-700 ${partnerRating ? 'bg-pastel-peach text-slate-800' : 'bg-slate-100 text-slate-300'}`}>
-                                    <motion.div 
-                                        animate={{ 
+                                    <motion.div
+                                        animate={{
                                             filter: !myRating && partnerRating ? 'blur(4px)' : 'blur(0px)',
                                             scale: !myRating && partnerRating ? 0.9 : 1
                                         }}
@@ -565,7 +565,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                         {partnerRating ? ((partnerRating.food_score + partnerRating.service_score + partnerRating.vibe_score + partnerRating.price_quality_score) / 4).toFixed(1) : '?'}
                                     </motion.div>
                                     {!myRating && partnerRating && (
-                                        <motion.div 
+                                        <motion.div
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             exit={{ opacity: 0 }}
@@ -581,7 +581,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
 
                         <AnimatePresence>
                             {!myRating && partnerRating && (
-                                <motion.p 
+                                <motion.p
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, scale: 0.95 }}
@@ -610,7 +610,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                         />
                                         <motion.div
                                             initial={{ width: 0 }}
-                                            animate={{ 
+                                            animate={{
                                                 width: `${partnerRating ? (partnerRating[cat.key as keyof Rating] as number / 5) * 50 : 0}%`,
                                                 filter: !myRating ? 'blur(2px)' : 'blur(0px)'
                                             }}
@@ -698,10 +698,10 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                         <div className="grid grid-cols-2 gap-2">
                             {photos.map((p, index) => (
                                 <div key={p.id} className="aspect-square rounded-xl overflow-hidden relative group bg-slate-100 cursor-pointer" onClick={() => openLightbox(index)}>
-                                    <img 
-                                        src={getOptimizedImageUrl(p.url, { width: 400, height: 400 })} 
-                                        className="w-full h-full object-cover" 
-                                        loading="lazy" 
+                                    <img
+                                        src={getOptimizedImageUrl(p.url, { width: 400, height: 400 })}
+                                        className="w-full h-full object-cover"
+                                        loading="lazy"
                                     />
                                     {(!viewConfig || viewConfig.allow_photos) && (
                                         <button

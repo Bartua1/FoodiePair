@@ -39,6 +39,7 @@ Given that FoodiePair data must be strictly shared *only* between paired users, 
   - `FeedView`: The main list of restaurants with filtering/sorting tools.
   - `MapView`: Renders restaurants on a Leaflet map.
   - `SettingsView` / `StatsView` / `RestaurantDetailView`.
+- **`stats/`**: Houses the premium `InsightSlideshow` and `PairStats` components for the Pair Analytics dashboard.
 - **`auth/`**: Contains `UserSync`, which bridges Clerk authentication with our Postgres `profiles` table.
 - **`pairing/`**: Encompasses the code handling matching two accounts together (pairing codes).
 - **`restaurant/`**: Specific UI blocks for single restaurants (e.g., `AddRestaurantDrawer`, `RestaurantFAB`).
@@ -46,7 +47,13 @@ Given that FoodiePair data must be strictly shared *only* between paired users, 
 ### `src/hooks/` - Abstracted Logic Container
 - **`useRestaurants.ts`**: Fetches a pair's shared restaurants array, returning states like `loading`, `error`, and exposing a `refresh` function.
 - **`useGeolocation.ts`**: Safely requests browser coordinate locations, handling permissions and errors.
-- **`useCommentLikes.ts` / `useNotifications.ts`**: Modularizes interactions regarding the social features of the app.
+- **useCommentLikes.ts** / **useNotifications.ts**: Modularizes interactions regarding the social features of the app.
+- **useRecommendations.ts**: Orchestrates the Chef's Suggestions logic by combining historical user preferences with real-time geolocation.
+
+### `src/utils/` - Auxiliary Logic & Engines
+- **`calendarUtils.ts`**: Handles the generation of Google Calendar URLs and Apple/ICS files for the "Plan a Date" feature.
+- **`recommendationEngine.ts`**: The core algorithm used to compute the "Chef's Suggestions" based on historical pair data.
+- **`imageUtils.ts`**: Provides helper functions for image optimization (e.g., resizing via Supabase storage parameters).
 
 ### `supabase/` - Database Definitions
 - **`schema.sql` / `setup.sql`**: The canonical definitions of our Database structure. Outlines Tables, Foreign Keys, Triggers, and every RLS Policy described above. Updates here denote a hard schema change.
