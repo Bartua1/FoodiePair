@@ -62,14 +62,21 @@ export const LandingView: React.FC = () => {
 
             {/* Hero Section */}
             <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6 pt-20 pb-12 overflow-hidden">
+                {/* Background Decorations */}
+                <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+                    <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-pastel-peach/10 blur-[120px] dark:bg-amber-900/5" />
+                    <div className="absolute top-[20%] -right-[10%] w-[35%] h-[35%] rounded-full bg-pastel-blue/10 blur-[100px] dark:bg-blue-900/5" />
+                    <div className="absolute -bottom-[10%] left-[20%] w-[30%] h-[30%] rounded-full bg-pastel-mint/10 blur-[100px] dark:bg-emerald-900/5" />
+                </div>
+
                 {/* Background Image with Gradient Overlay */}
                 <div className="absolute inset-0 z-0">
                     <img
-                        src="/src/assets/hero.png"
+                        src="/hero.png"
                         alt="Fine dining"
-                        className="w-full h-full object-cover opacity-40 dark:opacity-30 grayscale-[50%]"
+                        className="w-full h-full object-cover opacity-60 dark:opacity-20 grayscale-[20%] transition-opacity duration-1000"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/80 to-background dark:from-zinc-950/0 dark:via-zinc-950/80 dark:to-zinc-950" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/90 to-background dark:from-zinc-950/40 dark:via-zinc-950/90 dark:to-zinc-950" />
                 </div>
 
                 <motion.div
@@ -78,35 +85,36 @@ export const LandingView: React.FC = () => {
                     initial="hidden"
                     animate="visible"
                 >
-                    <motion.div variants={itemVariants} className="mb-6">
-                        <span className="px-4 py-1.5 rounded-full bg-pastel-peach/20 dark:bg-amber-900/30 border border-pastel-peach/30 dark:border-amber-800/30 text-pastel-peach-darker dark:text-amber-400 text-xs font-black uppercase tracking-widest">
+                    <motion.div variants={itemVariants} className="mb-8">
+                        <span className="px-5 py-2 rounded-full bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl border border-slate-200 dark:border-zinc-800 text-slate-500 dark:text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] shadow-sm">
                             The Culinary Diary for Couples
                         </span>
                     </motion.div>
 
                     <motion.h1
                         variants={itemVariants}
-                        className="text-6xl md:text-8xl font-black text-slate-900 dark:text-white mb-6 tracking-tighter leading-[0.9]"
+                        className="text-7xl md:text-9xl font-black text-slate-900 dark:text-white mb-8 tracking-tighter leading-[0.85]"
                     >
-                        <span className="font-['Playfair_Display'] italic font-black">Foodie</span>Pair
-                        <span className="text-pastel-peach-darker">.</span>
+                        <span className="font-['Playfair_Display'] italic font-black">Foodie</span>
+                        <span className="text-[#f97316]">.</span>
                     </motion.h1>
 
                     <motion.p
                         variants={itemVariants}
-                        className="text-xl md:text-2xl text-slate-600 dark:text-zinc-400 mb-10 max-w-2xl mx-auto font-medium leading-relaxed"
+                        className="text-xl md:text-2xl text-slate-500 dark:text-zinc-500 mb-12 max-w-2xl mx-auto font-medium leading-relaxed"
                     >
                         {t('app.heroSubtitle')}
                     </motion.p>
 
                     <motion.div variants={itemVariants}>
                         <SignInButton mode="modal">
-                            <button className="group relative px-10 py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-xl shadow-2xl hover:scale-105 active:scale-95 transition-all overflow-hidden">
-                                <span className="relative z-10 flex items-center gap-2">
+                            <button className="group relative px-12 py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-3xl font-black text-xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] dark:shadow-[0_20px_50px_rgba(255,255,255,0.1)] hover:scale-[1.02] active:scale-95 transition-all overflow-hidden border border-white/10 dark:border-black/5">
+                                <span className="relative z-10 flex items-center gap-3">
                                     {t('app.getStarted')}
-                                    <ChevronRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                                    <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                 </span>
-                                <div className="absolute inset-0 bg-gradient-to-r from-pastel-peach to-pastel-pink opacity-0 group-hover:opacity-20 transition-opacity" />
+                                <div className="absolute inset-0 bg-gradient-to-r from-[#f97316] to-[#fb923c] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                             </button>
                         </SignInButton>
                     </motion.div>
