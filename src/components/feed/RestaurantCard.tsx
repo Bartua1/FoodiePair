@@ -116,21 +116,46 @@ export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavo
                     </div>
                 )}
 
-                <div className="absolute top-0 right-0 z-10 flex flex-col items-end">
-                    {/* Toggle Button */}
+                <div className="absolute top-3 right-3 z-20">
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
                             setIsFavorite(!isFavorite);
                             setIsAnimating(true);
-                            setTimeout(() => setIsAnimating(false), 400); // Reset animation state
+                            setTimeout(() => setIsAnimating(false), 500); // Reset animation state
                             onToggleFavorite();
                         }}
-                        className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm px-4 pt-3 pb-4 rounded-bl-[24px] shadow-sm"
+                        className="relative p-1"
                     >
+                        <style>{`
+                            @keyframes particle-burst {
+                                0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+                                100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0); opacity: 0; }
+                            }
+                        `}</style>
+                        {isAnimating && isFavorite && (
+                            <div className="absolute inset-0 pointer-events-none z-0">
+                                {[...Array(6)].map((_, i) => {
+                                    const angle = (i * 60 * Math.PI) / 180;
+                                    const x = Math.cos(angle) * 30;
+                                    const y = Math.sin(angle) * 30;
+                                    return (
+                                        <div
+                                            key={i}
+                                            className="absolute left-1/2 top-1/2 w-2 h-2 bg-red-500 rounded-full"
+                                            style={{
+                                                animation: 'particle-burst 0.5s ease-out forwards',
+                                                '--tx': `${x}px`,
+                                                '--ty': `${y}px`,
+                                            } as React.CSSProperties}
+                                        />
+                                    );
+                                })}
+                            </div>
+                        )}
                         <Heart
-                            size={26}
-                            className={`transition-all duration-300 ${isFavorite ? 'text-red-500 fill-current' : 'text-slate-300 dark:text-zinc-500 fill-transparent'
+                            size={28}
+                            className={`relative z-10 transition-all duration-300 drop-shadow-md ${isFavorite ? 'text-red-500 fill-current' : 'text-white fill-transparent'
                                 } ${isAnimating && isFavorite ? 'scale-125' : 'scale-100'} hover:scale-110 active:scale-90`}
                             strokeWidth={isFavorite ? 0 : 2}
                         />
