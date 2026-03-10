@@ -250,24 +250,25 @@ export function PairStats({ pairId }: { pairId: string }) {
 
         fetchStats();
     }, [pairId, t]);
-
     if (loading) return (
         <div className="p-8 animate-pulse space-y-4">
             <div className="h-40 bg-slate-100 dark:bg-zinc-800 rounded-2xl" />
             <div className="h-40 bg-slate-100 dark:bg-zinc-800 rounded-2xl" />
         </div>
     );
+    if (!stats || !stats.user1) return null;
 
-    if (!stats) return null;
-
-
-
+    const getConsistencyLabel = (score: number) => {
+        if (score > 85) return t('stats.consistencyHigh');
+        if (score > 65) return t('stats.consistencyMid');
+        return t('stats.consistencyLow');
+    };
 
     return (
         <div className="p-4 space-y-8 bg-[#FAFAFA] dark:bg-zinc-950 min-h-screen font-sans pb-24">
             <header className="pt-2">
-                <h2 className="text-4xl font-serif text-slate-900 dark:text-zinc-100 mb-1">Couple Analytics</h2>
-                <p className="text-slate-600 dark:text-zinc-400 text-sm">See who's pickier and discover your food twin!</p>
+                <h2 className="text-4xl font-serif text-slate-900 dark:text-zinc-100 mb-1">{t('stats.title')}</h2>
+                <p className="text-slate-600 dark:text-zinc-400 text-sm">{t('stats.subtitle')}</p>
             </header>
 
             {/* Comparison Cards */}
@@ -285,7 +286,7 @@ export function PairStats({ pairId }: { pairId: string }) {
                                 )}
                                 <h3 className="font-serif font-bold text-slate-900 dark:text-zinc-100 text-sm md:text-base text-center line-clamp-2 px-2 mt-4 leading-tight">{user!.name}</h3>
                                 <span className="text-[2.5rem] font-black tracking-tight text-slate-900 dark:text-white mt-1 leading-none">{user!.avgScore.toFixed(2)}</span>
-                                <span className="text-slate-500 dark:text-zinc-400 text-[10px] mt-1 text-center font-medium">Average Rating</span>
+                                <span className="text-slate-500 dark:text-zinc-400 text-[10px] mt-1 text-center font-medium">{t('stats.averageScore')}</span>
                             </div>
                         </div>
 
@@ -310,28 +311,22 @@ export function PairStats({ pairId }: { pairId: string }) {
                             {stats.user1.avatarUrl && <img src={stats.user1.avatarUrl} alt="" className="w-6 h-6 rounded-full border-2 border-white dark:border-zinc-900 object-cover" />}
                             {stats.user2?.avatarUrl && <img src={stats.user2.avatarUrl} alt="" className="w-6 h-6 rounded-full border-2 border-white dark:border-zinc-900 object-cover" />}
                         </div>
-                        <h3 className="font-serif font-bold text-slate-900 dark:text-zinc-100 text-lg">Couple Effect</h3>
+                        <h3 className="font-serif font-bold text-slate-900 dark:text-zinc-100 text-lg">{t('stats.consistencyTitle')}</h3>
                     </div>
                     
                     <div className="flex flex-col md:flex-row md:items-center gap-4 relative">
-                        <div className="w-full flex-1 bg-slate-100 dark:bg-zinc-800 h-3.5 rounded-full overflow-visible relative flex items-center">
+                        <div className="w-full flex-1 bg-slate-100 dark:bg-zinc-800 h-3.5 rounded-full relative flex items-center">
                             <div
-                                className="h-full bg-gradient-to-r from-[#BEAAFF] via-[#A1C4FD] to-[#A8EDE4] rounded-full"
+                                className="h-full bg-gradient-to-r from-[#BEAAFF] via-[#A1C4FD] to-[#A8EDE4] rounded-full absolute left-0 top-0 bottom-0"
                                 style={{ width: `${stats.agreementScore}%` }}
                             />
-                            <div className="absolute w-6 h-6 bg-white dark:bg-zinc-800 rounded-full shadow-md border border-slate-100 dark:border-zinc-700 flex items-center justify-center" style={{ left: `calc(${stats.agreementScore}% - 12px)` }}>
+                            <div className="absolute w-6 h-6 bg-white dark:bg-zinc-800 rounded-full shadow-md border border-slate-100 dark:border-zinc-700 flex items-center justify-center top-1/2 -translate-y-1/2" style={{ left: `calc(${stats.agreementScore}% - 12px)` }}>
                                 <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#BEAAFF] to-[#A1C4FD] opacity-70" />
                             </div>
                         </div>
                         <span className="font-bold text-slate-900 dark:text-white text-xl ml-auto md:ml-4">{Math.round(stats.agreementScore)}%</span>
                     </div>
-                    {stats.agreementScore > 80 ? (
-                        <p className="text-slate-700 dark:text-zinc-300 text-sm mt-4 font-medium">Soulmates! You almost always agree on food choices.</p>
-                    ) : stats.agreementScore > 60 ? (
-                        <p className="text-slate-700 dark:text-zinc-300 text-sm mt-4 font-medium">Great taste! You generally agree on where to eat.</p>
-                    ) : (
-                        <p className="text-slate-700 dark:text-zinc-300 text-sm mt-4 font-medium">Opposites attract! Your tastes vary quite a bit.</p>
-                    )}
+                    <p className="text-slate-700 dark:text-zinc-300 text-sm mt-4 font-medium">{getConsistencyLabel(stats.agreementScore)}</p>
                 </div>
             )}
 
@@ -339,17 +334,17 @@ export function PairStats({ pairId }: { pairId: string }) {
             <div className="bg-white/80 backdrop-blur-md dark:bg-zinc-900 border border-slate-100/50 dark:border-zinc-800 p-6 rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none overflow-hidden">
                 <div className="flex items-center gap-3 mb-8">
                     <Utensils className="w-5 h-5 text-slate-400" />
-                    <h3 className="font-serif font-bold text-slate-900 dark:text-zinc-100 text-xl">Taste Breakdown</h3>
+                    <h3 className="font-serif font-bold text-slate-900 dark:text-zinc-100 text-xl">{t('stats.categoriesTitle')}</h3>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
                     {stats.categoryStats.map((cat) => (
                         <div key={cat.name} className="flex flex-col gap-1.5">
-                            <div className="flex justify-between items-center">
+                            <div className="flex justify-between items-center mb-1">
                                 <span className="text-[11px] font-bold text-slate-900 dark:text-zinc-100 uppercase tracking-widest">{cat.name}</span>
-                                <span className="text-[11px] font-bold text-slate-900 dark:text-zinc-100">{cat.user1Avg ? cat.user1Avg.toFixed(2) : '-'}</span>
                             </div>
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2">
+                                <span className="text-[11px] font-bold text-slate-900 dark:text-zinc-100 w-6 text-left">{cat.user1Avg ? cat.user1Avg.toFixed(2) : '-'}</span>
                                 <div className="flex-1 flex gap-0.5 h-[6px] rounded-full overflow-hidden bg-slate-100 dark:bg-zinc-800">
                                     <div className="bg-[#BEAAFF] border-r border-white dark:border-zinc-900 last:border-0" style={{ width: `${(cat.user1Avg / 5) * 100}%` }} />
                                     <div className="bg-[#A1C4FD] opacity-70" style={{ width: `${(cat.user2Avg / 5) * 100}%` }} />
