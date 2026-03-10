@@ -254,6 +254,13 @@
     "noVisitsSubtitle": "Empezad a visitar y puntuar sitios para crear vuestra línea del tiempo.",
     "visitDate": "Visitado el {{date}}",
     "memoriesCount": "{{count}} recuerdos compartidos",
-    "at": "en"
+    "at": "en",
+    "loading": "Cargando recuerdos...",
+    "morePhotos": "+{{count}} más",
+    "noPhotos": "Sin Fotos Registradas",
+    "global": "Global",
+    "score": "Nota",
+    "noChat": "Sin Charlas Compartidas",
+    "moreComments": "+{{count}} más"
   }
 }

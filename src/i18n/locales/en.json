@@ -254,6 +254,13 @@
     "noVisitsSubtitle": "Start visiting and rating restaurants to build your timeline.",
     "visitDate": "Visited on {{date}}",
     "memoriesCount": "{{count}} memories shared",
-    "at": "at"
+    "at": "at",
+    "loading": "Loading memories...",
+    "morePhotos": "+{{count}} more",
+    "noPhotos": "No Photos Recorded",
+    "global": "Global",
+    "score": "Score",
+    "noChat": "No Shared Chatter",
+    "moreComments": "+{{count}} more"
   }
 }

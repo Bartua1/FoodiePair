@@ -8,6 +8,7 @@ export interface MemoryEntry extends Restaurant {
     photos: Photo[];
     comments: Comment[];
     profiles: Record<string, Profile>;
+    favoriteUserIds: string[];
 }
 
 export function useMemoryTimeline(pairId: string | null) {
@@ -40,11 +41,12 @@ export function useMemoryTimeline(pairId: string | null) {
             const restaurantIds = restaurantsData.map(r => r.id);
 
             // 2. Fetch All Related Data in parallel for all restaurants
-            const [ratingsRes, photosRes, commentsRes, profilesRes] = await Promise.all([
+            const [ratingsRes, photosRes, commentsRes, profilesRes, favoritesRes] = await Promise.all([
                 supabase.from('ratings').select('*').in('restaurant_id', restaurantIds),
                 supabase.from('photos').select('*').in('restaurant_id', restaurantIds),
                 supabase.from('comments').select('*').in('restaurant_id', restaurantIds).order('created_at', { ascending: true }),
-                supabase.from('profiles').select('*').eq('pair_id', pairId)
+                supabase.from('profiles').select('*').eq('pair_id', pairId),
+                supabase.from('restaurant_favorites').select('restaurant_id, user_id').in('restaurant_id', restaurantIds)
             ]);
 
             const profilesMap: Record<string, Profile> = {};
@@ -57,6 +59,7 @@ export function useMemoryTimeline(pairId: string | null) {
                 const restaurantRatings = ratingsRes.data?.filter(rt => rt.restaurant_id === r.id) || [];
                 const restaurantPhotos = photosRes.data?.filter(p => p.restaurant_id === r.id) || [];
                 const restaurantComments = commentsRes.data?.filter(c => c.restaurant_id === r.id) || [];
+                const favoriteUserIds = favoritesRes.data?.filter(f => f.restaurant_id === r.id).map(f => f.user_id) || [];
 
                 // Calculate average score for this specific restaurant
                 let avg_score = 0;
@@ -71,7 +74,8 @@ export function useMemoryTimeline(pairId: string | null) {
                     ratings: restaurantRatings,
                     photos: restaurantPhotos,
                     comments: restaurantComments,
-                    profiles: profilesMap
+                    profiles: profilesMap,
+                    favoriteUserIds
                 };
             });
 

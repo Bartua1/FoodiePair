@@ -34,7 +34,7 @@ export function MemoryTimelineView({ pairId }: MemoryTimelineViewProps) {
         return (
             <div className="flex-1 flex flex-col items-center justify-center bg-background dark:bg-zinc-950 p-6 text-center">
                 <div className="w-12 h-12 border-4 border-pastel-peach/30 border-t-pastel-peach rounded-full animate-spin mb-4" />
-                <p className="text-slate-500 dark:text-zinc-400 font-medium">Loading memories...</p>
+                <p className="text-slate-500 dark:text-zinc-400 font-medium">{t('timeline.loading')}</p>
             </div>
         );
     }
@@ -146,7 +146,7 @@ export function MemoryTimelineView({ pairId }: MemoryTimelineViewProps) {
                                                 />
                                                 {entry.photos.length > 1 && (
                                                     <div className="absolute bottom-4 right-4 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full text-white text-[10px] font-bold">
-                                                        +{entry.photos.length - 1} more
+                                                        {t('timeline.morePhotos', { count: entry.photos.length - 1 })}
                                                     </div>
                                                 )}
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
@@ -154,7 +154,7 @@ export function MemoryTimelineView({ pairId }: MemoryTimelineViewProps) {
                                         ) : (
                                             <div className="aspect-[4/3] rounded-3xl bg-slate-50 dark:bg-zinc-900/50 border-2 border-dashed border-slate-200 dark:border-zinc-800 flex flex-col items-center justify-center text-slate-300 dark:text-zinc-700 gap-2">
                                                 <Clock size={24} />
-                                                <span className="text-[10px] uppercase font-bold tracking-widest">No Photos Recorded</span>
+                                                <span className="text-[10px] uppercase font-bold tracking-widest">{t('timeline.noPhotos')}</span>
                                             </div>
                                         )}
                                     </div>
@@ -169,18 +169,18 @@ export function MemoryTimelineView({ pairId }: MemoryTimelineViewProps) {
                                                     {entry.avg_score?.toFixed(1) || '-'}
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-[10px] font-black text-pastel-mint-darker dark:text-emerald-400 uppercase leading-none">Global</span>
-                                                    <span className="text-[10px] font-bold text-slate-500 dark:text-zinc-500 uppercase leading-none mt-0.5">Score</span>
+                                                    <span className="text-[10px] font-black text-pastel-mint-darker dark:text-emerald-400 uppercase leading-none">{t('timeline.global')}</span>
+                                                    <span className="text-[10px] font-bold text-slate-500 dark:text-zinc-500 uppercase leading-none mt-0.5">{t('timeline.score')}</span>
                                                 </div>
                                             </div>
 
-                                            {/* Partner Avatars */}
+                                            {/* Partner Avatars (Favorites Only) */}
                                             <div className="flex -space-x-3">
-                                                {entry.ratings.map((r, i) => {
-                                                    const prof = entry.profiles[r.user_id];
+                                                {entry.favoriteUserIds.map((userId, i) => {
+                                                    const prof = entry.profiles[userId];
                                                     return (
                                                         <div
-                                                            key={r.id}
+                                                            key={userId}
                                                             className={`w-10 h-10 rounded-full border-4 border-white dark:border-zinc-900 overflow-hidden shadow-md ring-1 ${i === 0 ? 'ring-pastel-peach/50' : 'ring-pastel-blue/50'}`}
                                                             title={prof?.display_name || ''}
                                                         >
@@ -207,18 +207,18 @@ export function MemoryTimelineView({ pairId }: MemoryTimelineViewProps) {
                                                 </p>
                                                 <div className="flex justify-between items-center mt-3">
                                                     <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest">
-                                                        {entry.profiles[entry.comments[entry.comments.length - 1].user_id]?.display_name || 'Partner'}
+                                                        {entry.profiles[entry.comments[entry.comments.length - 1].user_id]?.display_name || t('restaurant.partner')}
                                                     </span>
                                                     {entry.comments.length > 1 && (
                                                         <span className="text-[10px] font-black text-pastel-blue uppercase hover:underline cursor-pointer">
-                                                            +{entry.comments.length - 1} more
+                                                            {t('timeline.moreComments', { count: entry.comments.length - 1 })}
                                                         </span>
                                                     )}
                                                 </div>
                                             </div>
                                         ) : (
                                             <div className="bg-slate-50/50 dark:bg-zinc-900/20 border border-dashed border-slate-200 dark:border-zinc-800 p-4 rounded-3xl flex items-center justify-center">
-                                                <p className="text-[10px] font-bold text-slate-400 dark:text-zinc-600 uppercase tracking-widest">No Shared Chatter</p>
+                                                <p className="text-[10px] font-bold text-slate-400 dark:text-zinc-600 uppercase tracking-widest">{t('timeline.noChat')}</p>
                                             </div>
                                         )}
                                     </div>
