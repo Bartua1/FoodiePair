@@ -12,6 +12,21 @@
       "deniedSubtitle": "Please enable location services in your browser settings to see nearby restaurants and calculate distances.",
       "howToHandle": "You may need to reset site permissions in your browser's address bar.",
       "retry": "Try Again"
+    },
+    "features": {
+      "sharedMap": "Shared Map",
+      "sharedMapDesc": "A living document of every place you've ever enjoyed, or want to.",
+      "blindRatings": "Blind Ratings",
+      "blindRatingsDesc": "No bias. Your partner's score is hidden until you give yours.",
+      "datePlanner": "Date Planner",
+      "datePlannerDesc": "Move from wishlist to reality with integrated calendar sync.",
+      "analytics": "Pair Analytics",
+      "analyticsDesc": "Discover who the real food critic is with joint statistics."
+    },
+    "stats": {
+      "restaurantsTracked": "Restaurants Tracked",
+      "cuisinesExplored": "Cuisines Explored",
+      "memoriesMade": "Memories Made"
     }
   },
   "joinUs": {

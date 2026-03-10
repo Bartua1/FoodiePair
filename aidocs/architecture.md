@@ -37,6 +37,7 @@ Given that FoodiePair data must be strictly shared *only* between paired users, 
 ### `src/components/` - The UI Domain
 - **`views/`**: Contains the top-level route components acting as pages.
   - `FeedView`: The main list of restaurants with a premium 2-column grid layout, text search, and filtering/sorting tools.
+  - `LandingView`: A high-impact, premium landing page for unauthenticated users with language and theme selection.
   - `MapView`: Renders restaurants on a Leaflet map.
   - `MemoryTimelineView`: A scrollable chronological feed of all visited restaurants, optimized for a full-screen, immersive visual experience.
   - `SettingsView` / `StatsView` / `RestaurantDetailView` / `AchievementsView`.

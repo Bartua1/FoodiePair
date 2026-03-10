@@ -1,4 +1,4 @@
-import { SignedIn, SignedOut, SignInButton, useUser } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, useUser } from '@clerk/clerk-react';
 import { UserSync } from './components/auth/UserSync';
 import { PairingFlow } from './components/pairing/PairingFlow';
 import { useEffect, useState, useMemo } from 'react';
@@ -13,8 +13,8 @@ import { useGeolocation } from './hooks/useGeolocation';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useThrottledCallback } from './hooks/useThrottledCallback';
 
-// New components
-import { NavigationFAB } from './components/layout/NavigationFAB';
+import { LandingView } from './components/views/LandingView';
+// ... (imports remain)
 import { FeedView } from './components/views/FeedView';
 import { MapView } from './components/views/MapView';
 import { StatsView } from './components/views/StatsView';
@@ -22,6 +22,7 @@ import { SettingsView } from './components/views/SettingsView';
 import { RestaurantDetailView } from './components/views/RestaurantDetailView';
 import { SharedRestaurantView } from './components/views/SharedRestaurantView';
 import { Header } from './components/layout/Header';
+import { NavigationFAB } from './components/layout/NavigationFAB';
 import { MemoryTimelineView } from './components/views/MemoryTimelineView';
 import { AchievementsView } from './components/views/AchievementsView';
 
@@ -67,26 +68,20 @@ function App() {
           <Route path="/shared/:id" element={<SharedRestaurantView currentUser={profile} />} />
           <Route path="*" element={
             <div className="flex flex-col h-full">
-              <Header unratedRestaurants={unratedRestaurants} />
-              <main className="flex-1 flex flex-col overflow-hidden relative">
-                <SignedOut>
-                  <div className="flex-1 flex flex-col items-center justify-center text-center max-w-sm mx-auto p-4 overflow-y-auto">
-                    <h2 className="text-3xl font-bold mb-4 text-slate-800">{t('app.heroTitle')}</h2>
-                    <p className="text-slate-500 mb-8">{t('app.heroSubtitle')}</p>
-                    <SignInButton mode="modal">
-                      <button className="px-8 py-3 bg-pastel-peach rounded-full font-bold text-slate-800 shadow-md hover:scale-105 transition-all text-lg">
-                        {t('app.getStarted')}
-                      </button>
-                    </SignInButton>
-                  </div>
-                </SignedOut>
+              <SignedOut>
+                <LandingView />
+              </SignedOut>
 
-                <SignedIn>
-                  <UserSync>
-                    <AppContent />
-                  </UserSync>
-                </SignedIn>
-              </main>
+              <SignedIn>
+                <div className="flex flex-col h-full">
+                  <Header unratedRestaurants={unratedRestaurants} />
+                  <main className="flex-1 flex flex-col overflow-hidden relative">
+                    <UserSync>
+                      <AppContent />
+                    </UserSync>
+                  </main>
+                </div>
+              </SignedIn>
             </div>
           } />
         </Routes>

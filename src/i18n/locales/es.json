@@ -12,6 +12,21 @@
       "deniedSubtitle": "Por favor, activa los servicios de ubicación en la configuración de tu navegador para ver restaurantes cercanos y calcular distancias.",
       "howToHandle": "Es posible que necesites restablecer los permisos del sitio en la barra de direcciones de tu navegador.",
       "retry": "Intentar de Nuevo"
+    },
+    "features": {
+      "sharedMap": "Mapa Compartido",
+      "sharedMapDesc": "Un registro vivo de cada lugar que habéis disfrutado, o queréis disfrutar.",
+      "blindRatings": "Puntuaciones Ciegas",
+      "blindRatingsDesc": "Sin sesgos. La nota de tu pareja está oculta hasta que des la tuya.",
+      "datePlanner": "Planificador de Citas",
+      "datePlannerDesc": "Pasa de la lista de deseos a la realidad con sincronización de calendario.",
+      "analytics": "Analíticas de Pareja",
+      "analyticsDesc": "Descubrid quién es el verdadero crítico con estadísticas conjuntas."
+    },
+    "stats": {
+      "restaurantsTracked": "Restaurantes Registrados",
+      "cuisinesExplored": "Cocinas Exploradas",
+      "memoriesMade": "Recuerdos Creados"
     }
   },
   "joinUs": {
