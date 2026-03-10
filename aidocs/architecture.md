@@ -36,7 +36,7 @@ Given that FoodiePair data must be strictly shared *only* between paired users, 
 
 ### `src/components/` - The UI Domain
 - **`views/`**: Contains the top-level route components acting as pages.
-  - `FeedView`: The main list of restaurants with filtering/sorting tools.
+  - `FeedView`: The main list of restaurants with a premium 2-column grid layout, text search, and filtering/sorting tools.
   - `MapView`: Renders restaurants on a Leaflet map.
   - `SettingsView` / `StatsView` / `RestaurantDetailView`.
 - **`stats/`**: Houses the premium `InsightSlideshow` and `PairStats` components for the Pair Analytics dashboard.

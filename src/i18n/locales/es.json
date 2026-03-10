@@ -28,6 +28,7 @@
   "feed": {
     "title": "Vuestro Feed Gastronómico",
     "subtitle": "Descubrid dónde habéis estado tú y tu pareja.",
+    "searchPlaceholder": "Buscar restaurante por nombre...",
     "noRestaurants": "No se encontraron restaurantes",
     "noRestaurantsSubtitle": "¡Prueba a ajustar los filtros o añade tu primer restaurante!"
   },

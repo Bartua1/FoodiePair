@@ -40,14 +40,17 @@ export function FeedView({
     const { t } = useTranslation();
     const [ratingRestaurant, setRatingRestaurant] = useState<Restaurant | null>(null);
     const [isRecommendOpen, setIsRecommendOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Filter restaurants based on tab
     const filteredByTab = restaurants.filter(r => {
-        if (activeTab === 'visited') {
-            return !r.visit_status || r.visit_status === 'visited';
-        } else {
-            return r.visit_status === 'wishlist';
-        }
+        const matchesTab = activeTab === 'visited'
+            ? (!r.visit_status || r.visit_status === 'visited')
+            : r.visit_status === 'wishlist';
+
+        const matchesSearch = r.name.toLowerCase().includes(searchQuery.toLowerCase());
+
+        return matchesTab && matchesSearch;
     });
 
     const handleToggleFavorite = async (restaurant: Restaurant) => {
@@ -93,6 +96,21 @@ export function FeedView({
                 </button>
             </header>
 
+            <div className="relative mb-4">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="h-5 w-5 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                    </svg>
+                </div>
+                <input
+                    type="text"
+                    placeholder={t('feed.searchPlaceholder', 'Search restaurants')}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="block w-full pl-10 pr-3 py-3 border border-slate-200 dark:border-zinc-700 rounded-xl leading-5 bg-white dark:bg-zinc-800 text-slate-900 dark:text-zinc-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-pastel-mint focus:border-pastel-mint sm:text-sm transition-shadow shadow-sm"
+                />
+            </div>
+
             <FilterBar
                 filters={filters}
                 setFilters={setFilters}
@@ -116,7 +134,7 @@ export function FeedView({
                     </p>
                 </div>
             ) : (
-                <div className="space-y-4 mt-2">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-4">
                     {filteredByTab.map(r => (
                         <RestaurantCard
                             key={r.id}

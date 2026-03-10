@@ -28,6 +28,7 @@
   "feed": {
     "title": "Your Foodie Feed",
     "subtitle": "Discover where you and your partner have been.",
+    "searchPlaceholder": "Search restaurants by name...",
     "noRestaurants": "No restaurants found",
     "noRestaurantsSubtitle": "Try adjusting your filters or add your first restaurant!"
   },

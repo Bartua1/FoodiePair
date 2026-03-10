@@ -52,10 +52,10 @@ export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavo
     };
 
     return (
-        <div className="bg-white dark:bg-zinc-900 border border-pastel-mint dark:border-zinc-800 shadow-sm rounded-2xl overflow-hidden flex flex-col transition-all hover:shadow-md">
+        <div className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 shadow-sm rounded-3xl overflow-hidden flex flex-col transition-all hover:shadow-md">
             {/* Photo Section */}
             <div
-                className="w-full aspect-video bg-pastel-lavender relative cursor-pointer group"
+                className="w-full aspect-[4/5] bg-slate-100 dark:bg-zinc-800 relative cursor-pointer group"
                 onClick={() => onViewDetails(restaurant)}
             >
                 {photos.length > 0 ? (
@@ -110,47 +110,47 @@ export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavo
                 )}
 
                 <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
-                    {/* Avatars of people who favorited (User + Partner) */}
-                    {restaurant.favorites && restaurant.favorites.length > 0 && (
-                        <div className="flex -space-x-2 mr-1">
-                            {restaurant.favorites.map((profile) => (
-                                <div key={profile.id} className="w-8 h-8 rounded-full border-2 border-white overflow-hidden shadow-sm bg-white" title={profile.display_name || ''}>
-                                    {profile.avatar_url ? (
-                                        <img 
-                                            src={getOptimizedImageUrl(profile.avatar_url, { width: 64, height: 64, resize: 'cover' })} 
-                                            alt={profile.display_name || ''} 
-                                            className="w-full h-full object-cover" 
-                                            loading="lazy"
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full bg-pastel-peach flex items-center justify-center text-[10px] font-bold text-slate-700">
-                                            {profile.display_name?.[0]?.toUpperCase() || '?'}
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
                     {/* Toggle Button */}
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
                             onToggleFavorite();
                         }}
-                        className={`p-2 rounded-full shadow-sm backdrop-blur-sm transition-all ${restaurant.is_favorite
-                            ? 'bg-white/90 text-red-500'
-                            : 'bg-black/20 text-white hover:bg-black/30'
-                            }`}
                     >
-                        <Heart size={18} fill={restaurant.is_favorite ? "#E91E63" : "none"} color={restaurant.is_favorite ? "#E91E63" : "currentColor"} />
+                        {restaurant.is_favorite ? (
+                            <Heart size={28} className="text-white drop-shadow-md" fill="white" />
+                        ) : (
+                            <Heart size={28} className="text-white drop-shadow-md" strokeWidth={1.5} />
+                        )}
                     </button>
                 </div>
+
+                {/* Avatars overlapping bottom lip of image */}
+                {restaurant.favorites && restaurant.favorites.length > 0 && (
+                    <div className="absolute -bottom-4 left-3 flex -space-x-2 z-10">
+                        {restaurant.favorites.map((profile) => (
+                            <div key={profile.id} className="w-8 h-8 rounded-full border-[2.5px] border-white dark:border-zinc-900 overflow-hidden shadow-sm bg-white" title={profile.display_name || ''}>
+                                {profile.avatar_url ? (
+                                    <img
+                                        src={getOptimizedImageUrl(profile.avatar_url, { width: 64, height: 64, resize: 'cover' })}
+                                        alt={profile.display_name || ''}
+                                        className="w-full h-full object-cover"
+                                        loading="lazy"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full bg-pastel-peach flex items-center justify-center text-[10px] font-bold text-slate-700">
+                                        {profile.display_name?.[0]?.toUpperCase() || '?'}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
-            <div className="p-4">
-                <div className="flex justify-between items-start mb-1">
-                    <h4 className="font-bold text-slate-800 dark:text-zinc-100 text-lg leading-tight cursor-pointer" onClick={() => onViewDetails(restaurant)}>{restaurant.name}</h4>
+            <div className="p-4 pt-6 flex-1 flex flex-col">
+                <div className="flex justify-between items-start mb-0.5">
+                    <h4 className="font-bold text-slate-900 dark:text-zinc-100 text-lg leading-tight cursor-pointer line-clamp-1" onClick={() => onViewDetails(restaurant)}>{restaurant.name}</h4>
                     {restaurant.visit_status !== 'wishlist' && (
                         !restaurant.user_has_rated ? (
                             <button
@@ -158,45 +158,47 @@ export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavo
                                     e.stopPropagation();
                                     onRate(restaurant);
                                 }}
-                                className="bg-pastel-mint text-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm active:scale-95 transition-transform"
+                                className="text-orange-400 p-1 shrink-0 active:scale-95 transition-transform"
+                                title={t('restaurant.rateNow')}
                             >
-                                {t('restaurant.rateNow')}
+                                <Star size={16} />
                             </button>
                         ) : (
-                            <div className="bg-pastel-peach px-2 py-1 rounded-lg flex items-center gap-1 shrink-0">
-                                <Star size={14} className="text-orange-400 fill-orange-400" />
-                                <span className="font-bold text-sm text-slate-700">{restaurant.avg_score?.toFixed(1) || 'N/A'}</span>
+                            <div className="flex items-center gap-1 shrink-0 pt-0.5">
+                                <Star size={14} className="text-yellow-400 fill-yellow-400" />
+                                <span className="font-bold text-sm text-slate-700 dark:text-zinc-300">{restaurant.avg_score?.toFixed(1) || 'N/A'}</span>
                             </div>
                         )
                     )}
                 </div>
 
-                <p className="text-slate-500 text-sm mb-3 font-medium">
+                <p className="text-slate-500 text-xs mb-2">
                     {restaurant.cuisine_type} • {'€'.repeat(restaurant.price_range)}
                 </p>
 
-                <div className="flex items-center gap-1 text-slate-400 dark:text-zinc-500 text-xs mb-3">
-                    <MapPin size={12} />
-                    <span className="truncate">{restaurant.address}</span>
+                <div className="flex items-center gap-1.5 text-slate-500 dark:text-zinc-400 text-xs mt-auto">
+                    <MapPin size={12} className="shrink-0" />
+                    <span className="truncate flex-1">{restaurant.address.split(',')[0]}</span>
                     {restaurant.distance !== undefined && (
-                        <span className="ml-auto font-bold text-pastel-mint bg-pastel-mint/10 px-2 py-0.5 rounded">
-                            {restaurant.distance < 1 ? `${(restaurant.distance * 1000).toFixed(0)}m` : `${restaurant.distance.toFixed(1)}km`}
+                        <span className="shrink-0 text-slate-700 dark:text-zinc-300">
+                            {restaurant.distance < 1 ? `${(restaurant.distance * 1000).toFixed(0)}m` : `${restaurant.distance.toFixed(1)} km`}
                         </span>
                     )}
                 </div>
 
-                <div className="border-t border-slate-50 pt-3 flex items-center justify-between">
-                    <span className="text-[10px] text-slate-300 uppercase font-bold tracking-wider">
-                        {restaurant.visit_date ? new Date(restaurant.visit_date).toLocaleDateString(i18n.language, { month: 'short', day: 'numeric', year: 'numeric' }) : t('restaurant.notVisited')}
+                <div className="flex items-center gap-1.5 text-slate-500 dark:text-zinc-400 text-xs mt-1 pl-[18px]">
+                    <span className="uppercase text-[10px] font-bold tracking-wider">
+                        {restaurant.visit_date ? new Date(restaurant.visit_date).toLocaleDateString(i18n.language, { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase() : t('restaurant.notVisited').toUpperCase()}
                     </span>
-                    <button
-                        onClick={() => onViewDetails(restaurant)}
-                        className="text-xs font-bold text-pastel-blue hover:underline"
-                    >
-                        {t('restaurant.viewDetails')}
-                    </button>
                 </div>
             </div>
+
+            <button
+                onClick={() => onViewDetails(restaurant)}
+                className="w-full py-3 border-t border-slate-100 dark:border-zinc-800 text-sm font-bold text-slate-800 dark:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors"
+            >
+                {t('restaurant.viewDetails', 'View Details')}
+            </button>
         </div>
     );
 }
