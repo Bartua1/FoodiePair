@@ -481,34 +481,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                 )}
 
                 <div className="px-4 space-y-8">
-                {/* Map Section */}
-                    <motion.div 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="space-y-4 bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-slate-100/80 dark:border-zinc-800/60 p-5 rounded-3xl shadow-sm"
-                    >
-                        <div className="flex items-start gap-3 text-slate-600 dark:text-zinc-300 text-sm">
-                            <div className="p-2.5 bg-pastel-blue/20 dark:bg-pastel-blue/10 rounded-full text-pastel-blue-darker dark:text-pastel-blue shadow-sm">
-                                <MapPin size={18} />
-                            </div>
-                            <span className="flex-1 font-medium leading-relaxed mt-1">{restaurant.address}</span>
-                            {!viewConfig && (
-                                <button
-                                    onClick={() => setEditRestaurantDrawerOpen(true)}
-                                    className="p-2 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 rounded-full text-slate-500 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors shadow-sm"
-                                    title={t('restaurant.editDetails')}
-                                >
-                                    <Pencil size={14} />
-                                </button>
-                            )}
-                        </div>
-                        <div className="h-56 rounded-2xl overflow-hidden shadow-inner border border-slate-200 dark:border-zinc-700 relative z-0">
-                            <RestaurantMap restaurants={[{ ...restaurant, avg_score: avgScore }]} />
-                        </div>
-                    </motion.div>
-
-                    {/* Plan Visit Section (Wishlist Only) */}
+                {/* Plan Visit Section (Wishlist Only) */}
                 {!viewConfig && restaurant.visit_status === 'wishlist' && (
                     <div className="bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-slate-100/80 dark:border-zinc-800/60 p-5 rounded-3xl shadow-sm relative overflow-hidden">
                         <h3 className="font-bold text-slate-800 dark:text-zinc-100 mb-4 text-lg flex items-center gap-2">
@@ -567,15 +540,13 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                             className="bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-slate-100/80 dark:border-zinc-800/60 p-6 rounded-3xl shadow-sm overflow-hidden"
                         >
                             <h3 className="font-extrabold text-slate-800 dark:text-zinc-100 mb-6 text-xl tracking-tight flex items-center gap-2">
-                                <span className="bg-gradient-to-r from-pastel-blue-darker to-teal-400 bg-clip-text text-transparent">
-                                    {t('stats.averageScore')}
-                                </span>
+                                {t('stats.averageScore')}
                             </h3>
 
                             <div className="flex justify-center items-center gap-8 mb-8 relative">
                                 {/* Me */}
                                 <motion.div whileHover={{ scale: 1.05 }} className="flex flex-col items-center relative z-10">
-                                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-pastel-blue to-pastel-blue-darker flex items-center justify-center text-white font-bold text-xl mb-3 shadow-[0_4px_14px_rgba(0,0,0,0.15)] ring-4 ring-white/50 dark:ring-zinc-900/50">
+                                    <div className="w-14 h-14 rounded-full bg-pastel-blue-darker flex items-center justify-center text-white font-bold text-xl mb-3 shadow-[0_4px_14px_rgba(0,0,0,0.15)] ring-4 ring-white/50 dark:ring-zinc-900/50">
                                         {myRating ? ((myRating.food_score + myRating.service_score + myRating.vibe_score + myRating.price_quality_score) / 4).toFixed(1) : '-'}
                                     </div>
                                     <span className="text-xs font-bold text-slate-600 dark:text-zinc-300 tracking-wide uppercase">{currentUser?.display_name || 'Me'}</span>
@@ -588,7 +559,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
 
                                 {/* Partner */}
                                 <motion.div whileHover={{ scale: 1.05 }} className="flex flex-col items-center relative z-10">
-                                    <div className={`relative w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-xl mb-3 shadow-[0_4px_14px_rgba(0,0,0,0.15)] ring-4 ring-white/50 dark:ring-zinc-900/50 transition-all duration-700 ${partnerRating ? 'bg-gradient-to-br from-pastel-peach to-orange-400' : 'bg-slate-200 dark:bg-zinc-700 text-slate-400'}`}>
+                                    <div className={`relative w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-xl mb-3 shadow-[0_4px_14px_rgba(0,0,0,0.15)] ring-4 ring-white/50 dark:ring-zinc-900/50 transition-all duration-700 ${partnerRating ? 'bg-pastel-peach !text-slate-800' : 'bg-slate-200 dark:bg-zinc-700 text-slate-400'}`}>
                                         <motion.div
                                             animate={{
                                                 filter: !myRating && partnerRating ? 'blur(4px)' : 'blur(0px)',
@@ -637,7 +608,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                                 initial={{ width: 0 }}
                                                 animate={{ width: `${myRating ? ((myRating[cat.key as keyof Rating] as number) / 5) * 50 : 0}%` }}
                                                 transition={{ type: "spring", damping: 20, stiffness: 100 }}
-                                                className="h-full bg-gradient-to-r from-pastel-blue to-pastel-blue-darker opacity-90"
+                                                className="h-full bg-pastel-blue-darker opacity-90"
                                             />
                                             <motion.div
                                                 initial={{ width: 0 }}
@@ -646,7 +617,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                                     filter: !myRating ? 'blur(1px)' : 'blur(0px)'
                                                 }}
                                                 transition={{ type: "spring", damping: 20, stiffness: 100, delay: 0.1 }}
-                                                className="h-full bg-gradient-to-r from-pastel-peach to-orange-400 opacity-90"
+                                                className="h-full bg-pastel-peach opacity-90"
                                             />
                                         </div>
                                     </div>
@@ -712,7 +683,34 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                     </div>
                 )}
 
-                {/* Photos */}
+                {/* Map Section */}
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="space-y-4 bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-slate-100/80 dark:border-zinc-800/60 p-5 rounded-3xl shadow-sm"
+                    >
+                        <div className="flex items-start gap-3 text-slate-600 dark:text-zinc-300 text-sm">
+                            <div className="p-2.5 bg-pastel-blue/20 dark:bg-pastel-blue/10 rounded-full text-pastel-blue-darker dark:text-pastel-blue shadow-sm">
+                                <MapPin size={18} />
+                            </div>
+                            <span className="flex-1 font-medium leading-relaxed mt-1">{restaurant.address}</span>
+                            {!viewConfig && (
+                                <button
+                                    onClick={() => setEditRestaurantDrawerOpen(true)}
+                                    className="p-2 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 rounded-full text-slate-500 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors shadow-sm"
+                                    title={t('restaurant.editDetails')}
+                                >
+                                    <Pencil size={14} />
+                                </button>
+                            )}
+                        </div>
+                        <div className="h-56 rounded-2xl overflow-hidden shadow-inner border border-slate-200 dark:border-zinc-700 relative z-0">
+                            <RestaurantMap restaurants={[{ ...restaurant, avg_score: avgScore }]} />
+                        </div>
+                    </motion.div>
+
+                    {/* Photos */}
                 {(!viewConfig || viewConfig.show_photos) && (
                     <div>
                         <div className="flex justify-between items-end mb-4">
