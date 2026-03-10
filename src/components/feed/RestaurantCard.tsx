@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Star, Heart, MapPin, Utensils, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Restaurant, Photo, Profile } from '../../types';
 import { useTranslation } from 'react-i18next';
@@ -14,8 +14,15 @@ interface RestaurantCardProps {
 export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavorite }: RestaurantCardProps) {
     const { t, i18n } = useTranslation();
     const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+    const [isFavorite, setIsFavorite] = useState(restaurant.is_favorite);
+    const [isAnimating, setIsAnimating] = useState(false);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const photos = restaurant.photos || [];
+
+    // Sync local state if the prop changes externally
+    useEffect(() => {
+        setIsFavorite(restaurant.is_favorite);
+    }, [restaurant.is_favorite]);
 
     const handleScroll = () => {
         if (scrollContainerRef.current) {
@@ -109,19 +116,24 @@ export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavo
                     </div>
                 )}
 
-                <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
+                <div className="absolute top-0 right-0 z-10 flex flex-col items-end">
                     {/* Toggle Button */}
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
+                            setIsFavorite(!isFavorite);
+                            setIsAnimating(true);
+                            setTimeout(() => setIsAnimating(false), 400); // Reset animation state
                             onToggleFavorite();
                         }}
+                        className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm px-4 pt-3 pb-4 rounded-bl-[24px] shadow-sm"
                     >
-                        {restaurant.is_favorite ? (
-                            <Heart size={28} className="text-white drop-shadow-md" fill="white" />
-                        ) : (
-                            <Heart size={28} className="text-white drop-shadow-md" strokeWidth={1.5} />
-                        )}
+                        <Heart
+                            size={26}
+                            className={`transition-all duration-300 ${isFavorite ? 'text-red-500 fill-current' : 'text-slate-300 dark:text-zinc-500 fill-transparent'
+                                } ${isAnimating && isFavorite ? 'scale-125' : 'scale-100'} hover:scale-110 active:scale-90`}
+                            strokeWidth={isFavorite ? 0 : 2}
+                        />
                     </button>
                 </div>
 
@@ -193,12 +205,14 @@ export function RestaurantCard({ restaurant, onRate, onViewDetails, onToggleFavo
                 </div>
             </div>
 
-            <button
-                onClick={() => onViewDetails(restaurant)}
-                className="w-full py-3 border-t border-slate-100 dark:border-zinc-800 text-sm font-bold text-slate-800 dark:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors"
-            >
-                {t('restaurant.viewDetails', 'View Details')}
-            </button>
+            <div className="px-4 pb-4">
+                <button
+                    onClick={() => onViewDetails(restaurant)}
+                    className="w-full py-3 bg-slate-50 dark:bg-zinc-800/80 rounded-xl text-sm font-bold text-slate-800 dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-700 transition-colors"
+                >
+                    {t('restaurant.viewDetails', 'View Details')}
+                </button>
+            </div>
         </div>
     );
 }

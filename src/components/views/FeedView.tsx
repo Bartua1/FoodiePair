@@ -72,7 +72,8 @@ export function FeedView({
                     restaurant_id: restaurant.id
                 });
         }
-        onRefresh();
+        // Deliberately not calling onRefresh() here to prevent full feed re-renders. 
+        // The RestaurantCard component handles the optimistic visual update locally.
     };
 
     return (
