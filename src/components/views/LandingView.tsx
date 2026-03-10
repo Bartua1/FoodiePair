@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { Map, Star, Calendar, BarChart3, ChevronRight } from 'lucide-react';
 import { LanguageSelector } from '../common/LanguageSelector';
 import { ThemeToggle } from '../common/ThemeToggle';
-import heroImage from '../../assets/hero.png';
 
 export const LandingView: React.FC = () => {
     const { t } = useTranslation();
@@ -73,7 +72,7 @@ export const LandingView: React.FC = () => {
                 {/* Background Image with Gradient Overlay */}
                 <div className="absolute inset-0 z-0">
                     <img
-                        src={heroImage}
+                        src={`${import.meta.env.BASE_URL}hero.png`}
                         alt="Fine dining"
                         className="w-full h-full object-cover opacity-60 dark:opacity-20 grayscale-[20%] transition-opacity duration-1000"
                     />

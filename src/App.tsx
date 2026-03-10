@@ -14,7 +14,6 @@ import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-
 import { useThrottledCallback } from './hooks/useThrottledCallback';
 
 import { LandingView } from './components/views/LandingView';
-// ... (imports remain)
 import { FeedView } from './components/views/FeedView';
 import { MapView } from './components/views/MapView';
 import { StatsView } from './components/views/StatsView';
