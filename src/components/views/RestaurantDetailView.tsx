@@ -559,25 +559,26 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                 {t('restaurant.visitDateHint')}
                             </p>
 
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                                 <div className="relative flex-1">
                                     <input
                                         type="date"
                                         value={visitDate}
                                         onChange={(e) => setVisitDate(e.target.value)}
-                                        className="w-full bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 dark:text-zinc-100 transition-all"
+                                        className="w-full bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 dark:text-zinc-100 transition-all appearance-none"
                                         max={new Date().toISOString().split('T')[0]}
                                     />
                                 </div>
                                 {visitDate !== (restaurant.visit_date?.split('T')[0] || '') && (
                                     <motion.div
-                                        initial={{ opacity: 0, scale: 0.9 }}
-                                        animate={{ opacity: 1, scale: 1 }}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="w-full sm:w-auto"
                                     >
                                         <Button
                                             onClick={handleSaveVisitDate}
                                             disabled={savingVisitDate || !visitDate}
-                                            className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl px-4 py-3 font-bold shadow-sm flex items-center gap-2 min-w-[80px] justify-center"
+                                            className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl px-6 py-3 font-bold shadow-sm flex items-center gap-2 min-w-[100px] justify-center"
                                         >
                                             {savingVisitDate ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : t('common.save')}
                                         </Button>
