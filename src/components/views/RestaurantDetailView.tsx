@@ -49,6 +49,7 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
     const heroScrollRef = useRef<HTMLDivElement>(null);
     const [heroIndex, setHeroIndex] = useState(0);
     const [isScrolled, setIsScrolled] = useState(false);
+    const [showScores, setShowScores] = useState(false);
 
     const handleMainScroll = (e: React.UIEvent<HTMLDivElement>) => {
         setIsScrolled(e.currentTarget.scrollTop > 50);
@@ -490,92 +491,84 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                         </h3>
 
                         <div className="space-y-4">
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="date"
-                                    value={plannedDate}
-                                    onChange={(e) => setPlannedDate(e.target.value)}
-                                    className="flex-1 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pastel-blue dark:text-zinc-100 min-w-0"
-                                    min={new Date().toISOString().split('T')[0]}
-                                />
-                                {plannedDate !== (restaurant.planned_date || '') && (
-                                    <Button
-                                        onClick={handleSavePlannedDate}
-                                        disabled={savingDate || !plannedDate}
-                                        className="bg-pastel-blue-darker text-white rounded-xl px-4 py-3 font-semibold whitespace-nowrap"
-                                    >
-                                        {savingDate ? '...' : (t('common.save') || 'Save')}
-                                    </Button>
-                                )}
-                            </div>
-
-                            {restaurant.planned_date && plannedDate === restaurant.planned_date && (
-                                <div className="flex gap-2 pt-2">
-                                    <button
-                                        onClick={handleAddToGoogleCalendar}
-                                        className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 py-2 rounded-xl text-sm font-medium transition-colors"
-                                    >
-                                        <CalendarPlus size={16} />
-                                        {t('calendar.google')}
-                                    </button>
-                                    <button
-                                        onClick={handleAddToAppleCalendar}
-                                        className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 py-2 rounded-xl text-sm font-medium transition-colors"
-                                    >
-                                        <Download size={16} />
-                                        {t('calendar.apple')}
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                {/* Comparative Ratings */}
-                    {(!viewConfig || viewConfig.show_ratings) && restaurant.visit_status !== 'wishlist' && (
-                        <motion.div 
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-slate-100/80 dark:border-zinc-800/60 p-6 rounded-3xl shadow-sm overflow-hidden"
-                        >
-                            <h3 className="font-extrabold text-slate-800 dark:text-zinc-100 mb-6 text-xl tracking-tight flex items-center gap-2">
-                                {t('stats.averageScore')}
-                            </h3>
-
-                            <div className="flex justify-center items-center gap-8 mb-8 relative">
-                                {/* Me */}
-                                <motion.div whileHover={{ scale: 1.05 }} className="flex flex-col items-center relative z-10">
-                                    <div className="w-14 h-14 rounded-full bg-pastel-blue-darker flex items-center justify-center text-white font-bold text-xl mb-3 shadow-[0_4px_14px_rgba(0,0,0,0.15)] ring-4 ring-white/50 dark:ring-zinc-900/50">
-                                        {myRating ? ((myRating.food_score + myRating.service_score + myRating.vibe_score + myRating.price_quality_score) / 4).toFixed(1) : '-'}
+                                {[
+                                    { label: t('restaurant.food'), key: 'food_score' },
+                                    { label: t('restaurant.service'), key: 'service_score' },
+                                    { label: t('restaurant.vibe'), key: 'vibe_score' },
+                                    { label: t('restaurant.priceQuality'), key: 'price_quality_score' }
+                                ].map((cat) => (
+                                    <div key={cat.key} className="flex flex-col gap-1.5 cursor-pointer group" onClick={() => setShowScores(!showScores)}>
+                                        <div className="flex justify-between items-end relative">
+                                            {showScores && myRating && (
+                                                <span className="text-[10px] font-bold text-pastel-blue-darker w-6 leading-none">
+                                                    {(myRating[cat.key as keyof Rating] as number).toFixed(1)}
+                                                </span>
+                                            )}
+                                            {!showScores && <span className="w-6" />}
+                                            
+                                            <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 tracking-wider uppercase text-center flex-1">{cat.label}</span>
+                                            
+                                            {showScores && partnerRating && myRating && (
+                                                <span className="text-[10px] font-bold text-orange-400 w-6 text-right leading-none">
+                                                    {(partnerRating[cat.key as keyof Rating] as number).toFixed(1)}
+                                                </span>
+                                            )}
+                                            {!showScores && <span className="w-6" />}
+                                        </div>
+                                        <div className="w-full h-3 bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden flex shadow-inner relative">
+                                            {/* Center divider */}
+                                            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/50 dark:bg-zinc-700/50 z-10" />
+                                            
+                                            <div className="flex-1 flex justify-end">
+                                                <motion.div
+                                                    initial={{ width: 0 }}
+                                                    animate={{ width: `${myRating ? ((myRating[cat.key as keyof Rating] as number) / 5) * 100 : 0}%` }}
+                                                    transition={{ type: "spring", damping: 20, stiffness: 100 }}
+                                                    className="h-full bg-pastel-blue-darker opacity-90"
+                                                />
+                                            </div>
+                                            <div className="flex-1 flex justify-start">
+                                                <motion.div
+                                                    initial={{ width: 0 }}
+                                                    animate={{
+                                                        width: `${partnerRating ? ((partnerRating[cat.key as keyof Rating] as number) / 5) * 100 : 0}%`,
+                                                        filter: !myRating ? 'blur(1px)' : 'blur(0px)'
+                                                    }}
+                                                    transition={{ type: "spring", damping: 20, stiffness: 100, delay: 0.1 }}
+                                                    className="h-full bg-pastel-peach opacity-90"
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span className="text-xs font-bold text-slate-600 dark:text-zinc-300 tracking-wide uppercase">{currentUser?.display_name || 'Me'}</span>
-                                </motion.div>
+                                ))}
+                            </div>
+                        </motion.div>
 
                                 {/* VS logo */}
-                                <div className="absolute left-1/2 top-7 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white dark:bg-zinc-800 shadow-lg flex items-center justify-center z-20 text-[10px] font-black italic text-slate-500 dark:text-zinc-400 ring-2 ring-slate-100 dark:ring-zinc-700">
+                                <div className="mt-3 shrink-0 w-8 h-8 rounded-full bg-white dark:bg-zinc-800 shadow-sm flex items-center justify-center z-20 text-[10px] font-black italic text-slate-400 dark:text-zinc-500 ring-1 ring-slate-100 dark:ring-zinc-700 group-hover:bg-slate-50 transition-colors">
                                     VS
                                 </div>
 
                                 {/* Partner */}
-                                <motion.div whileHover={{ scale: 1.05 }} className="flex flex-col items-center relative z-10">
+                                <motion.div whileHover={{ scale: 1.05 }} className="flex flex-col items-center flex-1">
                                     <div className={`relative w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-xl mb-3 shadow-[0_4px_14px_rgba(0,0,0,0.15)] ring-4 ring-white/50 dark:ring-zinc-900/50 transition-all duration-700 ${partnerRating ? 'bg-pastel-peach !text-slate-800' : 'bg-slate-200 dark:bg-zinc-700 text-slate-400'}`}>
                                         <motion.div
                                             animate={{
                                                 filter: !myRating && partnerRating ? 'blur(4px)' : 'blur(0px)',
                                                 scale: !myRating && partnerRating ? 0.9 : 1
                                             }}
-                                            className="select-none pointer-events-none"
+                                            className="select-none pointer-events-none flex items-baseline"
                                         >
                                             {partnerRating ? ((partnerRating.food_score + partnerRating.service_score + partnerRating.vibe_score + partnerRating.price_quality_score) / 4).toFixed(1) : '?'}
+                                            {showScores && partnerRating && myRating && <span className="text-[10px] ml-0.5 opacity-70">/5</span>}
                                         </motion.div>
                                         {!myRating && partnerRating && (
                                             <div className="absolute inset-0 flex items-center justify-center">
-                                                <span className="text-xl text-white font-black drop-shadow-md">?</span>
+                                                <span className="text-xl text-slate-800 font-black drop-shadow-md">?</span>
                                             </div>
                                         )}
                                     </div>
-                                    <span className="text-xs font-bold text-slate-600 dark:text-zinc-300 tracking-wide uppercase">{partnerProfile?.display_name || t('restaurant.partner')}</span>
+                                    <span className="text-xs font-bold text-slate-600 dark:text-zinc-300 tracking-wide uppercase text-center">{partnerProfile?.display_name || t('restaurant.partner')}</span>
                                 </motion.div>
                             </div>
 
@@ -604,25 +597,26 @@ export function RestaurantDetailView({ restaurant: initialRestaurant, currentUse
                                             <span className="text-xs font-bold text-slate-500 dark:text-zinc-400 tracking-wide uppercase">{cat.label}</span>
                                         </div>
                                         <div className="w-full h-3 bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden flex shadow-inner">
-                                            <motion.div
-                                                initial={{ width: 0 }}
-                                                animate={{ width: `${myRating ? ((myRating[cat.key as keyof Rating] as number) / 5) * 50 : 0}%` }}
-                                                transition={{ type: "spring", damping: 20, stiffness: 100 }}
-                                                className="h-full bg-pastel-blue-darker opacity-90"
-                                            />
-                                            <motion.div
-                                                initial={{ width: 0 }}
-                                                animate={{
-                                                    width: `${partnerRating ? ((partnerRating[cat.key as keyof Rating] as number) / 5) * 50 : 0}%`,
-                                                    filter: !myRating ? 'blur(1px)' : 'blur(0px)'
-                                                }}
-                                                transition={{ type: "spring", damping: 20, stiffness: 100, delay: 0.1 }}
-                                                className="h-full bg-pastel-peach opacity-90"
-                                            />
+                                            <div className="flex-1 flex justify-start border-r border-white/50 dark:border-zinc-700/50">
+                                                <motion.div
+                                                    initial={{ width: 0 }}
+                                                    animate={{ width: `${myRating ? ((myRating[cat.key as keyof Rating] as number) / 5) * 100 : 0}%` }}
+                                                    transition={{ type: "spring", damping: 20, stiffness: 100 }}
+                                                    className="h-full bg-pastel-blue-darker opacity-90"
+                                                />
+                                            </div>
+                                            <div className="flex-1 flex justify-end">
+                                                <motion.div
+                                                    initial={{ width: 0 }}
+                                                    animate={{
+                                                        width: `${partnerRating ? ((partnerRating[cat.key as keyof Rating] as number) / 5) * 100 : 0}%`,
+                                                        filter: !myRating ? 'blur(1px)' : 'blur(0px)'
+                                                    }}
+                                                    transition={{ type: "spring", damping: 20, stiffness: 100, delay: 0.1 }}
+                                                    className="h-full bg-pastel-peach opacity-90"
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
-                            </div>
                         </motion.div>
                     )}
 
