@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Utensils, Users, Pizza } from 'lucide-react';
+import { Utensils, Users } from 'lucide-react';
 import { InsightSlideshow } from './InsightSlideshow';
 import type { Rating, Profile, Restaurant, Insight } from '../../types';
 import { useTranslation } from 'react-i18next';
@@ -13,8 +13,8 @@ interface CategoryStats {
 }
 
 interface StatsData {
-    user1: { id: string; name: string; avgScore: number; count: number; topCuisines: string[]; priceQualityScore: number; vibeScore: number; cuisineCount: number };
-    user2: { id: string; name: string; avgScore: number; count: number; topCuisines: string[]; priceQualityScore: number; vibeScore: number; cuisineCount: number } | null;
+    user1: { id: string; name: string; avatarUrl: string | null; avgScore: number; count: number; topCuisines: string[]; priceQualityScore: number; vibeScore: number; cuisineCount: number };
+    user2: { id: string; name: string; avatarUrl: string | null; avgScore: number; count: number; topCuisines: string[]; priceQualityScore: number; vibeScore: number; cuisineCount: number } | null;
     categoryStats: CategoryStats[];
     agreementScore: number | null;
     insight: string | null;
@@ -40,10 +40,11 @@ export function PairStats({ pairId }: { pairId: string }) {
 
             const { data: profiles } = await supabase
                 .from('profiles')
-                .select('id, display_name')
+                .select('id, display_name, avatar_url')
                 .in('id', [pair.user1_id, pair.user2_id].filter(Boolean));
 
             const getName = (id: string) => (profiles as Profile[] | null)?.find(p => p.id === id)?.display_name || 'User';
+            const getAvatar = (id: string) => (profiles as Profile[] | null)?.find(p => p.id === id)?.avatar_url || null;
 
             // 2. Get All Restaurants and Ratings for the pair
             const { data: restaurantsData } = await supabase
@@ -67,7 +68,7 @@ export function PairStats({ pairId }: { pairId: string }) {
             // 4. Calculate User Stats
             const calculateUserStats = (userId: string) => {
                 const userRatings = ratings?.filter(r => r.user_id === userId) || [];
-                if (userRatings.length === 0) return { id: userId, name: getName(userId), avgScore: 0, count: 0, topCuisines: [], priceQualityScore: 0, vibeScore: 0, cuisineCount: 0 };
+                if (userRatings.length === 0) return { id: userId, name: getName(userId), avatarUrl: getAvatar(userId), avgScore: 0, count: 0, topCuisines: [], priceQualityScore: 0, vibeScore: 0, cuisineCount: 0 };
 
                 const total = userRatings.reduce((acc, curr) => acc + getAvg(curr), 0);
                 const totalPQ = userRatings.reduce((acc, curr) => acc + curr.price_quality_score, 0);
@@ -89,6 +90,7 @@ export function PairStats({ pairId }: { pairId: string }) {
                 return {
                     id: userId,
                     name: getName(userId),
+                    avatarUrl: getAvatar(userId),
                     avgScore: total / userRatings.length,
                     priceQualityScore: totalPQ / userRatings.length,
                     vibeScore: totalVibe / userRatings.length,
@@ -259,95 +261,105 @@ export function PairStats({ pairId }: { pairId: string }) {
     if (!stats) return null;
 
 
-    const getConsistencyLabel = (score: number) => {
-        if (score > 85) return t('stats.consistencyHigh');
-        if (score > 65) return t('stats.consistencyMid');
-        return t('stats.consistencyLow');
-    };
+
 
     return (
-        <div className="p-4 space-y-6">
-            <header>
-                <h2 className="text-2xl font-bold text-slate-800 dark:text-zinc-100 mb-1">{t('stats.title')}</h2>
-                <p className="text-slate-500 dark:text-zinc-400 text-sm">{t('stats.subtitle')}</p>
+        <div className="p-4 space-y-8 bg-[#FAFAFA] dark:bg-zinc-950 min-h-screen font-sans pb-24">
+            <header className="pt-2">
+                <h2 className="text-4xl font-serif text-slate-900 dark:text-zinc-100 mb-1">Couple Analytics</h2>
+                <p className="text-slate-600 dark:text-zinc-400 text-sm">See who's pickier and discover your food twin!</p>
             </header>
 
             {/* Comparison Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex gap-4 justify-center items-stretch my-8">
                 {[stats.user1, stats.user2].filter(Boolean).map((user, i) => (
-                    <div key={i} className={`p-6 rounded-2xl border ${i === 0 ? 'bg-pastel-blue dark:bg-pastel-blue-darker/20 border-pastel-blue/20 dark:border-pastel-blue/30' : 'bg-pastel-pink dark:bg-pastel-pink-darker/20 border-pastel-pink/20 dark:border-pastel-pink/30'} shadow-sm`}>
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="font-bold text-slate-800 dark:text-zinc-100 text-lg uppercase tracking-wider">{user!.name}</h3>
-                            <Utensils className="w-5 h-5 text-slate-400 dark:text-zinc-500" />
+                    <div key={i} className="flex flex-col items-center gap-1 w-1/2 max-w-[180px]">
+                        <div className={`relative p-[3px] rounded-full aspect-square w-40 h-40 ${i === 0 ? 'bg-gradient-to-br from-[#BEAAFF] via-[#E4DEFF] to-[#E9AEFF]' : 'bg-gradient-to-br from-[#A1C4FD] via-[#C2E9FB] to-[#A8EDE4]'} shadow-sm flex items-center justify-center`}>
+                            <div className="bg-white dark:bg-zinc-950 rounded-full w-full h-full flex flex-col items-center justify-center relative">
+                                {user!.avatarUrl ? (
+                                    <img src={user!.avatarUrl} alt={user!.name} className="w-14 h-14 rounded-full object-cover mb-1 absolute -top-5 border-4 border-white dark:border-zinc-950 shadow-sm" />
+                                ) : (
+                                    <div className="w-14 h-14 rounded-full bg-slate-200 dark:bg-zinc-800 flex items-center justify-center mb-1 absolute -top-5 border-4 border-white dark:border-zinc-950 shadow-sm">
+                                        <Users className="w-6 h-6 text-slate-400" />
+                                    </div>
+                                )}
+                                <h3 className="font-serif font-bold text-slate-900 dark:text-zinc-100 text-sm md:text-base text-center line-clamp-2 px-2 mt-4 leading-tight">{user!.name}</h3>
+                                <span className="text-[2.5rem] font-black tracking-tight text-slate-900 dark:text-white mt-1 leading-none">{user!.avgScore.toFixed(2)}</span>
+                                <span className="text-slate-500 dark:text-zinc-400 text-[10px] mt-1 text-center font-medium">Average Rating</span>
+                            </div>
                         </div>
-                        <div className="flex items-end gap-2 mb-4">
-                            <span className="text-4xl font-black text-slate-800 dark:text-white">{user!.avgScore.toFixed(2)}</span>
-                            <span className="text-slate-500 dark:text-zinc-400 font-medium mb-1">{t('stats.averageScore')}</span>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
+
+                        <div className="flex flex-wrap justify-center gap-1.5 mt-4">
                             {user!.topCuisines.map(c => (
-                                <span key={c} className="px-2 py-1 bg-white/50 dark:bg-zinc-800/50 text-slate-600 dark:text-zinc-300 text-[10px] font-bold uppercase rounded-full">
+                                <span key={c} className="px-3 py-1.5 bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 text-[10px] font-bold uppercase rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
                                     {c}
                                 </span>
                             ))}
                         </div>
-                        <p className="text-slate-400 dark:text-zinc-500 text-[10px] mt-4 font-bold uppercase">{t('stats.ratedCount', { count: user!.count })}</p>
+                        <p className="text-slate-600 dark:text-zinc-500 text-[10px] font-bold uppercase mt-2">{user!.count} {t('restaurant.photos').toLowerCase()}</p>
                     </div>
                 ))}
             </div>
 
             {/* Consistency & Agreement */}
             {stats.agreementScore !== null && (
-                <div className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 p-6 rounded-2xl shadow-sm">
-                    <div className="flex items-center gap-2 mb-4">
-                        <Users className="w-5 h-5 text-indigo-500" />
-                        <h3 className="font-bold text-slate-800 dark:text-zinc-100">{t('stats.consistencyTitle')}</h3>
+                <div className="bg-white/80 backdrop-blur-md dark:bg-zinc-900 border border-slate-100/50 dark:border-zinc-800 p-6 rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none">
+                    <div className="flex items-center gap-3 mb-6">
+                        <Users className="w-5 h-5 text-[#BEAAFF]" />
+                        <div className="flex -space-x-2">
+                            {stats.user1.avatarUrl && <img src={stats.user1.avatarUrl} alt="" className="w-6 h-6 rounded-full border-2 border-white dark:border-zinc-900 object-cover" />}
+                            {stats.user2?.avatarUrl && <img src={stats.user2.avatarUrl} alt="" className="w-6 h-6 rounded-full border-2 border-white dark:border-zinc-900 object-cover" />}
+                        </div>
+                        <h3 className="font-serif font-bold text-slate-900 dark:text-zinc-100 text-lg">Couple Effect</h3>
                     </div>
-                    <div className="flex items-center gap-4 mb-2">
-                        <div className="flex-1 bg-slate-100 dark:bg-zinc-800 h-3 rounded-full overflow-hidden">
+                    
+                    <div className="flex flex-col md:flex-row md:items-center gap-4 relative">
+                        <div className="w-full flex-1 bg-slate-100 dark:bg-zinc-800 h-3.5 rounded-full overflow-visible relative flex items-center">
                             <div
-                                className="h-full bg-gradient-to-r from-indigo-400 to-purple-500"
+                                className="h-full bg-gradient-to-r from-[#BEAAFF] via-[#A1C4FD] to-[#A8EDE4] rounded-full"
                                 style={{ width: `${stats.agreementScore}%` }}
                             />
+                            <div className="absolute w-6 h-6 bg-white dark:bg-zinc-800 rounded-full shadow-md border border-slate-100 dark:border-zinc-700 flex items-center justify-center" style={{ left: `calc(${stats.agreementScore}% - 12px)` }}>
+                                <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#BEAAFF] to-[#A1C4FD] opacity-70" />
+                            </div>
                         </div>
-                        <span className="font-black text-slate-700 dark:text-zinc-200">{Math.round(stats.agreementScore)}%</span>
+                        <span className="font-bold text-slate-900 dark:text-white text-xl ml-auto md:ml-4">{Math.round(stats.agreementScore)}%</span>
                     </div>
-                    <p className="text-slate-500 dark:text-zinc-400 text-sm italic">{getConsistencyLabel(stats.agreementScore)}</p>
+                    {stats.agreementScore > 80 ? (
+                        <p className="text-slate-700 dark:text-zinc-300 text-sm mt-4 font-medium">Soulmates! You almost always agree on food choices.</p>
+                    ) : stats.agreementScore > 60 ? (
+                        <p className="text-slate-700 dark:text-zinc-300 text-sm mt-4 font-medium">Great taste! You generally agree on where to eat.</p>
+                    ) : (
+                        <p className="text-slate-700 dark:text-zinc-300 text-sm mt-4 font-medium">Opposites attract! Your tastes vary quite a bit.</p>
+                    )}
                 </div>
             )}
 
             {/* Category Breakdown */}
-            <div className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 p-6 rounded-2xl shadow-sm overflow-hidden">
-                <div className="flex items-center gap-2 mb-6">
-                    <Pizza className="w-5 h-5 text-orange-500" />
-                    <h3 className="font-bold text-slate-800 dark:text-zinc-100">{t('stats.categoriesTitle')}</h3>
+            <div className="bg-white/80 backdrop-blur-md dark:bg-zinc-900 border border-slate-100/50 dark:border-zinc-800 p-6 rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none overflow-hidden">
+                <div className="flex items-center gap-3 mb-8">
+                    <Utensils className="w-5 h-5 text-slate-400" />
+                    <h3 className="font-serif font-bold text-slate-900 dark:text-zinc-100 text-xl">Taste Breakdown</h3>
                 </div>
 
-                <div className="space-y-4">
-                    {stats.categoryStats.slice(0, 5).map((cat) => (
-                        <div key={cat.name} className="space-y-1">
-                            <div className="flex justify-between text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-tighter">
-                                <span>{cat.name}</span>
-                                <span>{cat.count} {t('restaurant.photos').toLowerCase()}</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                    {stats.categoryStats.map((cat) => (
+                        <div key={cat.name} className="flex flex-col gap-1.5">
+                            <div className="flex justify-between items-center">
+                                <span className="text-[11px] font-bold text-slate-900 dark:text-zinc-100 uppercase tracking-widest">{cat.name}</span>
+                                <span className="text-[11px] font-bold text-slate-900 dark:text-zinc-100">{cat.user1Avg ? cat.user1Avg.toFixed(2) : '-'}</span>
                             </div>
-                            <div className="grid grid-cols-2 gap-2">
-                                <div className="flex items-center gap-2">
-                                    <div className="flex-1 bg-slate-50 dark:bg-zinc-800 h-2 rounded-full overflow-hidden">
-                                        <div className="h-full bg-pastel-blue dark:bg-pastel-blue-darker" style={{ width: `${cat.user1Avg * 20}%` }} />
-                                    </div>
-                                    <span className="text-[10px] font-mono font-bold w-6 text-slate-700 dark:text-zinc-300">{cat.user1Avg ? cat.user1Avg.toFixed(2) : '-'}</span>
+                            <div className="flex items-center gap-3">
+                                <div className="flex-1 flex gap-0.5 h-[6px] rounded-full overflow-hidden bg-slate-100 dark:bg-zinc-800">
+                                    <div className="bg-[#BEAAFF] border-r border-white dark:border-zinc-900 last:border-0" style={{ width: `${(cat.user1Avg / 5) * 100}%` }} />
+                                    <div className="bg-[#A1C4FD] opacity-70" style={{ width: `${(cat.user2Avg / 5) * 100}%` }} />
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="flex-1 bg-slate-50 dark:bg-zinc-800 h-2 rounded-full overflow-hidden">
-                                        <div className="h-full bg-pastel-pink dark:bg-pastel-pink-darker" style={{ width: `${cat.user2Avg * 20}%` }} />
-                                    </div>
-                                    <span className="text-[10px] font-mono font-bold w-6 text-slate-700 dark:text-zinc-300">{cat.user2Avg ? cat.user2Avg.toFixed(2) : '-'}</span>
-                                </div>
+                                <span className="text-[11px] text-slate-500 font-medium w-6 text-right">{cat.user2Avg ? cat.user2Avg.toFixed(2) : '-'}</span>
                             </div>
                         </div>
                     ))}
                     {stats.categoryStats.length === 0 && (
-                        <p className="text-slate-400 dark:text-zinc-500 text-sm text-center py-4">{t('stats.noCategoryData')}</p>
+                        <p className="text-slate-400 dark:text-zinc-500 text-sm text-center py-4 col-span-full">{t('stats.noCategoryData')}</p>
                     )}
                 </div>
             </div>
