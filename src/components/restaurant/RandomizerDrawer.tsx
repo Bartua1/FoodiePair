@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Sparkles, MapPin, ChevronRight, RotateCcw, Utensils, Info } from 'lucide-react';
+import { X, Sparkles, MapPin, RotateCcw, Utensils } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 import type { Restaurant } from '../../types';

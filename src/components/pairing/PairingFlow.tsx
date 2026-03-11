@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/clerk-react';
 import { supabase } from '../../lib/supabase';
 import type { Profile, Pair } from '../../types';
-import { Button } from '../ui/Button';
-import { Share2, MessageSquare } from 'lucide-react';
+import { Share2, MessageSquare, ArrowRight, Sparkles, UserPlus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export function PairingFlow() {
     const { user } = useUser();
@@ -12,6 +12,7 @@ export function PairingFlow() {
     const [pairCode, setPairCode] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState<'create' | 'join'>('create');
     const { t } = useTranslation();
 
     useEffect(() => {
@@ -26,8 +27,7 @@ export function PairingFlow() {
         const joinId = params.get('join');
         if (joinId && joinId !== user?.id) {
             setPairCode(joinId);
-            // We'll trigger joinPair automatically if we can
-            // but we need to make sure the profile isn't already paired
+            setActiveTab('join');
         }
     }
 
@@ -96,10 +96,8 @@ export function PairingFlow() {
                 alert('Invitation link copied to clipboard!');
             }
         } catch (err) {
-            // navigator.share can be aborted by user, that's not really an error to show
             if (err instanceof Error && err.name !== 'AbortError') {
                 console.error('Error sharing:', err);
-                // Fallback to clipboard if share fails
                 await navigator.clipboard.writeText(shareUrl);
                 alert('Sharing failed. Invitation link copied to clipboard instead.');
             }
@@ -108,7 +106,6 @@ export function PairingFlow() {
 
     function handleWhatsAppShare() {
         if (!user) return;
-        // Force HTTPS for the share link
         const shareUrl = `${window.location.origin.replace('http:', 'https:')}${window.location.pathname}?join=${user.id}`;
         const message = encodeURIComponent(`Connect with me on FoodiePair to track our restaurant adventures together! ${shareUrl}`);
         window.open(`https://wa.me/?text=${message}`, '_blank');
@@ -129,8 +126,6 @@ export function PairingFlow() {
         const existingPair = existingPairs?.[0] as Pair | null;
 
         if (findError || !existingPair) {
-            // Logic Change: If the pair doesn't exist yet, we create it now
-            // This happens if the inviter shared their link but never clicked "Create Pair"
             const { data: newPairData, error: createError } = await supabase
                 .from('pairs')
                 .insert({
@@ -148,7 +143,6 @@ export function PairingFlow() {
                 return;
             }
 
-            // Link both profiles to the new pair
             await Promise.all([
                 supabase.from('profiles').update({ pair_id: newPair.id }).eq('id', user.id),
                 supabase.from('profiles').update({ pair_id: newPair.id }).eq('id', pairCode)
@@ -159,7 +153,6 @@ export function PairingFlow() {
             return;
         }
 
-        // Update existing pair with user2_id (normal flow)
         const { error: updatePairError } = await supabase
             .from('pairs')
             .update({ user2_id: user.id })
@@ -176,66 +169,199 @@ export function PairingFlow() {
         setLoading(false);
     }
 
-    if (loading) return <div className="p-8 text-center text-slate-400">{t('pairing.loading')}</div>;
-
-    if (profile?.pair_id) {
-        return null; // Already paired
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[400px] p-8 text-center bg-transparent">
+                <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+                    className="w-12 h-12 border-4 border-slate-200 border-t-slate-800 rounded-full mb-4"
+                />
+                <p className="text-slate-500 font-medium tracking-wide animate-pulse">{t('pairing.loading')}</p>
+            </div>
+        );
     }
 
+    if (profile?.pair_id) {
+        return null;
+    }
+
+    const containerVariants = {
+        hidden: { opacity: 0, y: 30, scale: 0.95 },
+        visible: { 
+            opacity: 1, 
+            y: 0, 
+            scale: 1,
+            transition: { 
+                type: "spring" as const,
+                stiffness: 100,
+                damping: 20,
+                staggerChildren: 0.1,
+                delayChildren: 0.1
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 100 } }
+    };
+
     return (
-        <div className="p-6 max-w-md mx-auto bg-white rounded-2xl shadow-sm border border-pastel-mint">
-            <h2 className="text-2xl font-bold mb-4 text-slate-800">{t('pairing.title')}</h2>
-            <p className="text-slate-600 mb-6">{t('pairing.subtitle')}</p>
+        <div className="flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 w-full -mt-16 sm:-mt-24">
+            <motion.div 
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="w-full max-w-lg relative group"
+            >
+                {/* Premium Animated Background */}
+                <div className="absolute -inset-0.5 bg-gradient-to-br from-pastel-peach via-pastel-mint to-pastel-blue rounded-[2.5rem] opacity-30 group-hover:opacity-60 blur-2xl transition duration-1000"></div>
+                
+                <div className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl p-8 sm:p-10 border border-white/50 dark:border-slate-800/50 overflow-hidden">
+                    
+                    {/* Decorative element */}
+                    <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-pastel-mint/20 rounded-full blur-3xl pointer-events-none"></div>
 
-            <div className="space-y-6">
-                <div>
-                    <h3 className="font-semibold mb-2">{t('pairing.option1Title')}</h3>
-                    <p className="text-sm text-slate-500 mb-3">{t('pairing.option1Subtitle')}</p>
-                    <div className="flex flex-col gap-2">
-                        <Button onClick={createPair} className="w-full bg-pastel-peach hover:bg-opacity-80 text-slate-800">
-                            {t('pairing.createButton')}
-                        </Button>
-                        <div className="grid grid-cols-2 gap-2">
-                            <Button onClick={handleWhatsAppShare} variant="ghost" className="flex items-center justify-center gap-2 text-[#25D366] border border-[#25D366]/20 bg-[#25D366]/5 hover:bg-[#25D366]/10">
-                                <MessageSquare className="w-4 h-4" />
-                                WhatsApp
-                            </Button>
-                            <Button onClick={handleShare} variant="ghost" className="flex items-center justify-center gap-2 text-slate-600 border border-slate-200">
-                                <Share2 className="w-4 h-4" />
-                                System Share
-                            </Button>
+                    <motion.div variants={itemVariants} className="mb-10 text-center relative z-10">
+                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-slate-900 text-white shadow-xl mb-6 shadow-slate-900/20 rotate-3 hover:rotate-6 transition-transform">
+                            <Sparkles className="w-8 h-8" strokeWidth={1.5} />
                         </div>
+                        <h2 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight leading-none mb-4 dark:text-white">
+                            It takes <br/>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-500">two.</span>
+                        </h2>
+                        <p className="text-slate-500 text-lg sm:text-xl font-medium max-w-xs mx-auto dark:text-slate-400">
+                            Sync your tastes, build a shared wishlist, and map your culinary journey.
+                        </p>
+                    </motion.div>
+
+                    <motion.div variants={itemVariants} className="flex p-1 bg-slate-100/80 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl mb-8 relative z-10">
+                        <button
+                            onClick={() => setActiveTab('create')}
+                            className={`flex-1 py-3 px-4 text-sm font-bold rounded-xl transition-all duration-300 ${activeTab === 'create' ? 'bg-white text-slate-900 shadow-md dark:bg-slate-700 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                        >
+                            <span className="flex items-center justify-center gap-2">
+                                <Share2 className="w-4 h-4" /> Start
+                            </span>
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('join')}
+                            className={`flex-1 py-3 px-4 text-sm font-bold rounded-xl transition-all duration-300 ${activeTab === 'join' ? 'bg-white text-slate-900 shadow-md dark:bg-slate-700 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                        >
+                            <span className="flex items-center justify-center gap-2">
+                                <UserPlus className="w-4 h-4" /> Link
+                            </span>
+                        </button>
+                    </motion.div>
+
+                    <div className="relative z-10 min-h-[220px]">
+                        <AnimatePresence mode="wait">
+                            {activeTab === 'create' ? (
+                                <motion.div
+                                    key="create"
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: 20 }}
+                                    transition={{ duration: 0.2 }}
+                                    className="space-y-6"
+                                >
+                                    <div className="text-center">
+                                        <h3 className="text-xl font-bold text-slate-800 mb-2 dark:text-slate-100">{t('pairing.option1Title', "Create your hub")}</h3>
+                                        <p className="text-slate-500 text-sm">{t('pairing.option1Subtitle', "Generate a secure link to invite your partner.")}</p>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <button 
+                                            onClick={createPair} 
+                                            className="w-full group relative flex items-center justify-center gap-3 py-4 px-6 bg-slate-900 text-white rounded-2xl font-bold text-lg overflow-hidden shadow-xl shadow-slate-900/20 hover:scale-[1.02] hover:shadow-slate-900/30 transition-all active:scale-[0.98]"
+                                        >
+                                            <span className="relative z-10 flex items-center gap-2">
+                                                {t('pairing.createButton', "Generate Link")} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                            </span>
+                                            <div className="absolute inset-0 bg-gradient-to-r from-teal-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                        </button>
+                                        
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <button 
+                                                onClick={handleWhatsAppShare} 
+                                                className="flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-[#25D366]/10 text-[#25D366] font-bold text-sm hover:bg-[#25D366]/20 transition-colors"
+                                            >
+                                                <MessageSquare className="w-4 h-4" />
+                                                WhatsApp
+                                            </button>
+                                            <button 
+                                                onClick={handleShare} 
+                                                className="flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-slate-100 text-slate-700 font-bold text-sm hover:bg-slate-200 transition-colors dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                                            >
+                                                <Share2 className="w-4 h-4" />
+                                                Share
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    {user && !profile?.pair_id && (
+                                        <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">{t('pairing.yourCode', "Manual Link Code")}</p>
+                                            <div className="inline-block px-4 py-2 bg-slate-50 dark:bg-slate-900 rounded-lg selection:bg-teal-200">
+                                                <code className="text-xs font-mono font-medium text-slate-600 dark:text-slate-400 break-all">{user.id}</code>
+                                            </div>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    key="join"
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                    transition={{ duration: 0.2 }}
+                                    className="space-y-6"
+                                >
+                                    <div className="text-center">
+                                        <h3 className="text-xl font-bold text-slate-800 mb-2 dark:text-slate-100">{t('pairing.option2Title', "Have an invite?")}</h3>
+                                        <p className="text-slate-500 text-sm">{t('pairing.option2Subtitle', "Paste your partner's manual link code below.")}</p>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <div className="relative group">
+                                            <input
+                                                type="text"
+                                                value={pairCode}
+                                                onChange={(e) => setPairCode(e.target.value)}
+                                                placeholder={t('pairing.placeholder', "Paste partner code here...")}
+                                                className="w-full px-6 py-5 bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-slate-200 dark:focus:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 placeholder-slate-400 font-mono text-center text-sm outline-none transition-all shadow-inner"
+                                            />
+                                            {error && (
+                                                <motion.p 
+                                                    initial={{ opacity: 0, y: -10 }} 
+                                                    animate={{ opacity: 1, y: 0 }} 
+                                                    className="absolute -bottom-6 left-0 right-0 text-red-500 text-xs font-bold text-center"
+                                                >
+                                                    {error}
+                                                </motion.p>
+                                            )}
+                                        </div>
+
+                                        <button 
+                                            onClick={joinPair} 
+                                            disabled={!pairCode.trim()}
+                                            className="w-full flex items-center justify-center gap-2 py-4 px-6 bg-slate-900 text-white rounded-2xl font-bold text-lg shadow-xl shadow-slate-900/20 disabled:opacity-50 disabled:shadow-none hover:scale-[1.02] hover:shadow-slate-900/30 transition-all active:scale-[0.98]"
+                                        >
+                                            {t('pairing.joinButton', "Connect Accounts")}
+                                        </button>
+                                    </div>
+                                    
+                                    <div className="flex justify-center mt-6">
+                                        <div className="w-16 h-1 rounded-full bg-slate-200 dark:bg-slate-800/50"></div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
                 </div>
-
-                <div className="relative">
-                    <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 border-t border-slate-200"></div>
-                    <span className="relative bg-white px-2 text-xs text-slate-400 mx-auto block w-fit">{t('pairing.or')}</span>
-                </div>
-
-                <div>
-                    <h3 className="font-semibold mb-2">{t('pairing.option2Title')}</h3>
-                    <p className="text-sm text-slate-500 mb-3">{t('pairing.option2Subtitle')}</p>
-                    <input
-                        type="text"
-                        value={pairCode}
-                        onChange={(e) => setPairCode(e.target.value)}
-                        placeholder={t('pairing.placeholder')}
-                        className="w-full p-3 rounded-xl border border-slate-200 mb-3 focus:outline-none focus:ring-2 focus:ring-pastel-mint"
-                    />
-                    {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
-                    <Button onClick={joinPair} className="w-full bg-pastel-blue hover:bg-opacity-80 text-slate-800">
-                        {t('pairing.joinButton')}
-                    </Button>
-                </div>
-
-                {user && !profile?.pair_id && (
-                    <div className="mt-8 p-4 bg-pastel-lavender rounded-xl">
-                        <p className="text-xs font-bold uppercase text-slate-500 mb-1">{t('pairing.yourCode')}</p>
-                        <code className="text-sm break-all text-slate-700">{user.id}</code>
-                    </div>
-                )}
-            </div>
+            </motion.div>
         </div>
     );
 }
+

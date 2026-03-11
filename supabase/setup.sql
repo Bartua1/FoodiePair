@@ -55,6 +55,14 @@ CREATE TABLE IF NOT EXISTS photos (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Custom function to get Clerk user ID from JWT
+CREATE OR REPLACE FUNCTION requesting_user_id()
+RETURNS text
+LANGUAGE sql STABLE
+AS $$
+  SELECT NULLIF(current_setting('request.jwt.claims', true)::json->>'sub', '')::text;
+$$;
+
 -- Enable RLS
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE pairs ENABLE ROW LEVEL SECURITY;
@@ -67,7 +75,7 @@ ALTER TABLE photos ENABLE ROW LEVEL SECURITY;
 DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can manage their own profile') THEN
         CREATE POLICY "Users can manage their own profile" ON profiles
-            FOR ALL USING (id = auth.uid()::text);
+            FOR ALL USING (id = requesting_user_id());
     END IF;
 END $$;
 
@@ -75,7 +83,7 @@ END $$;
 DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can read their pair') THEN
         CREATE POLICY "Users can read their pair" ON pairs
-            FOR SELECT USING (user1_id = auth.uid()::text OR user2_id = auth.uid()::text);
+            FOR SELECT USING (user1_id = requesting_user_id() OR user2_id = requesting_user_id());
     END IF;
 END $$;
 
@@ -85,7 +93,7 @@ DO $$ BEGIN
         CREATE POLICY "Users can manage restaurants in their pair" ON restaurants
             FOR ALL USING (
                 pair_id IN (
-                    SELECT pair_id FROM profiles WHERE id = auth.uid()::text
+                    SELECT pair_id FROM profiles WHERE id = requesting_user_id()
                 )
             );
     END IF;
@@ -98,7 +106,7 @@ DO $$ BEGIN
             FOR ALL USING (
                 restaurant_id IN (
                     SELECT id FROM restaurants WHERE pair_id IN (
-                        SELECT pair_id FROM profiles WHERE id = auth.uid()::text
+                        SELECT pair_id FROM profiles WHERE id = requesting_user_id()
                     )
                 )
             );
@@ -111,7 +119,7 @@ DO $$ BEGIN
             FOR ALL USING (
                 restaurant_id IN (
                     SELECT id FROM restaurants WHERE pair_id IN (
-                        SELECT pair_id FROM profiles WHERE id = auth.uid()::text
+                        SELECT pair_id FROM profiles WHERE id = requesting_user_id()
                     )
                 )
             );

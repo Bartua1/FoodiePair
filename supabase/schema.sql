@@ -56,6 +56,14 @@ CREATE TABLE photos (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Custom function to get Clerk user ID from JWT
+CREATE OR REPLACE FUNCTION requesting_user_id()
+RETURNS text
+LANGUAGE sql STABLE
+AS $$
+  SELECT NULLIF(current_setting('request.jwt.claims', true)::json->>'sub', '')::text;
+$$;
+
 -- Enable RLS
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE pairs ENABLE ROW LEVEL SECURITY;
@@ -66,17 +74,17 @@ ALTER TABLE photos ENABLE ROW LEVEL SECURITY;
 -- Policies
 -- Users can read/write their own profile
 CREATE POLICY "Users can manage their own profile" ON profiles
-    FOR ALL USING (id = auth.uid()::text);
+    FOR ALL USING (id = requesting_user_id());
 
 -- Users can read their pair info
 CREATE POLICY "Users can read their pair" ON pairs
-    FOR SELECT USING (user1_id = auth.uid()::text OR user2_id = auth.uid()::text);
+    FOR SELECT USING (user1_id = requesting_user_id() OR user2_id = requesting_user_id());
 
 -- Users can manage restaurants for their pair
 CREATE POLICY "Users can manage restaurants in their pair" ON restaurants
     FOR ALL USING (
         pair_id IN (
-            SELECT pair_id FROM profiles WHERE id = auth.uid()::text
+            SELECT pair_id FROM profiles WHERE id = requesting_user_id()
         )
     );
 
@@ -85,7 +93,7 @@ CREATE POLICY "Users can manage ratings in their pair" ON ratings
     FOR ALL USING (
         restaurant_id IN (
             SELECT id FROM restaurants WHERE pair_id IN (
-                SELECT pair_id FROM profiles WHERE id = auth.uid()::text
+                SELECT pair_id FROM profiles WHERE id = requesting_user_id()
             )
         )
     );
@@ -94,7 +102,7 @@ CREATE POLICY "Users can manage photos in their pair" ON photos
     FOR ALL USING (
         restaurant_id IN (
             SELECT id FROM restaurants WHERE pair_id IN (
-                SELECT pair_id FROM profiles WHERE id = auth.uid()::text
+                SELECT pair_id FROM profiles WHERE id = requesting_user_id()
             )
         )
     );

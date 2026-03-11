@@ -15,7 +15,7 @@ ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 
 -- Policies
 CREATE POLICY "Users can manage their own notifications" ON notifications
-    FOR ALL USING (user_id = auth.uid()::text);
+    FOR ALL USING (user_id = requesting_user_id());
 
 -- Trigger Function: handle_new_restaurant_notification
 -- When a user adds a restaurant, notify the OTHER user in the pair.

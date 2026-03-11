@@ -14,13 +14,13 @@ ALTER TABLE restaurant_favorites ENABLE ROW LEVEL SECURITY;
 
 -- Policies for restaurant_favorites
 CREATE POLICY "Users can manage their own favorites" ON restaurant_favorites
-    FOR ALL USING (user_id = auth.uid()::text);
+    FOR ALL USING (user_id = requesting_user_id());
 
 CREATE POLICY "Users can view favorites from their pair" ON restaurant_favorites
     FOR SELECT USING (
         user_id IN (
             SELECT id FROM profiles WHERE pair_id IN (
-                SELECT pair_id FROM profiles WHERE id = auth.uid()::text
+                SELECT pair_id FROM profiles WHERE id = requesting_user_id()
             )
         )
     );

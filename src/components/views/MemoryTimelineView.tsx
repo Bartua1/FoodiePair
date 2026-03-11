@@ -1,4 +1,4 @@
-import { ArrowLeft, Clock, MessageCircle, Star, Calendar } from 'lucide-react';
+import { ArrowLeft, Clock, MessageCircle, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -27,7 +27,7 @@ export function MemoryTimelineView({ pairId }: MemoryTimelineViewProps) {
 
     const item = {
         hidden: { opacity: 0, y: 30 },
-        show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 12 } }
+        show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 100, damping: 12 } }
     };
 
     if (loading) {

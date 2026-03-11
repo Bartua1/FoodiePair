@@ -18,7 +18,7 @@ CREATE POLICY "Users can manage comments in their pair" ON comments
     FOR ALL USING (
         restaurant_id IN (
             SELECT id FROM restaurants WHERE pair_id IN (
-                SELECT pair_id FROM profiles WHERE id = auth.uid()::text
+                SELECT pair_id FROM profiles WHERE id = requesting_user_id()
             )
         )
     );

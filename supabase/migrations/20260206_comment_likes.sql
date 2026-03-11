@@ -11,10 +11,10 @@ ALTER TABLE comment_likes ENABLE ROW LEVEL SECURITY;
 
 -- Policies
 CREATE POLICY "Users can like comments" ON comment_likes
-    FOR INSERT WITH CHECK (user_id = auth.uid()::text);
+    FOR INSERT WITH CHECK (user_id = requesting_user_id());
 
 CREATE POLICY "Users can unlike comments" ON comment_likes
-    FOR DELETE USING (user_id = auth.uid()::text);
+    FOR DELETE USING (user_id = requesting_user_id());
 
 CREATE POLICY "Users can view likes" ON comment_likes
     FOR SELECT USING (true); -- Publicly visible to count likes
