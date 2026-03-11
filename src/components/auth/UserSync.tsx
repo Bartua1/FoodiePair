@@ -13,7 +13,7 @@ export function UserSync({ children }: { children: React.ReactNode }) {
             if (isLoaded && isSignedIn && user) {
                 // Get Clerk token for Supabase
                 try {
-                    const token = await getToken({ template: 'supabase' });
+                    const token = await getToken({ template: 'supabase-modern-secretless' });
                     if (token) {
                         setSupabaseToken(token);
                         console.log('Supabase token set from Clerk');

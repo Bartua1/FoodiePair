@@ -228,11 +228,11 @@ export function PairingFlow() {
                             <Sparkles className="w-8 h-8" strokeWidth={1.5} />
                         </div>
                         <h2 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight leading-none mb-4 dark:text-white">
-                            It takes <br/>
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-500">two.</span>
+                            {t('pairing.heroTitle1', 'It takes')} <br/>
+                            <span className="text-slate-800 dark:text-slate-200">{t('pairing.heroTitle2', 'two.')}</span>
                         </h2>
-                        <p className="text-slate-500 text-lg sm:text-xl font-medium max-w-xs mx-auto dark:text-slate-400">
-                            Sync your tastes, build a shared wishlist, and map your culinary journey.
+                        <p className="text-slate-500 text-lg sm:text-xl font-medium max-w-xs mx-auto dark:text-slate-400 leading-snug">
+                            {t('pairing.heroSubtitle', 'Sync your tastes, build a shared wishlist, and map your culinary journey.')}
                         </p>
                     </motion.div>
 
@@ -242,7 +242,7 @@ export function PairingFlow() {
                             className={`flex-1 py-3 px-4 text-sm font-bold rounded-xl transition-all duration-300 ${activeTab === 'create' ? 'bg-white text-slate-900 shadow-md dark:bg-slate-700 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
                         >
                             <span className="flex items-center justify-center gap-2">
-                                <Share2 className="w-4 h-4" /> Start
+                                <Share2 className="w-4 h-4" /> {t('pairing.tabStart', 'Start')}
                             </span>
                         </button>
                         <button
@@ -250,7 +250,7 @@ export function PairingFlow() {
                             className={`flex-1 py-3 px-4 text-sm font-bold rounded-xl transition-all duration-300 ${activeTab === 'join' ? 'bg-white text-slate-900 shadow-md dark:bg-slate-700 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
                         >
                             <span className="flex items-center justify-center gap-2">
-                                <UserPlus className="w-4 h-4" /> Link
+                                <UserPlus className="w-4 h-4" /> {t('pairing.tabLink', 'Link')}
                             </span>
                         </button>
                     </motion.div>
@@ -288,14 +288,14 @@ export function PairingFlow() {
                                                 className="flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-[#25D366]/10 text-[#25D366] font-bold text-sm hover:bg-[#25D366]/20 transition-colors"
                                             >
                                                 <MessageSquare className="w-4 h-4" />
-                                                WhatsApp
+                                                {t('pairing.whatsapp', 'WhatsApp')}
                                             </button>
                                             <button 
                                                 onClick={handleShare} 
                                                 className="flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-slate-100 text-slate-700 font-bold text-sm hover:bg-slate-200 transition-colors dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                                             >
                                                 <Share2 className="w-4 h-4" />
-                                                Share
+                                                {t('pairing.share', 'Share')}
                                             </button>
                                         </div>
                                     </div>
