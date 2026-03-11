@@ -28,7 +28,7 @@ export function useCommentLikes(commentId: string) {
             .select('*')
             .eq('comment_id', commentId)
             .eq('user_id', userId)
-            .single();
+            .maybeSingle();
 
         setHasLiked(!!userLike);
         setLoading(false);

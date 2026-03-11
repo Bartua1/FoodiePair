@@ -84,7 +84,25 @@ export function UserSync({ children }: { children: React.ReactNode }) {
         }
 
         syncUser();
-    }, [isLoaded, isSignedIn, user]);
+
+        // Refresh token periodically to prevent JWT expiration (PGRST303)
+        const tokenRefreshInterval = setInterval(async () => {
+            if (isLoaded && isSignedIn) {
+                try {
+                    const token = await getToken({ template: 'supabase-modern-secretless' });
+                    if (token) {
+                        setSupabaseToken(token);
+                    }
+                } catch (e) {
+                    console.error('Error refreshing Supabase token:', e);
+                }
+            }
+        }, 60000); // Check every minute (Clerk caches and manages its own background refresh efficiently)
+
+        return () => {
+            clearInterval(tokenRefreshInterval);
+        };
+    }, [isLoaded, isSignedIn, user, getToken]);
 
     if (!ready) return <div className="flex-1 flex items-center justify-center font-medium text-slate-400">Syncing with server...</div>;
 
